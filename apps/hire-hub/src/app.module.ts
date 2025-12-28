@@ -10,10 +10,21 @@ import { NotificationModule } from './components/notification/notification.modul
 import { BookmarkModule } from './components/bookmark/bookmark.module';
 import { ResumeModule } from './components/resume/resume.module';
 import { CompanyReviewModule } from './components/company-review/company-review.module';
+import { DatabaseModule } from './database/database.module';
+
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver } from '@nestjs/apollo';
+import { AppResolver } from './app.resolver';
 
 @Module({
 	imports: [
 		ConfigModule.forRoot(),
+		GraphQLModule.forRoot({
+			autoSchemaFile: true,
+			driver: ApolloDriver,
+			uploads: false,
+			playground: true,
+		}),
 		UserModule,
 		CompanyModule,
 		JobModule,
@@ -22,8 +33,9 @@ import { CompanyReviewModule } from './components/company-review/company-review.
 		BookmarkModule,
 		ResumeModule,
 		CompanyReviewModule,
+		DatabaseModule,
 	],
 	controllers: [AppController],
-	providers: [AppService],
+	providers: [AppService, AppResolver],
 })
 export class AppModule {}

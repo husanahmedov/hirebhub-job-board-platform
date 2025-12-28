@@ -1,0 +1,11 @@
+export enum UserRole {
+	ADMIN = 'ADMIN',
+	RECRUITER = 'RECRUITER',
+	CANDIDATE = 'CANDIDATE',
+}
+
+export enum UserStatus {
+	ACTIVE = 'ACTIVE',
+	DEACTIVATED = 'DEACTIVATED',
+	SUSPENDED = 'SUSPENDED',
+}

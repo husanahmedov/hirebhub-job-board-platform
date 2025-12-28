@@ -1,32 +1,32 @@
 {
-  "$schema": "https://json.schemastore.org/nest-cli",
-  "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/hire-hub/src",
-  "compilerOptions": {
-    "deleteOutDir": true,
-    "webpack": true,
-    "tsConfigPath": "apps/hire-hub/tsconfig.app.json"
-  },
-  "monorepo": true,
-  "root": "apps/hire-hub",
-  "projects": {
-    "hire-hub": {
-      "type": "application",
-      "root": "apps/hire-hub",
-      "entryFile": "main",
-      "sourceRoot": "apps/hire-hub/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/hire-hub/tsconfig.app.json"
-      }
-    },
-    "hirehub-batch": {
-      "type": "application",
-      "root": "apps/hirehub-batch",
-      "entryFile": "main",
-      "sourceRoot": "apps/hirehub-batch/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/hirehub-batch/tsconfig.app.json"
-      }
-    }
-  }
+	"$schema": "https://json.schemastore.org/nest-cli",
+	"collection": "@nestjs/schematics",
+	"sourceRoot": "apps/hire-hub/src",
+	"compilerOptions": {
+		"deleteOutDir": true,
+		"webpack": true,
+		"tsConfigPath": "apps/hire-hub/tsconfig.app.json"
+	},
+	"monorepo": true,
+	"root": "apps/hire-hub",
+	"projects": {
+		"hire-hub": {
+			"type": "application",
+			"root": "apps/hire-hub",
+			"entryFile": "main",
+			"sourceRoot": "apps/hire-hub/src",
+			"compilerOptions": {
+				"tsConfigPath": "apps/hire-hub/tsconfig.app.json"
+			}
+		},
+		"hirehub-batch": {
+			"type": "application",
+			"root": "apps/hirehub-batch",
+			"entryFile": "main",
+			"sourceRoot": "apps/hirehub-batch/src",
+			"compilerOptions": {
+				"tsConfigPath": "apps/hirehub-batch/tsconfig.app.json"
+			}
+		}
+	}
 }
