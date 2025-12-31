@@ -90,7 +90,7 @@ const UserSchema = new Schema(
 		role: {
 			type: String,
 			enum: Object.values(UserRole),
-			default: UserRole.CANDIDATE,
+			required: true,
 			index: true,
 		},
 

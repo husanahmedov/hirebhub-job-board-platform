@@ -9,11 +9,7 @@ export class UserResolver {
 
 	@Mutation(() => User)
 	public async register(@Args('input') input: RegisterUserInput): Promise<User> {
-		try {
-			return await this.userService.register(input);
-		} catch (error) {
-			LoggerUtil.error('Error registering user', error);
-			throw new Error('Failed to register user');
-		}
+		LoggerUtil.info('Registering new user', `Email: ${input.email}`);
+		return this.userService.register(input);
 	}
 }

@@ -290,10 +290,10 @@ export class RegisterUserInput {
 	@Field(() => String)
 	lastName: string;
 
-	@IsOptional()
+	@IsNotEmpty()
 	@IsEnum(UserRole)
-	@Field(() => String, { nullable: true, defaultValue: UserRole.CANDIDATE })
-	role?: UserRole;
+	@Field(() => String)
+	role: UserRole;
 }
 
 /**

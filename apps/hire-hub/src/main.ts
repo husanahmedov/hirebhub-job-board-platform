@@ -42,15 +42,13 @@ async function bootstrap(): Promise<void> {
 		// Global validation pipe for automatic DTO validation
 		app.useGlobalPipes(
 			new ValidationPipe({
-				// Strip properties that are not in the DTO
-				whitelist: true,
-				// Throw error if non-whitelisted properties are present
-				forbidNonWhitelisted: true,
-				// Automatically transform payloads to DTO instances
-				transform: true,
-				// Transform primitive types
-				transformOptions: {
-					enableImplicitConversion: true,
+				whitelist: true, // Strip properties that don't have decorators
+				forbidNonWhitelisted: false, // Don't throw on extra properties
+				transform: true, // Automatically transform payloads to DTO instances
+				disableErrorMessages: false, // Show detailed validation errors
+				validationError: {
+					target: false, // Don't expose the target object in errors
+					value: false, // Don't expose the value in errors
 				},
 			}),
 		);

@@ -52,7 +52,7 @@ export class LoggerUtil {
 	 * LoggerUtil.error('Database Connection Failed', error);
 	 * ```
 	 */
-	public static error(message: string, error?: Error | string): void {
+	public static error(message: string, error?: Error | string | Record<string, any>): void {
 		const timestamp = chalk.gray(`[${this.getTimestamp()}]`);
 		const label = chalk.bgRed.white.bold(' ERROR ');
 		const msg = chalk.red.bold(message);
@@ -100,7 +100,7 @@ export class LoggerUtil {
 	 * LoggerUtil.info('Environment', process.env.NODE_ENV);
 	 * ```
 	 */
-	public static info(title: string, message: string): void {
+	public static info(title: string, message: string | Record<string, any>): void {
 		const timestamp = chalk.gray(`[${this.getTimestamp()}]`);
 		const label = chalk.bgBlue.white.bold(' INFO ');
 		const titleStr = chalk.cyan.bold(title);
