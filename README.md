@@ -2,97 +2,446 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+<h1 align="center">🚀 HireHub</h1>
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+<p align="center">
+  <strong>A modern job recruitment platform built with NestJS and GraphQL</strong>
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+<p align="center">
+  <img src="https://img.shields.io/badge/NestJS-10.x-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" alt="NestJS" />
+  <img src="https://img.shields.io/badge/GraphQL-16.x-E10098?style=for-the-badge&logo=graphql&logoColor=white" alt="GraphQL" />
+  <img src="https://img.shields.io/badge/MongoDB-8.x-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+</p>
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+<p align="center">
+  <img src="https://img.shields.io/badge/license-UNLICENSED-red?style=flat-square" alt="License" />
+  <img src="https://img.shields.io/badge/version-0.0.1-blue?style=flat-square" alt="Version" />
+</p>
 
-## Project setup
+---
 
-```bash
-$ npm install
+## 📖 Table of Contents
+
+- [About](#-about)
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Project Structure](#-project-structure)
+- [Getting Started](#-getting-started)
+- [Development](#-development)
+- [Testing](#-testing)
+- [Documentation](#-documentation)
+- [Contributing](#-contributing)
+
+---
+
+## 🎯 About
+
+**HireHub** is a comprehensive job recruitment platform that connects job seekers with employers. Built with modern technologies and best practices, it provides a robust GraphQL API for managing users, companies, jobs, applications, and more.
+
+### Key Highlights
+
+✨ **GraphQL API** - Type-safe, efficient data fetching with Apollo Server  
+🔐 **Authentication** - JWT-based authentication system  
+📊 **Real-time Updates** - WebSocket support for notifications  
+🎨 **Clean Architecture** - Modular design with clear separation of concerns  
+🛡️ **Error Handling** - Custom exception system with detailed error responses  
+📝 **Logging** - Beautiful, color-coded logging with context  
+✅ **Validation** - Two-layer validation (GraphQL schema + class-validator)  
+🧪 **Testing** - Unit and E2E test support
+
+---
+
+## ✨ Features
+
+### 👤 User Management
+
+- User registration and authentication
+- Profile management (education, experience, skills)
+- Role-based access control (Job Seeker, Recruiter, Admin)
+- OAuth integration support
+
+### 🏢 Company Management
+
+- Company profiles and information
+- Company reviews and ratings
+- Job listings per company
+
+### 💼 Job Management
+
+- Job posting and listing
+- Advanced job search and filtering
+- Job bookmarking
+- Application tracking
+
+### 📄 Application System
+
+- Job application submission
+- Application status tracking
+- Resume management
+- Notification system
+
+### 🔔 Notifications
+
+- Real-time notifications
+- Email notifications
+- Push notifications
+- Customizable notification preferences
+
+---
+
+## 🛠️ Tech Stack
+
+### Core Framework
+
+- **NestJS** `v10.x` - Progressive Node.js framework
+- **TypeScript** `v5.x` - Type-safe JavaScript
+- **Node.js** - Runtime environment
+
+### API Layer
+
+- **GraphQL** `v16.x` - Query language for APIs
+- **Apollo Server** `v4.x` - GraphQL server implementation
+- **class-validator** - DTO validation decorators
+- **class-transformer** - Object transformation
+
+### Database
+
+- **MongoDB** `v8.x` - NoSQL database
+- **Mongoose** `v8.x` - MongoDB ODM
+
+### Authentication & Security
+
+- **JWT** - JSON Web Tokens for authentication
+- **bcryptjs** - Password hashing
+
+### Utilities
+
+- **chalk** `v5.x` - Terminal string styling (logging)
+- **moment** - Date/time manipulation
+- **RxJS** `v7.x` - Reactive programming
+
+### Development Tools
+
+- **ESLint** - Code linting
+- **Prettier** - Code formatting
+- **Jest** - Testing framework
+
+---
+
+## 📁 Project Structure
+
+```
+hire-hub/
+├── apps/
+│   ├── hire-hub/                    # Main GraphQL API application
+│   │   ├── src/
+│   │   │   ├── main.ts             # Application entry point
+│   │   │   ├── app.module.ts       # Root module
+│   │   │   ├── components/         # Feature modules
+│   │   │   │   ├── user/           # User management
+│   │   │   │   ├── company/        # Company management
+│   │   │   │   ├── job/            # Job management
+│   │   │   │   ├── application/    # Application system
+│   │   │   │   ├── resume/         # Resume management
+│   │   │   │   ├── notification/   # Notifications
+│   │   │   │   ├── bookmark/       # Job bookmarks
+│   │   │   │   └── company-review/ # Company reviews
+│   │   │   ├── libs/               # Shared utilities
+│   │   │   │   ├── dto/            # Data Transfer Objects
+│   │   │   │   ├── enums/          # Enumerations
+│   │   │   │   ├── exceptions/     # Custom exceptions
+│   │   │   │   ├── filters/        # Exception filters
+│   │   │   │   ├── interfaces/     # TypeScript interfaces
+│   │   │   │   └── types/          # TypeScript types
+│   │   │   ├── schemas/            # Mongoose schemas
+│   │   │   └── database/           # Database configuration
+│   │   └── docs/                   # Documentation
+│   │       ├── PROJECT_STANDARDS.md
+│   │       ├── VALIDATION_ERROR_HANDLING.md
+│   │       ├── ERROR_HANDLING_QUICK_REF.md
+│   │       └── GRAPHQL_EXCEPTION_MIGRATION.md
+│   └── hirehub-batch/              # Batch processing service
+├── package.json
+├── tsconfig.json
+└── nest-cli.json
 ```
 
-## Compile and run the project
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- **Node.js** `>= 18.x`
+- **npm** `>= 9.x`
+- **MongoDB** `>= 6.x`
+
+### Installation
+
+1. **Clone the repository**
+
+   ```bash
+   git clone <repository-url>
+   cd hire-hub
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment variables**
+
+   Create a `.env` file in the root directory:
+
+   ```env
+   # Application
+   HIREHUB_PORT=3000
+   NODE_ENV=development
+
+   # Database
+   MONGO_URI=mongodb://localhost:27017/hirehub
+
+   # CORS
+   CORS_ORIGIN=http://localhost:3001
+
+   # JWT (if applicable)
+   JWT_SECRET=your-secret-key
+   JWT_EXPIRATION=7d
+   ```
+
+4. **Start MongoDB**
+
+   ```bash
+   # Using Docker
+   docker run -d -p 27017:27017 --name mongodb mongo:latest
+
+   # Or using local MongoDB
+   mongod
+   ```
+
+5. **Run the application**
+
+   ```bash
+   npm run start:dev
+   ```
+
+6. **Access GraphQL Playground**
+
+   Open your browser and navigate to:
+
+   ```
+   http://localhost:3000/graphql
+   ```
+
+---
+
+## 💻 Development
+
+### Available Scripts
 
 ```bash
-# development
-$ npm run start
+# Development
+npm run start:dev          # Start in watch mode
+npm run start:debug        # Start in debug mode
 
-# watch mode
-$ npm run start:dev
+# Production
+npm run build              # Build the application
+npm run start:prod         # Start production server
 
-# production mode
-$ npm run start:prod
+# Code Quality
+npm run format             # Format code with Prettier
+npm run lint               # Lint and fix code with ESLint
+
+# Testing
+npm run test               # Run unit tests
+npm run test:watch         # Run tests in watch mode
+npm run test:cov           # Generate test coverage
+npm run test:e2e           # Run end-to-end tests
 ```
 
-## Run tests
+### Development Workflow
+
+1. **Start the development server**
+
+   ```bash
+   npm run start:dev
+   ```
+
+2. **The server will be available at:**
+   - GraphQL API: `http://localhost:3000/graphql`
+   - GraphQL Playground: `http://localhost:3000/graphql` (interactive UI)
+
+3. **Example GraphQL Query**
+
+   ```graphql
+   query {
+   	hello
+   }
+   ```
+
+4. **Example GraphQL Mutation**
+   ```graphql
+   mutation {
+   	registerUser(
+   		input: {
+   			email: "user@example.com"
+   			passwordHash: "SecurePass123"
+   			firstName: "John"
+   			lastName: "Doe"
+   			role: "JOB_SEEKER"
+   		}
+   	) {
+   		id
+   		email
+   		firstName
+   		lastName
+   	}
+   }
+   ```
+
+---
+
+## 🧪 Testing
+
+### Run Tests
 
 ```bash
-# unit tests
-$ npm run test
+# Unit tests
+npm run test
 
-# e2e tests
-$ npm run test:e2e
+# E2E tests
+npm run test:e2e
 
-# test coverage
-$ npm run test:cov
+# Test coverage
+npm run test:cov
+
+# Watch mode
+npm run test:watch
 ```
 
-## Deployment
+### Test Structure
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+```
+apps/hire-hub/
+└── test/
+    ├── app.e2e-spec.ts      # E2E tests
+    └── jest-e2e.json         # E2E Jest configuration
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+## 📚 Documentation
 
-Check out a few resources that may come in handy when working with NestJS:
+Comprehensive documentation is available in the `apps/hire-hub/docs/` directory:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+| Document                                                                                   | Description                                                           |
+| ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| 📘 [**PROJECT_STANDARDS.md**](apps/hire-hub/docs/PROJECT_STANDARDS.md)                     | Complete guide to project architecture, standards, and best practices |
+| 🛡️ [**VALIDATION_ERROR_HANDLING.md**](apps/hire-hub/docs/VALIDATION_ERROR_HANDLING.md)     | Two-layer validation system (GraphQL schema + class-validator)        |
+| ⚠️ [**ERROR_HANDLING_QUICK_REF.md**](apps/hire-hub/docs/ERROR_HANDLING_QUICK_REF.md)       | Quick reference for custom exception handling                         |
+| 🔄 [**GRAPHQL_EXCEPTION_MIGRATION.md**](apps/hire-hub/docs/GRAPHQL_EXCEPTION_MIGRATION.md) | Migration guide for GraphQL exceptions                                |
+| 📖 [**APP_MODULE_EXPLAINED.md**](apps/hire-hub/docs/APP_MODULE_EXPLAINED.md)               | Deep dive into NestJS module architecture                             |
 
-## Support
+### Key Concepts
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+#### 🔹 Error Handling
 
-## Stay in touch
+- Custom exception classes extending `BaseGraphQLException`
+- Two-layer validation (schema + business logic)
+- Consistent error response format
+- Detailed error logging
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+#### 🔹 Logging System
 
-## License
+- Beautiful color-coded console output using `chalk`
+- Multiple log levels (success, error, info, warning, debug)
+- Context-aware logging
+- Timestamps on all logs
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+#### 🔹 Component Architecture
+
+- **Module** - Dependency injection container
+- **Resolver** - GraphQL endpoint handler
+- **Service** - Business logic layer
+- **Schema** - Mongoose data model
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how you can help:
+
+### Development Guidelines
+
+1. **Fork the repository**
+2. **Create a feature branch**
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+3. **Follow the project standards** (see [PROJECT_STANDARDS.md](apps/hire-hub/docs/PROJECT_STANDARDS.md))
+4. **Write tests** for new features
+5. **Run linting and tests**
+   ```bash
+   npm run lint
+   npm run test
+   ```
+6. **Commit your changes**
+   ```bash
+   git commit -m "feat: add amazing feature"
+   ```
+7. **Push to your fork**
+   ```bash
+   git push origin feature/amazing-feature
+   ```
+8. **Open a Pull Request**
+
+### Code Style
+
+- Follow TypeScript best practices
+- Use `camelCase` for variables and functions
+- Use `PascalCase` for classes and types
+- Add JSDoc comments for complex functions
+- Keep functions small and focused
+- Write descriptive commit messages
+
+---
+
+## 📝 License
+
+This project is **UNLICENSED** - Private/Proprietary Software.
+
+---
+
+## 👥 Team
+
+Built with ❤️ by the HireHub Development Team
+
+---
+
+## 🔗 Additional Resources
+
+### NestJS Resources
+
+- [NestJS Documentation](https://docs.nestjs.com)
+- [NestJS Discord](https://discord.gg/G7Qnnhy)
+- [NestJS Courses](https://courses.nestjs.com/)
+
+### GraphQL Resources
+
+- [GraphQL Documentation](https://graphql.org/)
+- [Apollo Server Documentation](https://www.apollographql.com/docs/apollo-server/)
+
+### MongoDB Resources
+
+- [MongoDB Documentation](https://docs.mongodb.com/)
+- [Mongoose Documentation](https://mongoosejs.com/)
+
+---
+
+<p align="center">
+  Made with 🚀 NestJS • 🎯 GraphQL • 🍃 MongoDB
+</p>

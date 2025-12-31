@@ -222,6 +222,7 @@ mutation {
 ### Example 3: Multiple Validation Errors (Layer 2)
 
 **Request**:
+
 ```graphql
 mutation {
 	registerUser(
@@ -239,6 +240,7 @@ mutation {
 ```
 
 **Response**:
+
 ```json
 {
 	"errors": [
@@ -279,38 +281,39 @@ mutation {
 
 ```typescript
 GraphQLModule.forRoot({
-  formatError: (error: IGraphqlError) => {
-    const code = error?.extensions?.code || 'INTERNAL_SERVER_ERROR';
-    
-    // Handle GraphQL schema validation errors (BAD_USER_INPUT)
-    if (code === 'BAD_USER_INPUT') {
-      // Parse field name from error message
-      const fieldMatch = message.match(/Field "(\w+)" of required type/);
-      const field = fieldMatch ? fieldMatch[1] : 'unknown';
-      
-      message = 'Input validation failed';
-      details = {
-        validationErrors: [
-          {
-            field,
-            constraints: [`${field} is required`],
-          },
-        ],
-      };
-    }
-    
-    return {
-      code: code === 'BAD_USER_INPUT' ? 'VALIDATION_ERROR' : code,
-      message,
-      timestamp,
-      statusCode,
-      ...(details && { details }),
-    };
-  },
-})
+	formatError: (error: IGraphqlError) => {
+		const code = error?.extensions?.code || 'INTERNAL_SERVER_ERROR';
+
+		// Handle GraphQL schema validation errors (BAD_USER_INPUT)
+		if (code === 'BAD_USER_INPUT') {
+			// Parse field name from error message
+			const fieldMatch = message.match(/Field "(\w+)" of required type/);
+			const field = fieldMatch ? fieldMatch[1] : 'unknown';
+
+			message = 'Input validation failed';
+			details = {
+				validationErrors: [
+					{
+						field,
+						constraints: [`${field} is required`],
+					},
+				],
+			};
+		}
+
+		return {
+			code: code === 'BAD_USER_INPUT' ? 'VALIDATION_ERROR' : code,
+			message,
+			timestamp,
+			statusCode,
+			...(details && { details }),
+		};
+	},
+});
 ```
 
 **Key points**:
+
 - Catches `BAD_USER_INPUT` from GraphQL
 - Transforms into consistent `VALIDATION_ERROR` format
 - Parses field name from error message
@@ -323,42 +326,39 @@ GraphQLModule.forRoot({
 ```typescript
 @Catch()
 export class GraphQLExceptionFilter implements ExceptionFilter {
-  catch(exception: any, host: ArgumentsHost) {
-    // Only handle GraphQL context
-    if (contextType !== 'graphql') {
-      throw exception;
-    }
-    
-    // If already a custom exception, re-throw
-    if (exception instanceof BaseGraphQLException) {
-      throw exception;
-    }
-    
-    // Handle class-validator validation errors from ValidationPipe
-    if (exception instanceof BadRequestException) {
-      const response = exception.getResponse() as any;
-      
-      if (response.message && Array.isArray(response.message)) {
-        const validationErrors = this.formatValidationErrors(response.message);
-        
-        throw new BaseGraphQLException(
-          ErrorCode.VALIDATION_ERROR,
-          'Input validation failed',
-          { validationErrors }
-        );
-      }
-    }
-    
-    // Handle unexpected errors
-    throw new BaseGraphQLException(
-      ErrorCode.INTERNAL_SERVER_ERROR,
-      exception.message || 'An unexpected error occurred'
-    );
-  }
+	catch(exception: any, host: ArgumentsHost) {
+		// Only handle GraphQL context
+		if (contextType !== 'graphql') {
+			throw exception;
+		}
+
+		// If already a custom exception, re-throw
+		if (exception instanceof BaseGraphQLException) {
+			throw exception;
+		}
+
+		// Handle class-validator validation errors from ValidationPipe
+		if (exception instanceof BadRequestException) {
+			const response = exception.getResponse() as any;
+
+			if (response.message && Array.isArray(response.message)) {
+				const validationErrors = this.formatValidationErrors(response.message);
+
+				throw new BaseGraphQLException(ErrorCode.VALIDATION_ERROR, 'Input validation failed', { validationErrors });
+			}
+		}
+
+		// Handle unexpected errors
+		throw new BaseGraphQLException(
+			ErrorCode.INTERNAL_SERVER_ERROR,
+			exception.message || 'An unexpected error occurred',
+		);
+	}
 }
 ```
 
 **Key points**:
+
 - Only processes GraphQL context
 - Catches `BadRequestException` from ValidationPipe
 - Formats class-validator error messages
@@ -372,54 +372,16 @@ export class GraphQLExceptionFilter implements ExceptionFilter {
 ### Already Set Up
 
 ✅ **Layer 1: Schema Validation** - Configured in `app.module.ts`:
+
 ```typescript
 GraphQLModule.forRoot({
-  formatError: (error) => { /* transformation logic */ }
-})
+	formatError: (error) => {
+		/* transformation logic */
+	},
+});
 ```
 
 ✅ **Layer 2: Class-Validator Filter** - Added to `app.module.ts`:
-```typescript
-{
-  provide: APP_FILTER,
-  useClass: GraphQLExceptionFilter,
-}
-```
-
-✅ **Enhanced ValidationPipe** - Configured in `main.ts`:
-						{
-							"field": "email",
-							"constraints": ["must be an email"]
-						},
-						{
-							"field": "passwordHash",
-							"constraints": ["must be longer than or equal to 8 characters"]
-						},
-						{
-							"field": "firstName",
-							"constraints": ["should not be empty"]
-						},
-						{
-							"field": "lastName",
-							"constraints": ["must be longer than or equal to 2 characters"]
-						},
-						{
-							"field": "role",
-							"constraints": ["must be a valid enum value"]
-						}
-					]
-				}
-			}
-		}
-	]
-}
-```
-
-## Configuration
-
-### Already Set Up
-
-✅ **Global Exception Filter** - Added to `app.module.ts`:
 
 ```typescript
 {
@@ -445,38 +407,75 @@ app.useGlobalPipes(
 );
 ```
 
-## Error Types Handled
+---
 
-### 1. Validation Errors (class-validator)
+## 🎓 Error Types Handled
+
+### 1. Layer 1: GraphQL Schema Errors
+
+**Caught by**: `formatError` in `app.module.ts`
+
+- Missing required fields
+- Wrong field types (String vs Int)
+- Invalid enum values in schema
+- Unknown fields not in schema
+
+**Error Code**: `BAD_USER_INPUT` → transformed to `VALIDATION_ERROR`
+
+---
+
+### 2. Layer 2: Class-Validator Errors
+
+**Caught by**: `GraphQLExceptionFilter`
 
 - `@IsNotEmpty()` violations
 - `@IsEmail()` format errors
 - `@MinLength()`, `@MaxLength()` length violations
 - `@IsEnum()` invalid enum values
+- `@IsUrl()`, `@IsDate()`, custom validators
 - All other class-validator decorators
 
-### 2. Custom Exceptions
+**Error Code**: `VALIDATION_ERROR` (from `BadRequestException`)
+
+---
+
+### 3. Custom Business Logic Exceptions
+
+**Caught by**: `GraphQLExceptionFilter` (passes through)
 
 - `UserNotFoundException`
 - `UserAlreadyExistsException`
+- `InvalidCredentialsException`
 - All other `BaseGraphQLException` subclasses
-- **These pass through unchanged**
 
-### 3. Generic Errors
+**These pass through unchanged with their own error codes**
 
-- Unexpected errors
-- Database errors (handled elsewhere)
+---
+
+### 4. Unexpected/Generic Errors
+
+**Caught by**: `GraphQLExceptionFilter` (transforms)
+
+- Unexpected runtime errors
+- Database errors (if not already custom exceptions)
 - System errors
 
-## Benefits
+**Error Code**: `INTERNAL_SERVER_ERROR`
 
-1. **Consistent Error Format** - All validation errors follow the same structure
-2. **Detailed Feedback** - Client knows exactly which fields failed and why
-3. **Type Safety** - Full TypeScript support
-4. **Automatic Logging** - Validation errors are logged with context
-5. **No Code Changes** - Works with existing `@InputType()` classes
+---
 
-## Example Usage
+## ✨ Benefits
+
+1. **Two-Layer Validation** - Schema + business logic coverage
+2. **Consistent Error Format** - All errors follow the same structure
+3. **Detailed Feedback** - Client knows exactly which fields failed and why
+4. **Type Safety** - Full TypeScript support
+5. **Automatic Logging** - All errors logged with appropriate levels
+6. **Zero Config** - Works with existing `@InputType()` classes automatically
+
+---
+
+## 💻 Example Usage
 
 Your existing DTOs work automatically:
 
@@ -518,31 +517,107 @@ export class RegisterUserInput {
 
 No changes needed - the filter handles everything automatically!
 
-## Logging
+---
 
-Validation errors are logged with the `LoggerUtil.warn()` method:
+## 📊 Logging
+
+Different log levels for different error types:
+
+```typescript
+// Layer 1: Schema validation errors
+LoggerUtil.warn('GraphQL Validation Error', `Missing required field: ${field}`);
+
+// Layer 2: Class-validator errors
+LoggerUtil.warn('Validation Error', JSON.stringify(validationErrors));
+
+// Unexpected errors
+LoggerUtil.error('Unexpected GraphQL Error', exception);
+
+// Custom exceptions
+// (Logged in service layer before throwing)
+```
+
+**Output examples**:
 
 ```
-[2025-12-31T10:30:45.123Z] WARNING Validation Error → [detailed error info]
+[2025-12-31T10:30:45.123Z] WARNING GraphQL Validation Error → Missing required field: role
+[2025-12-31T10:30:46.456Z] WARNING Validation Error → [{"field":"email","constraints":["must be an email"]}]
+[2025-12-31T10:30:47.789Z] ERROR   Unexpected GraphQL Error
 ```
 
-## Files Modified
+---
 
-1. ✅ Created `libs/filters/graphql-exception.filter.ts` - The exception filter
-2. ✅ Updated `app.module.ts` - Registered global filter
-3. ✅ Updated `main.ts` - Enhanced ValidationPipe configuration
-4. ✅ Updated `libs/index.ts` - Exported filter
+## 📦 Files Modified
 
-## Testing
+1. ✅ **Created** `libs/filters/graphql-exception.filter.ts` - Layer 2 exception filter
+2. ✅ **Updated** `app.module.ts` - Layer 1 formatError + registered global filter
+3. ✅ **Updated** `main.ts` - Enhanced ValidationPipe configuration
+4. ✅ **Updated** `libs/index.ts` - Exported filter
 
-Test with invalid input in GraphQL Playground:
+---
+
+## 🧪 Testing
+
+### Test Layer 1: Missing Required Field
 
 ```graphql
-mutation TestValidation {
-	registerUser(input: { email: "not-an-email", passwordHash: "short", firstName: "", lastName: "X", role: INVALID }) {
+mutation TestMissingField {
+	registerUser(
+		input: {
+			email: "test@example.com"
+			passwordHash: "SecurePass123"
+			firstName: "John"
+			lastName: "Doe"
+			# Missing: role
+		}
+	) {
 		id
 	}
 }
 ```
 
-You should see a properly formatted validation error response!
+**Expected**: `VALIDATION_ERROR` with "role is required"
+
+---
+
+### Test Layer 2: Invalid Format
+
+```graphql
+mutation TestInvalidFormat {
+	registerUser(
+		input: { email: "not-an-email", passwordHash: "short", firstName: "John", lastName: "Doe", role: "JOB_SEEKER" }
+	) {
+		id
+	}
+}
+```
+
+**Expected**: `VALIDATION_ERROR` with multiple field constraints
+
+---
+
+### Test Both Layers
+
+Try with missing field AND invalid format - see which layer catches it first (schema validation runs before class-validator)!
+
+---
+
+## 🤔 FAQ
+
+**Q: Why do I need two layers?**  
+A: Schema validation is fast and catches structural issues. Class-validator handles complex business logic validation. Both are essential.
+
+**Q: What if I delete the `if (exception instanceof BadRequestException)` check?**  
+A: Layer 2 (class-validator) errors would fall through to generic error handler, losing all detailed validation information.
+
+**Q: Can I customize the error messages?**  
+A: Yes! Edit the `formatError` function in `app.module.ts` (Layer 1) or `GraphQLExceptionFilter` (Layer 2).
+
+**Q: Do both layers run for every request?**  
+A: Layer 1 always runs first. Layer 2 only runs if Layer 1 passes and ValidationPipe is triggered.
+
+---
+
+**Last Updated**: December 31, 2025  
+**Version**: 2.0.0  
+**Maintained By**: HireHub Development Team
