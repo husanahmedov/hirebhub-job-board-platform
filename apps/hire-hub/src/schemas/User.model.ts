@@ -113,6 +113,7 @@ const UserSchema = new Schema(
 		profile: {
 			/**
 			 * Professional headline or tagline
+			 * exmple: "Full Stack Developer at TechCorp"
 			 * @maxlength 200
 			 */
 			headline: {
@@ -123,6 +124,7 @@ const UserSchema = new Schema(
 
 			/**
 			 * User biography or about section
+			 * Detailed description about the user
 			 * @maxlength 2000
 			 */
 			bio: {
@@ -133,6 +135,7 @@ const UserSchema = new Schema(
 
 			/**
 			 * Geographic location information
+			 * example: { city: "San Francisco", region: "CA", country: "USA" }
 			 */
 			location: {
 				/**
@@ -166,6 +169,7 @@ const UserSchema = new Schema(
 				 * Geospatial coordinates for location-based searches
 				 * @type Point GeoJSON Point object
 				 * @indexed 2dsphere index for geospatial queries
+				 * example: { type: "Point", coordinates: [-122.4194, 37.7749] }
 				 */
 				geo: {
 					type: {
@@ -183,17 +187,29 @@ const UserSchema = new Schema(
 			/**
 			 * User's skills and competencies
 			 * @indexed Text index for skill-based search
+			 * @example ["JavaScript", "Node.js", "GraphQL"]
 			 */
 			skills: [
 				{
 					type: String,
 					trim: true,
 					maxlength: 50,
+					required: true,
 				},
 			],
 
 			/**
 			 * Educational background entries
+			 * @example
+			 * [
+			 *   {
+			 *     school: "University of Tech",
+			 *     degree: "B.Sc. Computer Science",
+			 *     fieldOfStudy: "Software Engineering",
+			 *     startYear: "2015-08-01",
+			 *     endYear: "2019-05-15"
+			 *   }
+			 * ]
 			 */
 			education: [
 				{
@@ -242,6 +258,17 @@ const UserSchema = new Schema(
 
 			/**
 			 * Work experience entries
+			 * @example
+			 * [
+			 *   {
+			 *     company: "TechCorp",
+			 *     title: "Software Engineer",
+			 *     location: "San Francisco, CA",
+			 *     startDate: "2020-06-01",
+			 *     endDate: null,
+			 *     description: "Working on full stack development..."
+			 *   }
+			 * ]
 			 */
 			experience: [
 				{
@@ -327,6 +354,7 @@ const UserSchema = new Schema(
 		/**
 		 * OAuth/Social authentication providers
 		 * @indexed Compound index on provider + providerId for OAuth lookups
+		 * @example [{ provider: "google", providerId: "1234567890", profileUrl: "https://profiles.google.com/user" }]
 		 */
 		oauthProviders: [
 			{
@@ -385,6 +413,7 @@ const UserSchema = new Schema(
 
 			/**
 			 * Notification preferences
+			 * @example { email: true, push: false }
 			 */
 			notifications: {
 				/**

@@ -87,8 +87,8 @@ export class Profile {
 	@Field(() => String, { nullable: true })
 	bio?: string;
 
-	@Field(() => Location, { nullable: true })
-	location?: Location;
+	@Field(() => Location, { nullable: false })
+	location: Location;
 
 	@Field(() => [String], { nullable: true })
 	skills?: string[];

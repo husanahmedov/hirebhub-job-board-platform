@@ -17,7 +17,7 @@ import {
 	IsDateString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { UserStatus, UserRole } from '../../enums/user.enum';
+import { UserStatus, UserRole, UserCountry } from '../../index';
 
 /**
  * Geographic coordinates input for location
@@ -41,23 +41,22 @@ export class GeoCoordinatesInput {
  */
 @InputType()
 export class LocationInput {
-	@IsOptional()
+	@IsNotEmpty()
 	@IsString()
 	@MaxLength(100)
-	@Field(() => String, { nullable: true })
-	city?: string;
+	@Field(() => String, { nullable: false })
+	city: string;
 
-	@IsOptional()
+	@IsNotEmpty()
 	@IsString()
 	@MaxLength(100)
-	@Field(() => String, { nullable: true })
-	region?: string;
+	@Field(() => String, { nullable: false })
+	region: string;
 
-	@IsOptional()
-	@IsString()
-	@MaxLength(100)
-	@Field(() => String, { nullable: true })
-	country?: string;
+	@IsNotEmpty()
+	@IsEnum(UserCountry)
+	@Field(() => UserCountry, { nullable: false })
+	country: UserCountry;
 
 	@IsOptional()
 	@ValidateNested()
@@ -160,14 +159,14 @@ export class ProfileInput {
 	@IsOptional()
 	@ValidateNested()
 	@Type(() => LocationInput)
-	@Field(() => LocationInput, { nullable: true })
-	location?: LocationInput;
+	@Field(() => LocationInput, { nullable: false })
+	location: LocationInput;
 
-	@IsOptional()
+	@IsNotEmpty()
 	@IsArray()
 	@IsString({ each: true })
-	@Field(() => [String], { nullable: true })
-	skills?: string[];
+	@Field(() => [String], { nullable: false })
+	skills: string[];
 
 	@IsOptional()
 	@IsArray()
@@ -292,8 +291,14 @@ export class RegisterUserInput {
 
 	@IsNotEmpty()
 	@IsEnum(UserRole)
-	@Field(() => String)
+	@Field(() => UserRole, { nullable: false })
 	role: UserRole;
+
+	@IsNotEmpty()
+	@ValidateNested()
+	@Type(() => ProfileInput)
+	@Field(() => ProfileInput, { nullable: false })
+	profile: ProfileInput;
 }
 
 /**
