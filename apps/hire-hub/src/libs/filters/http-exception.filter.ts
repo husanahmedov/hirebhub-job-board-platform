@@ -1,6 +1,5 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { LoggerUtil } from '../logger.util';
 import { ErrorCode } from '../enums/error.enum';
 
 type RequestLike = Pick<Request, 'url' | 'method' | 'get' | 'ip'>;
@@ -55,7 +54,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
 		// Additional safety check for response object
 		if (!response || typeof response.status !== 'function') {
-			LoggerUtil.error('Invalid response object in HttpExceptionFilter', exception as Error);
+			console.error('Invalid response object in HttpExceptionFilter:', exception);
 			return;
 		}
 
@@ -233,11 +232,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
 		// Log client errors (4xx) as warnings
 		if (statusCode >= 400 && statusCode < 500) {
-			LoggerUtil.warn(message, JSON.stringify(context));
+			console.warn(`${message}:`, context);
 		}
 		// Log server errors (5xx) as errors
 		else if (statusCode >= 500) {
-			LoggerUtil.error(message, exception instanceof Error ? exception : new Error(message));
+			console.error(`${message}:`, exception);
 		}
 	}
 

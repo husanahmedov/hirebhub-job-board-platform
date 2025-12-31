@@ -87,8 +87,8 @@ export class Profile {
 	@Field(() => String, { nullable: true })
 	bio?: string;
 
-	@Field(() => Location, { nullable: true })
-	location?: Location;
+	@Field(() => Location, { nullable: false })
+	location: Location;
 
 	@Field(() => [String], { nullable: true })
 	skills?: string[];
@@ -176,6 +176,9 @@ export class User {
 
 	@Field(() => String)
 	status: UserStatus;
+
+	@Field(() => String)
+	passwordHash?: string;
 
 	@Field(() => Profile, { nullable: true })
 	profile?: Profile;

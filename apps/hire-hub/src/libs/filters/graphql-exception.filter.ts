@@ -2,7 +2,6 @@ import { Catch, ArgumentsHost, ExceptionFilter, BadRequestException } from '@nes
 import { GqlArgumentsHost, GqlContextType } from '@nestjs/graphql';
 import { BaseGraphQLException } from '../exceptions/base.exception';
 import { ErrorCode, ErrorMessage } from '../enums/error.enum';
-import { LoggerUtil } from '../logger.util';
 
 /**
  * GraphQLExceptionFilter - Global exception filter for GraphQL operations
@@ -48,8 +47,6 @@ export class GraphQLExceptionFilter implements ExceptionFilter {
 			if (response.message && Array.isArray(response.message)) {
 				const validationErrors = this.formatValidationErrors(response.message);
 
-				LoggerUtil.warn('Validation Error', JSON.stringify(validationErrors, null, 2));
-
 				throw new BaseGraphQLException(ErrorCode.VALIDATION_ERROR, ErrorMessage[ErrorCode.VALIDATION_ERROR], {
 					validationErrors,
 				});
@@ -58,9 +55,6 @@ export class GraphQLExceptionFilter implements ExceptionFilter {
 			// Generic bad request
 			throw new BaseGraphQLException(ErrorCode.INVALID_INPUT, response.message || 'Invalid input provided');
 		}
-
-		// Log unexpected errors
-		LoggerUtil.error('Unexpected GraphQL Error', exception);
 
 		// Transform unknown errors
 		throw new BaseGraphQLException(

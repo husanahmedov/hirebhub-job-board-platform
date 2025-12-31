@@ -8,7 +8,6 @@
  * @module EnvUtil
  */
 
-import { LoggerUtil } from './logger.util';
 
 /**
  * Interface defining required environment variables for the application
@@ -56,9 +55,7 @@ export class EnvUtil {
 	 * ```typescript
 	 * try {
 	 *   EnvUtil.validate();
-	 *   LoggerUtil.success('Environment validated successfully');
 	 * } catch (error) {
-	 *   LoggerUtil.error('Environment validation failed', error);
 	 *   process.exit(1);
 	 * }
 	 * ```
@@ -100,11 +97,9 @@ export class EnvUtil {
 
 		// If there are errors, log them and throw
 		if (errors.length > 0) {
-			LoggerUtil.error('Environment Validation Failed', errors.join('\n  • '));
 			throw new Error('Environment validation failed. Check the logs above.');
 		}
 
-		LoggerUtil.success('Environment variables validated');
 	}
 
 	/**
@@ -194,15 +189,9 @@ export class EnvUtil {
 	 * Useful for debugging and verification
 	 */
 	public static printSummary(): void {
-		LoggerUtil.info('Environment', this.getEnvironment());
-		LoggerUtil.info('Main Port', String(this.getPort()));
-		LoggerUtil.info('Batch Port', String(this.getBatchPort()));
-		LoggerUtil.info('CORS Origin', this.getCorsOrigin() || 'Not set');
 
 		// Only show sensitive info in development
 		if (this.isDevelopment()) {
-			LoggerUtil.debug('JWT Secret', this.getJwtSecret());
-			LoggerUtil.debug('MongoDB URI', this.getMongoUri());
 		}
 	}
 

@@ -1,13 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { RegisterUserInput, User } from '../../libs/dto/user';
 import { Model } from 'mongoose';
 import {
-	LoggerUtil,
 	UserCreationFailedException,
 	UserAlreadyExistsException,
 	DatabaseException,
 	ErrorCode,
+	LoginUserInput,
+	UserNotFoundException,
+	InvalidCredentialsException,
 } from '../../libs';
 
 @Injectable()
@@ -26,7 +28,6 @@ export class UserService {
 			const newUser = new this.userModel(input);
 			const savedUser = await newUser.save();
 
-			LoggerUtil.success('User registered successfully', `Email: ${savedUser.email}`);
 			return savedUser;
 		} catch (error) {
 			// If it's already one of our custom exceptions, re-throw it
@@ -45,12 +46,42 @@ export class UserService {
 				throw new DatabaseException(ErrorCode.VALIDATION_ERROR, error.errors);
 			}
 
-			// Log and throw generic error
-			LoggerUtil.error('User Registration Failed', error);
+			// Throw generic error
 			throw new UserCreationFailedException({
 				originalError: error.message,
 				input: { email: input.email },
 			});
+		}
+	}
+
+	public async login(input: LoginUserInput): Promise<User> {
+		try {
+			const user = await this.userModel
+				.findOne({
+					email: input.email,
+					passwordHash: input.passwordHash,
+				})
+				.select('+passwordHash')
+				.exec();
+			if (!user) {
+				throw new UserNotFoundException(`User has not been found with given email ${input.email}`);
+			}
+			const isMatch = (user as User).passwordHash === input.passwordHash;
+			if (!isMatch) {
+				throw new InvalidCredentialsException({
+					message: 'Your password or email is wrong',
+					input: { email: input.email },
+				});
+			}
+			return user;
+		} catch (error) {
+			if (error instanceof UserNotFoundException) {
+				throw error;
+			}
+			if (error instanceof InvalidCredentialsException) {
+				throw error;
+			}
+			throw new InternalServerErrorException('An error occurred during login');
 		}
 	}
 }

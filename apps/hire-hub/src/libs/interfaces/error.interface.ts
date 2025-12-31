@@ -37,7 +37,7 @@ export interface IGraphQLErrorExtension {
 
 /**
  * Validation error detail structure
-*/
+ */
 export interface IValidationError {
 	field: string;
 	message: string;
@@ -46,7 +46,7 @@ export interface IValidationError {
 
 /**
  * Database error detail structure
-*/
+ */
 export interface IDatabaseError {
 	operation: string;
 	collection?: string;
@@ -55,7 +55,7 @@ export interface IDatabaseError {
 
 /**
  * File error detail structure
-*/
+ */
 export interface IFileError {
 	filename: string;
 	size?: number;
