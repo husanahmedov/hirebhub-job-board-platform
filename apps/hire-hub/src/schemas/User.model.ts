@@ -444,7 +444,6 @@ const UserSchema = new Schema(
 		deletedAt: {
 			type: Date,
 			default: null,
-			index: true, // Sparse index automatically applied
 		},
 	},
 	{

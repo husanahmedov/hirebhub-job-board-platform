@@ -177,6 +177,9 @@ export class User {
 	@Field(() => String)
 	status: UserStatus;
 
+	@Field(() => String)
+	passwordHash?: string;
+
 	@Field(() => Profile, { nullable: true })
 	profile?: Profile;
 

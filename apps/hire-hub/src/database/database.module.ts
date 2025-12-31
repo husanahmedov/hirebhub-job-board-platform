@@ -1,7 +1,7 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { LoggerUtil } from 'apps/hire-hub/src/libs';
+import { StartupLogger } from '../libs/startup-logger.util';
 
 /**
  * DatabaseModule - Handles MongoDB connection configuration and lifecycle
@@ -18,7 +18,6 @@ import { LoggerUtil } from 'apps/hire-hub/src/libs';
  *
  * @module DatabaseModule
  * @requires MongooseModule
- * @requires LoggerUtil
  *
  * @example
  * ```typescript
@@ -37,11 +36,8 @@ import { LoggerUtil } from 'apps/hire-hub/src/libs';
 
 				// Validate that the database URI exists
 				if (!uri) {
-					LoggerUtil.error('Database Configuration Error', `Missing database URI for environment: ${environment}`);
 					throw new Error(`Database URI not configured for ${environment} environment`);
 				}
-
-				LoggerUtil.info('Database', `Connecting to ${environment} MongoDB...`);
 
 				return {
 					uri,
@@ -83,19 +79,19 @@ export class DatabaseModule implements OnModuleInit {
 	 */
 	private setupConnectionEventListeners(): void {
 		this.connection.on('connected', () => {
-			LoggerUtil.debug('MongoDB connection event: connected');
+			StartupLogger.printConnectionStatus('MongoDB', 'connected');
 		});
 
 		this.connection.on('disconnected', () => {
-			LoggerUtil.warn('MongoDB disconnected', 'Attempting to reconnect...');
+			StartupLogger.printConnectionStatus('MongoDB', 'disconnected');
 		});
 
 		this.connection.on('error', (error: Error) => {
-			LoggerUtil.error('MongoDB connection error', error);
+			console.error('❌ MongoDB connection error:', error.message);
 		});
 
 		this.connection.on('reconnected', () => {
-			LoggerUtil.success('MongoDB reconnected successfully');
+			StartupLogger.printConnectionStatus('MongoDB', 'connected');
 		});
 	}
 
@@ -104,16 +100,12 @@ export class DatabaseModule implements OnModuleInit {
 	 * @private
 	 */
 	private logConnectionStatus(): void {
-		const environment = process.env.NODE_ENV ?? 'development';
 		const isConnected = this.connection.readyState === 1;
 
 		if (isConnected) {
-			LoggerUtil.database('MongoDB', environment, true);
-			LoggerUtil.info('Database Host', this.connection.host);
-			LoggerUtil.info('Database Name', this.connection.name);
+			StartupLogger.printConnectionStatus('MongoDB', 'connected');
 		} else {
-			LoggerUtil.database('MongoDB', environment, false);
-			LoggerUtil.error('Database Connection Failed', `Connection state: ${this.getReadyStateDescription()}`);
+			StartupLogger.printConnectionStatus('MongoDB', 'connecting');
 		}
 	}
 

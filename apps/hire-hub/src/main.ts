@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
-import { LoggerUtil } from 'apps/hire-hub/src/libs';
+import { StartupLogger } from './libs/startup-logger.util';
+import { EnvUtil } from './libs';
 
 /**
  * Bootstrap function - Initializes and starts the HireHub application
@@ -18,16 +19,17 @@ import { LoggerUtil } from 'apps/hire-hub/src/libs';
  */
 async function bootstrap(): Promise<void> {
 	try {
+		// Clear console and print banner
+		console.clear();
+		StartupLogger.printBanner();
+
 		// Application configuration
 		const PORT = parseInt(process.env.HIREHUB_PORT ?? '3000', 10);
-		const ENVIRONMENT = process.env.NODE_ENV ?? 'development';
-		const APP_NAME = 'HireHub API';
-		const VERSION = '1.0.0';
-
-		LoggerUtil.info('Bootstrap', 'Starting application initialization...');
+		const ENVIRONMENT = EnvUtil.getEnvironment();
+		const GRAPHQL_PATH = '/graphql';
+		const DATABASE_URL = process.env.HIREHUB_MONGODB_URI ?? 'mongodb://localhost:27017/hirehub';
 
 		// Create NestJS application instance with custom logger disabled
-		// We use our custom LoggerUtil for consistent logging
 		const app = await NestFactory.create(AppModule, {
 			logger: ['error', 'warn'], // Only log errors and warnings from NestJS
 		});
@@ -37,7 +39,6 @@ async function bootstrap(): Promise<void> {
 			origin: process.env.CORS_ORIGIN ?? '*',
 			credentials: true,
 		});
-		LoggerUtil.module('CORS');
 
 		// Global validation pipe for automatic DTO validation
 		app.useGlobalPipes(
@@ -52,7 +53,6 @@ async function bootstrap(): Promise<void> {
 				},
 			}),
 		);
-		LoggerUtil.module('Global Validation Pipe');
 
 		// Set up graceful shutdown handlers
 		setupGracefulShutdown(app);
@@ -60,13 +60,17 @@ async function bootstrap(): Promise<void> {
 		// Start the application
 		await app.listen(PORT);
 
-		// Display beautiful startup banner
-		LoggerUtil.separator();
-		LoggerUtil.printBanner(APP_NAME, VERSION, PORT, ENVIRONMENT);
-		LoggerUtil.success('Application started successfully');
-		LoggerUtil.separator();
+		// Print startup information
+		StartupLogger.printStartupInfo({
+			port: PORT,
+			environment: ENVIRONMENT,
+			graphqlPath: GRAPHQL_PATH,
+			databaseUrl: DATABASE_URL,
+		});
+
+		StartupLogger.printSuccessMessage('Application is ready to accept requests! 🚀');
 	} catch (error) {
-		LoggerUtil.error('Failed to start application', error as Error);
+		console.error('\n❌ Failed to start application:', error);
 		process.exit(1);
 	}
 }
@@ -79,14 +83,14 @@ async function bootstrap(): Promise<void> {
  */
 function setupGracefulShutdown(app: any): void {
 	const gracefulShutdown = async (signal: string) => {
-		LoggerUtil.warn(`${signal} signal received`, 'Starting graceful shutdown...');
+		console.log(`${signal} signal received. Starting graceful shutdown...`);
 
 		try {
 			await app.close();
-			LoggerUtil.success('Application closed successfully');
+			console.log('Application closed successfully');
 			process.exit(0);
 		} catch (error) {
-			LoggerUtil.error('Error during shutdown', error as Error);
+			console.error('Error during shutdown:', error);
 			process.exit(1);
 		}
 	};
@@ -97,17 +101,15 @@ function setupGracefulShutdown(app: any): void {
 
 	// Handle uncaught exceptions
 	process.on('uncaughtException', (error: Error) => {
-		LoggerUtil.error('Uncaught Exception', error);
+		console.error('Uncaught Exception:', error);
 		process.exit(1);
 	});
 
 	// Handle unhandled promise rejections
 	process.on('unhandledRejection', (reason: any) => {
-		LoggerUtil.error('Unhandled Rejection', reason);
+		console.error('Unhandled Rejection:', reason);
 		process.exit(1);
 	});
-
-	LoggerUtil.module('Graceful Shutdown Handlers');
 }
 
 // Start the application

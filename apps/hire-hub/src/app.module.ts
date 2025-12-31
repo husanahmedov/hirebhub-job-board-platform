@@ -16,7 +16,7 @@ import { DatabaseModule } from './database/database.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver } from '@nestjs/apollo';
 import { AppResolver } from './app.resolver';
-import { ErrorCode, ErrorMessage, IGraphqlError, LoggerUtil } from './libs';
+import { ErrorCode, ErrorMessage, IGraphqlError } from './libs';
 import { GraphQLExceptionFilter } from './libs/filters/graphql-exception.filter';
 
 @Module({
@@ -50,9 +50,7 @@ import { GraphQLExceptionFilter } from './libs/filters/graphql-exception.filter'
 						],
 					};
 
-					LoggerUtil.warn('GraphQL Validation Error', `Missing required field: ${field}`);
 				} else {
-					LoggerUtil.error('GraphQL Error', error.message);
 				}
 				return {
 					code: code === 'BAD_USER_INPUT' ? ErrorCode.BAD_USER_INPUT : code,
