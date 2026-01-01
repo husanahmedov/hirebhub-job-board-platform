@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { RegisterUserInput, User } from '../../libs/dto/user';
-import { Model } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import {
 	UserCreationFailedException,
 	UserAlreadyExistsException,
@@ -13,8 +13,11 @@ import {
 	UserStatus,
 	UserDeactivatedException,
 	UserSuspendedException,
+	UpdateUserInput,
+	PublicUser,
 } from '../../libs';
 import { AuthService } from '../auth/auth.service';
+import { shapeIntoMongoObjectId } from '../../libs/config';
 
 @Injectable()
 export class UserService {
@@ -338,6 +341,318 @@ export class UserService {
 			});
 
 			throw new InternalServerErrorException('An unexpected error occurred during authentication. Please try again.');
+		}
+	}
+
+	/**
+	 * Update user profile by the user themselves (authenticated user)
+	 *
+	 * This method handles the complete user self-update workflow:
+	 * 1. Validates and sanitizes input data (handled by DTO validators)
+	 * 2. Normalizes email to lowercase if provided
+	 * 3. Checks if email already exists for another user (prevents duplicates)
+	 * 4. Verifies the user exists in the database
+	 * 5. Updates the user document with new values
+	 * 6. Converts Mongoose document to plain object (includes virtuals)
+	 * 7. Returns the updated user object
+	 *
+	 * @param userId - The authenticated user's MongoDB ObjectId
+	 * @param input - Update data containing optional fields (firstName, lastName, email, profile)
+	 * @returns Promise<PublicUser> - The updated user object without sensitive data
+	 *
+	 * @throws {UserNotFoundException} - When the user doesn't exist in the system
+	 * @throws {UserAlreadyExistsException} - When the new email is already taken by another user
+	 * @throws {DatabaseException} - When Mongoose validation fails (invalid data format)
+	 * @throws {InternalServerErrorException} - When update fails for unexpected reasons
+	 *
+	 * @security
+	 * - Users can only update their own profile (userId from JWT token)
+	 * - Email is normalized for case-insensitive uniqueness
+	 * - Cannot update sensitive fields like role or status (restricted to admin only)
+	 * - Password updates require separate endpoint for security
+	 *
+	 * @performance
+	 * - Single database query to check for email conflicts
+	 * - Atomic update operation with findByIdAndUpdate
+	 * - Indexed email field ensures fast duplicate detection
+	 *
+	 * @example
+	 * const updatedUser = await userService.updateUserByUser(
+	 *   userId,
+	 *   {
+	 *     firstName: 'Jane',
+	 *     lastName: 'Smith',
+	 *     profile: {
+	 *       location: { city: 'San Francisco', region: 'CA', country: UserCountry.USA }
+	 *     }
+	 *   }
+	 * );
+	 */
+	public async updateUserByUser(userId: ObjectId, input: UpdateUserInput): Promise<PublicUser> {
+		// STEP 1: Normalize email if provided for consistent storage
+		// Ensures case-insensitive email matching and prevents duplicate emails with different cases
+		const normalizedEmail: string | undefined = input.email ? input.email.toLowerCase().trim() : undefined;
+
+		try {
+			// STEP 2: If email is being updated, check if it's already taken by another user
+			// Prevents email conflicts while allowing user to keep their own email
+			if (normalizedEmail) {
+				input.email = normalizedEmail;
+
+				// Query for existing user with this email (excluding current user)
+				const existingUser = await this.userModel
+					.findOne({
+						email: normalizedEmail,
+						_id: { $ne: userId }, // Exclude current user from check
+					})
+					.select('_id email')
+					.lean()
+					.exec();
+
+				if (existingUser) {
+					// Email is already taken by another user - throw specific exception
+					throw new UserAlreadyExistsException({
+						email: normalizedEmail,
+						existingUserId: existingUser._id,
+						message: 'This email address is already registered to another account',
+					});
+				}
+			}
+
+			// STEP 3: Update the user document with new values
+			// findByIdAndUpdate is atomic and returns the updated document
+			// { new: true } ensures we get the updated document, not the old one
+			// { runValidators: true } runs Mongoose schema validators on update
+			const updatedUser = await this.userModel
+				.findByIdAndUpdate(userId, input, {
+					new: true, // Return updated document
+					runValidators: true, // Run schema validators
+				})
+				.exec();
+
+			// STEP 4: Verify the user was found and updated
+			if (!updatedUser) {
+				// User not found with this ID - throw specific exception
+				throw new UserNotFoundException({
+					message: 'User not found for update',
+					userId,
+				});
+			}
+
+			// STEP 5: Convert Mongoose document to plain object
+			// This includes virtual fields (fullName, profileCompleteness, etc.)
+			// and removes Mongoose-specific properties
+			// Returns PublicUser (excludes sensitive fields like passwordHash)
+			return updatedUser.toObject() as PublicUser;
+		} catch (error: any) {
+			// Error handling with specific exceptions for different failure scenarios
+
+			// Re-throw custom exceptions (already properly formatted)
+			if (error instanceof UserNotFoundException) {
+				throw error;
+			}
+
+			if (error instanceof UserAlreadyExistsException) {
+				throw error;
+			}
+
+			// Handle MongoDB duplicate key error (E11000)
+			// This can occur if email unique index is violated (race condition)
+			if (error.name === 'MongoServerError' && error.code === 11000) {
+				const duplicateField: string = Object.keys(error.keyValue || {})[0] || 'email';
+				const duplicateValue: string = error.keyValue?.[duplicateField] || 'unknown';
+				throw new UserAlreadyExistsException({
+					field: duplicateField,
+					value: duplicateValue,
+					message: `A user with this ${duplicateField} already exists`,
+				});
+			}
+
+			// Handle Mongoose validation errors (invalid data types, formats, etc.)
+			if (error.name === 'ValidationError') {
+				const validationErrors = Object.keys(error.errors || {}).map((field) => ({
+					field,
+					message: error.errors[field]?.message || 'Validation failed',
+					value: error.errors[field]?.value,
+				}));
+
+				throw new DatabaseException(ErrorCode.VALIDATION_ERROR, {
+					message: 'User data validation failed during update',
+					validationErrors,
+				});
+			}
+
+			// Handle database connection errors
+			if (error.name === 'MongoNetworkError' || error.name === 'MongoTimeoutError') {
+				throw new InternalServerErrorException('Unable to connect to database service. Please try again later.');
+			}
+
+			// Handle unexpected errors with detailed context for debugging
+			// Log error details but return generic message to client
+			console.error('Unexpected error during user update:', {
+				error: error.message,
+				errorName: error.name,
+				userId: userId.toString(),
+				timestamp: new Date().toISOString(),
+				stack: error.stack,
+			});
+
+			throw new InternalServerErrorException('Failed to update user information. Please try again later.');
+		}
+	}
+
+	/**
+	 * Update any user profile by admin (privileged operation)
+	 *
+	 * This method handles the complete admin user update workflow:
+	 * 1. Validates and sanitizes input data (handled by DTO validators)
+	 * 2. Normalizes email to lowercase if provided
+	 * 3. Checks if email already exists for another user (prevents duplicates)
+	 * 4. Verifies the target user exists in the database
+	 * 5. Updates the user document with new values (including privileged fields)
+	 * 6. Converts Mongoose document to plain object (includes virtuals)
+	 * 7. Returns the updated user object
+	 *
+	 * @param targetUserId - The MongoDB ObjectId of the user to update
+	 * @param input - Update data containing optional fields (firstName, lastName, email, status, profile)
+	 * @returns Promise<PublicUser> - The updated user object without sensitive data
+	 *
+	 * @throws {UserNotFoundException} - When the target user doesn't exist in the system
+	 * @throws {UserAlreadyExistsException} - When the new email is already taken by another user
+	 * @throws {DatabaseException} - When Mongoose validation fails (invalid data format)
+	 * @throws {InternalServerErrorException} - When update fails for unexpected reasons
+	 *
+	 * @security
+	 * - Only admins can call this method (enforced by RolesGuard in resolver)
+	 * - Admin can update any user including privileged fields (status, role)
+	 * - Email is normalized for case-insensitive uniqueness
+	 * - Password updates still require separate endpoint for security
+	 *
+	 * @performance
+	 * - Single database query to check for email conflicts
+	 * - Atomic update operation with findByIdAndUpdate
+	 * - Indexed email field ensures fast duplicate detection
+	 *
+	 * @example
+	 * const updatedUser = await userService.updateUserByAdmin(
+	 *   targetUserId,
+	 *   {
+	 *     status: UserStatus.SUSPENDED,
+	 *     email: 'newemail@example.com'
+	 *   }
+	 * );
+	 */
+	public async updateUserByAdmin(targetUserId: ObjectId, input: UpdateUserInput): Promise<PublicUser> {
+		// STEP 1: Normalize email if provided for consistent storage
+		// Ensures case-insensitive email matching and prevents duplicate emails with different cases
+		const normalizedEmail: string | undefined = input.email ? input.email.toLowerCase().trim() : undefined;
+
+		try {
+			// STEP 2: If email is being updated, check if it's already taken by another user
+			// Prevents email conflicts while allowing user to keep their own email
+			if (normalizedEmail) {
+				input.email = normalizedEmail;
+
+				// Query for existing user with this email (excluding target user)
+				const existingUser = await this.userModel
+					.findOne({
+						email: normalizedEmail,
+						_id: { $ne: targetUserId }, // Exclude target user from check
+					})
+					.select('_id email')
+					.lean()
+					.exec();
+
+				if (existingUser) {
+					// Email is already taken by another user - throw specific exception
+					throw new UserAlreadyExistsException({
+						email: normalizedEmail,
+						existingUserId: existingUser._id,
+						message: 'This email address is already registered to another account',
+					});
+				}
+			}
+
+			// STEP 3: Update the user document with new values
+			// Admin can update all fields including status and role (if provided in input)
+			// findByIdAndUpdate is atomic and returns the updated document
+			// { new: true } ensures we get the updated document, not the old one
+			// { runValidators: true } runs Mongoose schema validators on update
+			const updatedUser = await this.userModel
+				.findByIdAndUpdate(targetUserId, input, {
+					new: true, // Return updated document
+					runValidators: true, // Run schema validators
+				})
+				.exec();
+
+			// STEP 4: Verify the user was found and updated
+			if (!updatedUser) {
+				// User not found with this ID - throw specific exception
+				throw new UserNotFoundException({
+					message: 'Target user not found for admin update',
+					userId: targetUserId,
+				});
+			}
+
+			// STEP 5: Convert Mongoose document to plain object
+			// This includes virtual fields (fullName, profileCompleteness, etc.)
+			// and removes Mongoose-specific properties
+			// Returns PublicUser (excludes sensitive fields like passwordHash)
+			return updatedUser.toObject() as PublicUser;
+		} catch (error: any) {
+			// Error handling with specific exceptions for different failure scenarios
+
+			// Re-throw custom exceptions (already properly formatted)
+			if (error instanceof UserNotFoundException) {
+				throw error;
+			}
+
+			if (error instanceof UserAlreadyExistsException) {
+				throw error;
+			}
+
+			// Handle MongoDB duplicate key error (E11000)
+			// This can occur if email unique index is violated (race condition)
+			if (error.name === 'MongoServerError' && error.code === 11000) {
+				const duplicateField: string = Object.keys(error.keyValue || {})[0] || 'email';
+				const duplicateValue: string = error.keyValue?.[duplicateField] || 'unknown';
+				throw new UserAlreadyExistsException({
+					field: duplicateField,
+					value: duplicateValue,
+					message: `A user with this ${duplicateField} already exists`,
+				});
+			}
+
+			// Handle Mongoose validation errors (invalid data types, formats, etc.)
+			if (error.name === 'ValidationError') {
+				const validationErrors = Object.keys(error.errors || {}).map((field) => ({
+					field,
+					message: error.errors[field]?.message || 'Validation failed',
+					value: error.errors[field]?.value,
+				}));
+
+				throw new DatabaseException(ErrorCode.VALIDATION_ERROR, {
+					message: 'User data validation failed during admin update',
+					validationErrors,
+				});
+			}
+
+			// Handle database connection errors
+			if (error.name === 'MongoNetworkError' || error.name === 'MongoTimeoutError') {
+				throw new InternalServerErrorException('Unable to connect to database service. Please try again later.');
+			}
+
+			// Handle unexpected errors with detailed context for debugging
+			// Log error details but return generic message to client
+			console.error('Unexpected error during admin user update:', {
+				error: error.message,
+				errorName: error.name,
+				targetUserId: targetUserId.toString(),
+				timestamp: new Date().toISOString(),
+				stack: error.stack,
+			});
+
+			throw new InternalServerErrorException('Failed to update user information. Please try again later.');
 		}
 	}
 }

@@ -228,6 +228,9 @@ export class PublicUser {
 	fullName: string;
 
 	@Field(() => String)
+	email?: string;
+
+	@Field(() => String)
 	role: UserRole;
 
 	@Field(() => Profile, { nullable: true })
