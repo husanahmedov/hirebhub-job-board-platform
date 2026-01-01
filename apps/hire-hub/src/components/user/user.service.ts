@@ -10,13 +10,21 @@ import {
 	LoginUserInput,
 	UserNotFoundException,
 	InvalidCredentialsException,
+	UserStatus,
+	UserDeactivatedException,
+	UserSuspendedException,
 } from '../../libs';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UserService {
-	constructor(@InjectModel('User') private userModel: Model<User>) {}
+	constructor(
+		@InjectModel('User') private userModel: Model<User>,
+		private readonly authService: AuthService,
+	) {}
 
 	public async register(input: RegisterUserInput): Promise<User> {
+		input.passwordHash = await this.authService.hashPassword(input.passwordHash);
 		try {
 			// Check if user already exists
 			const existingUser = await this.userModel.findOne({ email: input.email });
@@ -25,10 +33,10 @@ export class UserService {
 			}
 
 			// Create new user
-			const newUser = new this.userModel(input);
-			const savedUser = await newUser.save();
+			const newUser = await this.userModel.create(input);
+			newUser.accessToken = await this.authService.createToken(newUser);
 
-			return savedUser;
+			return newUser;
 		} catch (error) {
 			// If it's already one of our custom exceptions, re-throw it
 			if (error instanceof UserAlreadyExistsException) {
@@ -59,20 +67,26 @@ export class UserService {
 			const user = await this.userModel
 				.findOne({
 					email: input.email,
-					passwordHash: input.passwordHash,
 				})
 				.select('+passwordHash')
 				.exec();
 			if (!user) {
 				throw new UserNotFoundException(`User has not been found with given email ${input.email}`);
 			}
-			const isMatch = (user as User).passwordHash === input.passwordHash;
+			if (user.status === UserStatus.DEACTIVATED) {
+				throw new UserDeactivatedException(`'User has been deactivated ${input.email}`);
+			}
+			if (user.status === UserStatus.SUSPENDED) {
+				throw new UserSuspendedException(`'User has been suspended ${input.email}`);
+			}
+			const isMatch = await this.authService.comparePassword(input.passwordHash, user.passwordHash as string);
 			if (!isMatch) {
 				throw new InvalidCredentialsException({
 					message: 'Your password or email is wrong',
 					input: { email: input.email },
 				});
 			}
+			user.accessToken = await this.authService.createToken(user);
 			return user;
 		} catch (error) {
 			if (error instanceof UserNotFoundException) {

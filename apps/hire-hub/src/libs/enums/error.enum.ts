@@ -19,7 +19,10 @@ export enum ErrorCode {
 	USER_CREATION_FAILED = 'USER_2003',
 	USER_UPDATE_FAILED = 'USER_2004',
 	USER_DELETION_FAILED = 'USER_2005',
-	INVALID_USER_DATA = 'USER_2006',
+	USER_STATUS_DEACTIVATED = 'USER_2006',
+	USER_STATUS_SUSPENDED = 'USER_2007',
+	// USER_STATUS_ACTIVATE = 'USER_2008',
+	INVALID_USER_DATA = 'USER_2008',
 
 	// Company Related Errors (3xxx)
 	COMPANY_NOT_FOUND = 'COMPANY_3001',
@@ -110,6 +113,8 @@ export const ErrorMessage: Record<ErrorCode, string> = {
 	[ErrorCode.USER_CREATION_FAILED]: 'Failed to create user',
 	[ErrorCode.USER_UPDATE_FAILED]: 'Failed to update user',
 	[ErrorCode.USER_DELETION_FAILED]: 'Failed to delete user',
+	[ErrorCode.USER_STATUS_DEACTIVATED]: 'User status is deactivated. If you want to activate, please reach us',
+	[ErrorCode.USER_STATUS_SUSPENDED]: 'User status is suspended. If you want to activate, please reach us',
 	[ErrorCode.INVALID_USER_DATA]: 'Invalid user data provided',
 
 	// Company Related

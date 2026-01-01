@@ -18,6 +18,7 @@ import { ApolloDriver } from '@nestjs/apollo';
 import { AppResolver } from './app.resolver';
 import { ErrorCode, ErrorMessage, IGraphqlError } from './libs';
 import { GraphQLExceptionFilter } from './libs/filters/graphql-exception.filter';
+import { AuthModule } from './components/auth/auth.module';
 
 @Module({
 	imports: [
@@ -70,6 +71,7 @@ import { GraphQLExceptionFilter } from './libs/filters/graphql-exception.filter'
 		ResumeModule,
 		CompanyReviewModule,
 		DatabaseModule,
+		AuthModule,
 	],
 	controllers: [AppController],
 	providers: [

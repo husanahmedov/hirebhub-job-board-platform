@@ -1,5 +1,6 @@
 import { Field, ObjectType, ID } from '@nestjs/graphql';
 import { UserStatus, UserRole } from '../../enums/user.enum';
+import { IsOptional } from 'class-validator';
 
 /**
  * Geographic coordinates output
@@ -197,6 +198,10 @@ export class User {
 
 	@Field(() => Date, { nullable: true })
 	deletedAt?: Date;
+
+	@IsOptional()
+	@Field(() => String)
+	accessToken?: string;
 }
 
 /**
