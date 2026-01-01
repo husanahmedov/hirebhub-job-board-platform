@@ -12,6 +12,7 @@ export enum ErrorCode {
 	TOKEN_INVALID = 'AUTH_1004',
 	FORBIDDEN = 'AUTH_1005',
 	INSUFFICIENT_PERMISSIONS = 'AUTH_1006',
+	USER_NOT_AUTHENTICATED = 'AUTH_1007',
 
 	// User Related Errors (2xxx)
 	USER_NOT_FOUND = 'USER_2001',
@@ -106,6 +107,7 @@ export const ErrorMessage: Record<ErrorCode, string> = {
 	[ErrorCode.TOKEN_INVALID]: 'Invalid authentication token',
 	[ErrorCode.FORBIDDEN]: 'Access forbidden',
 	[ErrorCode.INSUFFICIENT_PERMISSIONS]: 'You do not have sufficient permissions',
+	[ErrorCode.USER_NOT_AUTHENTICATED]: 'You are not authenticated. Please login to continue',
 
 	// User Related
 	[ErrorCode.USER_NOT_FOUND]: 'User not found',

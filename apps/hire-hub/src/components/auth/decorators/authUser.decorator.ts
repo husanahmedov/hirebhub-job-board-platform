@@ -10,28 +10,6 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
  * @param context - The execution context containing request information
  *
  * @returns The authenticated member object, a specific property of the member, or null if not authenticated
- *
- * @example
- * // Get the entire member object
- * async getProfile(@AuthMember() member: Member): Promise<Member> { }
- *
- * @example
- * // Get only the member's ID
- * async updateProfile(@AuthMember('_id') memberId: string): Promise<Member> { }
- *
- * @example
- * // Get the member's nickname
- * async greet(@AuthMember('memberNick') nickname: string): Promise<string> { }
- *
- * Prerequisites:
- * - Must be used with AuthGuard or RolesGuard
- * - The guard must have already validated the token and attached member data to request.body.authMember
- *
- * How it works:
- * 1. Detects the request context type (GraphQL or HTTP)
- * 2. Extracts the request object from the appropriate context
- * 3. Retrieves the authMember object that was previously set by authentication guards
- * 4. Returns either the full member object or a specific property based on the 'data' parameter
  */
 export const AuthUser = createParamDecorator((data: string, context: ExecutionContext | any) => {
 	// Variable to hold the request object

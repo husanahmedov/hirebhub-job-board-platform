@@ -234,7 +234,7 @@ export class PublicUser {
 	profile?: Profile;
 
 	@IsOptional()
-	@Field(() => String, {nullable: true})
+	@Field(() => String, { nullable: true })
 	message?: string;
 
 	@IsOptional()

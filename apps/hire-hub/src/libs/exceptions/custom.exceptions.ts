@@ -47,6 +47,15 @@ export class UnauthorizedException extends BaseGraphQLException {
 }
 
 /**
+ * UnAuthenticatedException - Thrown when user is not authenticated
+ */
+export class UnAuthenticatedException extends BaseGraphQLException {
+	constructor(details?: any) {
+		super(ErrorCode.USER_NOT_AUTHENTICATED, undefined, details);
+	}
+}
+
+/**
  * UserDeactivatedException - Thrown when user is deactivated
  */
 export class UserDeactivatedException extends BaseGraphQLException {

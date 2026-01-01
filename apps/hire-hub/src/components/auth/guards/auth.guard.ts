@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
-import { UnauthorizedException } from '../../../libs';
+import { UnAuthenticatedException } from '../../../libs';
 import chalk from 'chalk';
 
 @Injectable()
@@ -19,7 +19,9 @@ export class AuthGuard implements CanActivate {
 		console.log(chalk.cyan('╠' + line + '╣'));
 
 		// User Basic Info
-		console.log(chalk.cyan('║') + chalk.bold.magenta('  👤 User Information') + ' '.repeat(boxWidth - 21) + chalk.cyan('║'));
+		console.log(
+			chalk.cyan('║') + chalk.bold.magenta('  👤 User Information') + ' '.repeat(boxWidth - 21) + chalk.cyan('║'),
+		);
 		console.log(chalk.cyan('║') + chalk.gray('  ' + separator.substring(0, boxWidth - 2)) + chalk.cyan('║'));
 		this.printField('Full Name', authUser.fullName, '🏷️ ', boxWidth + 2);
 		this.printField('Email', authUser.email, '📧 ', boxWidth);
@@ -114,12 +116,11 @@ export class AuthGuard implements CanActivate {
 			const request = context.getArgByIndex(2).req;
 
 			const bearerToken = request.headers.authorization;
-			if (!bearerToken) throw new UnauthorizedException(`You are not authenticated. Please login to continue`);
+			if (!bearerToken) throw new UnAuthenticatedException(`You are not authenticated. Please login to continue. You cannot access this resource without proper authentication.`);
 
 			const token = bearerToken.split(' ')[1],
 				authUser = await this.authService.verifyToken(token);
-			if (!authUser) throw new UnauthorizedException(`You are not authenticated. Please login to continue`);
-
+			if (!authUser) throw new UnAuthenticatedException(`You are not authenticated. Please login to continue. You cannot access this resource without proper authentication.`);
 			this.displayUserDetails(authUser);
 			request.body.authUser = authUser;
 
