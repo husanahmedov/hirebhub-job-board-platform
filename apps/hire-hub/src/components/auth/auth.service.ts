@@ -18,8 +18,9 @@ export class AuthService {
 		return await bcrypt.compare(password, hashedPassword);
 	}
 
-	public async createToken(data: User): Promise<string> {
-		const userData = data['_doc'] ? data['_doc'] : data;
+	public async createToken(data: any): Promise<string> {
+		// Convert to plain object with virtuals if it's a Mongoose document
+		const userData = data.toObject ? data.toObject() : data;
 
 		// create payload without sensitive data
 		const { passwordHash, ...payload } = userData;
@@ -29,6 +30,18 @@ export class AuthService {
 	public async verifyToken(token: string): Promise<User> {
 		const user = await this.jwtService.verifyAsync<User>(token);
 		user._id = shapeIntoMongoObjectId(user._id);
+
+		// Convert date strings back to Date objects
+		if (user.createdAt && typeof user.createdAt === 'string') {
+			user.createdAt = new Date(user.createdAt);
+		}
+		if (user.updatedAt && typeof user.updatedAt === 'string') {
+			user.updatedAt = new Date(user.updatedAt);
+		}
+		if (user.deletedAt && typeof user.deletedAt === 'string') {
+			user.deletedAt = new Date(user.deletedAt);
+		}
+
 		return user;
 	}
 }

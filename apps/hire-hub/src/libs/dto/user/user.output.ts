@@ -1,4 +1,4 @@
-import { Field, ObjectType, ID } from '@nestjs/graphql';
+import { Field, ObjectType, ID, GraphQLISODateTime } from '@nestjs/graphql';
 import { UserStatus, UserRole } from '../../enums/user.enum';
 import { IsOptional } from 'class-validator';
 
@@ -46,10 +46,10 @@ export class Education {
 	@Field(() => String, { nullable: true })
 	fieldOfStudy?: string;
 
-	@Field(() => Date)
+	@Field(() => GraphQLISODateTime)
 	startYear: Date;
 
-	@Field(() => Date, { nullable: true })
+	@Field(() => GraphQLISODateTime, { nullable: true })
 	endYear?: Date;
 }
 
@@ -67,10 +67,10 @@ export class Experience {
 	@Field(() => String, { nullable: true })
 	location?: string;
 
-	@Field(() => Date)
+	@Field(() => GraphQLISODateTime)
 	startDate: Date;
 
-	@Field(() => Date, { nullable: true })
+	@Field(() => GraphQLISODateTime, { nullable: true })
 	endDate?: Date;
 
 	@Field(() => String, { nullable: true })
@@ -178,9 +178,6 @@ export class User {
 	@Field(() => String)
 	status: UserStatus;
 
-	@Field(() => String)
-	passwordHash?: string;
-
 	@Field(() => Profile, { nullable: true })
 	profile?: Profile;
 
@@ -190,18 +187,27 @@ export class User {
 	@Field(() => UserSettings)
 	settings: UserSettings;
 
-	@Field(() => Date)
+	@Field(() => GraphQLISODateTime)
 	createdAt: Date;
 
-	@Field(() => Date)
+	@Field(() => GraphQLISODateTime)
 	updatedAt: Date;
 
-	@Field(() => Date, { nullable: true })
+	@Field(() => GraphQLISODateTime, { nullable: true })
 	deletedAt?: Date;
 
 	@IsOptional()
 	@Field(() => String)
 	accessToken?: string;
+
+	// Virtual methods
+	@IsOptional()
+	@Field(() => String)
+	fullName?: string;
+
+	@IsOptional()
+	@Field(() => String)
+	passwordHash?: string;
 }
 
 /**
@@ -219,13 +225,21 @@ export class PublicUser {
 	lastName: string;
 
 	@Field(() => String)
+	fullName: string;
+
+	@Field(() => String)
 	role: UserRole;
 
 	@Field(() => Profile, { nullable: true })
 	profile?: Profile;
 
-	@Field(() => Date)
-	createdAt: Date;
+	@IsOptional()
+	@Field(() => String, {nullable: true})
+	message?: string;
+
+	@IsOptional()
+	@Field(() => GraphQLISODateTime, { nullable: true })
+	createdAt?: Date;
 }
 
 /**

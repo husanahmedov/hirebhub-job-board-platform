@@ -34,9 +34,10 @@ export class UserService {
 
 			// Create new user
 			const newUser = await this.userModel.create(input);
-			newUser.accessToken = await this.authService.createToken(newUser);
+			const userObject = newUser.toObject();
+			userObject.accessToken = await this.authService.createToken(newUser);
 
-			return newUser;
+			return userObject as User;
 		} catch (error) {
 			// If it's already one of our custom exceptions, re-throw it
 			if (error instanceof UserAlreadyExistsException) {
@@ -86,8 +87,9 @@ export class UserService {
 					input: { email: input.email },
 				});
 			}
-			user.accessToken = await this.authService.createToken(user);
-			return user;
+			const userObject = user.toObject();
+			userObject.accessToken = await this.authService.createToken(user);
+			return userObject as User;
 		} catch (error) {
 			if (error instanceof UserNotFoundException) {
 				throw error;

@@ -13,7 +13,7 @@ import { ResumeModule } from './components/resume/resume.module';
 import { CompanyReviewModule } from './components/company-review/company-review.module';
 import { DatabaseModule } from './database/database.module';
 
-import { GraphQLModule } from '@nestjs/graphql';
+import { GraphQLModule, DateScalarMode } from '@nestjs/graphql';
 import { ApolloDriver } from '@nestjs/apollo';
 import { AppResolver } from './app.resolver';
 import { ErrorCode, ErrorMessage, IGraphqlError } from './libs';
@@ -28,6 +28,7 @@ import { AuthModule } from './components/auth/auth.module';
 			driver: ApolloDriver,
 			uploads: false,
 			playground: true,
+			dateScalarMode: 'isoDate' as DateScalarMode,
 			formatError: (error: IGraphqlError) => {
 				const code = error?.extensions?.code || 'INTERNAL_SERVER_ERROR';
 				const timestamp = error?.extensions?.timestamp || new Date().toISOString();
@@ -50,7 +51,6 @@ import { AuthModule } from './components/auth/auth.module';
 							},
 						],
 					};
-
 				} else {
 				}
 				return {
