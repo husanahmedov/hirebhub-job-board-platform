@@ -10,6 +10,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { AuthService } from '../auth/auth.service';
 import type { ObjectId } from 'mongoose';
+import { Step3RegisterInput, Step4RegisterInput } from '../../libs/';
 
 @Resolver()
 export class UserResolver {
@@ -58,6 +59,54 @@ export class UserResolver {
 		return await this.userService.register(input);
 	}
 
+	/**
+	 * Create user profile after registration
+	 *
+	 * This mutation allows a newly registered user to complete their profile by adding
+	 * detailed information such as location, skills, bio, headline, and other profile data.
+	 * This is typically called after initial registration to enhance the user's profile.
+	 *
+	 * @param input - Complete profile data including location, skills, bio, etc.
+	 * @param userId - The authenticated user's ID (automatically extracted from JWT token)
+	 * @returns Promise<PublicUser> - The user object with updated profile data
+	 *
+	 * @throws {UserNotFoundException} - If the authenticated user doesn't exist in the system
+	 * @throws {InternalServerErrorException} - If profile creation fails for unexpected reasons
+	 *
+	 * @security
+	 * - Requires authentication (AuthGuard)
+	 * - Users can only create their own profile
+	 * - Profile data is validated against DTO constraints
+	 *
+	 * @example
+	 * mutation {
+	 *   createProfileAfterRegistration(input: {
+	 *     profile: {
+	 *       headline: "Full Stack Developer"
+	 *       bio: "Passionate about building scalable applications"
+	 *       location: {
+	 *         city: "San Francisco"
+	 *         region: "CA"
+	 *         country: USA
+	 *       }
+	 *       skills: ["JavaScript", "TypeScript", "React", "Node.js"]
+	 *       avatarUrl: "https://example.com/avatar.jpg"
+	 *     }
+	 *   }) {
+	 *     _id
+	 *     email
+	 *     fullName
+	 *     profile {
+	 *       headline
+	 *       bio
+	 *       location { city region country }
+	 *       skills
+	 *     }
+	 *   }
+	 * }
+	 */
+	@Roles(UserRole.CANDIDATE)
+	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
 	@Mutation(() => PublicUser, {
 		description: "Create user profile after registration (completes user's profile data)",
@@ -69,6 +118,171 @@ export class UserResolver {
 	): Promise<PublicUser> {
 		console.log(`--- @mutation() Create Profile After Registration is called: ${userId} ---`);
 		return await this.userService.createProfileAfterRegistration(userId, input);
+	}
+
+	/**
+	 * Add or update education entries in user profile
+	 *
+	 * This mutation allows authenticated users to add new education entries to their profile.
+	 * It supports both step 3 registration flow and standalone education management. The system
+	 * automatically detects and prevents duplicate education entries by comparing school names.
+	 *
+	 * Duplicate Detection:
+	 * - Compares new education entries with existing ones
+	 * - Checks for similar school names (case-insensitive, normalized)
+	 * - Only adds education entries that don't already exist
+	 * - Allows multiple entries from different schools
+	 *
+	 * @param input - Education data containing array of education entries
+	 * @param userId - The authenticated user's ID (automatically extracted from JWT token)
+	 * @returns Promise<PublicUser> - The user object with updated education entries
+	 *
+	 * @throws {UserNotFoundException} - If the authenticated user doesn't exist in the system
+	 * @throws {InternalServerErrorException} - If education update fails for unexpected reasons
+	 *
+	 * @security
+	 * - Requires authentication (AuthGuard)
+	 * - Users can only update their own education
+	 * - Education data is validated against DTO constraints
+	 *
+	 * @features
+	 * - Adds new education entries without removing existing ones
+	 * - Prevents duplicate schools from being added
+	 * - Validates all education fields (school, degree, years, etc.)
+	 * - Supports multiple education entries in a single request
+	 *
+	 * @example
+	 * mutation {
+	 *   step3RegistrationProcess(input: {
+	 *     education: [
+	 *       {
+	 *         school: "Stanford University"
+	 *         degree: "Master of Science"
+	 *         fieldOfStudy: "Computer Science"
+	 *         startYear: 2020
+	 *         endYear: 2022
+	 *       },
+	 *       {
+	 *         school: "MIT"
+	 *         degree: "Bachelor of Science"
+	 *         fieldOfStudy: "Software Engineering"
+	 *         startYear: 2016
+	 *         endYear: 2020
+	 *       }
+	 *     ]
+	 *   }) {
+	 *     _id
+	 *     email
+	 *     fullName
+	 *     profile {
+	 *       education {
+	 *         school
+	 *         degree
+	 *         fieldOfStudy
+	 *         startYear
+	 *         endYear
+	 *       }
+	 *     }
+	 *   }
+	 * }
+	 */
+	@Roles(UserRole.CANDIDATE)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Mutation(() => PublicUser, {
+		description: 'Add education entries to user profile with automatic duplicate detection',
+	})
+	public async step3RegistrationProcess(
+		@Args('input', { type: () => Step3RegisterInput, description: "Education data to add to user's profile" })
+		input: Step3RegisterInput,
+		@AuthUser('_id') userId: ObjectId,
+	): Promise<PublicUser> {
+		console.log(`--- @mutation() Step 3 Registration Process is called: ${userId} ---`);
+		return await this.userService.step3RegistrationProcess(userId, input);
+	}
+
+	/**
+	 * Add or update experience entries in user profile
+	 *
+	 * This mutation allows authenticated users to add new work experience entries to their profile.
+	 * It supports both step 4 registration flow and standalone experience management. The system
+	 * automatically detects and prevents duplicate experience entries by comparing company names.
+	 *
+	 * Duplicate Detection:
+	 * - Compares new experience entries with existing ones
+	 * - Checks for similar company names (case-insensitive, normalized)
+	 * - Only adds experience entries that don't already exist
+	 * - Allows multiple entries from different companies
+	 *
+	 * @param input - Experience data containing array of work experience entries
+	 * @param userId - The authenticated user's ID (automatically extracted from JWT token)
+	 * @returns Promise<PublicUser> - The user object with updated experience entries
+	 *
+	 * @throws {UserNotFoundException} - If the authenticated user doesn't exist in the system
+	 * @throws {InternalServerErrorException} - If experience update fails for unexpected reasons
+	 *
+	 * @security
+	 * - Requires authentication (AuthGuard)
+	 * - Users can only update their own experience
+	 * - Experience data is validated against DTO constraints
+	 *
+	 * @features
+	 * - Adds new experience entries without removing existing ones
+	 * - Prevents duplicate companies from being added
+	 * - Validates all experience fields (company, title, dates, etc.)
+	 * - Supports multiple experience entries in a single request
+	 *
+	 * @example
+	 * mutation {
+	 *   step4RegistrationProcess(input: {
+	 *     experience: [
+	 *       {
+	 *         company: "Google"
+	 *         title: "Senior Software Engineer"
+	 *         location: "Mountain View, CA"
+	 *         startDate: 2020
+	 *         endDate: 2023
+	 *         description: "Led development of core infrastructure..."
+	 *       },
+	 *       {
+	 *         company: "Facebook"
+	 *         title: "Software Engineer"
+	 *         location: "Menlo Park, CA"
+	 *         startDate: 2018
+	 *         endDate: 2020
+	 *         description: "Built scalable backend services..."
+	 *       }
+	 *     ]
+	 *   }) {
+	 *     _id
+	 *     email
+	 *     fullName
+	 *     profile {
+	 *       experience {
+	 *         company
+	 *         title
+	 *         location
+	 *         startDate
+	 *         endDate
+	 *         description
+	 *       }
+	 *     }
+	 *   }
+	 * }
+	 */
+	@Roles(UserRole.CANDIDATE)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Mutation(() => PublicUser, {
+		description: 'Add work experience entries to user profile with automatic duplicate detection',
+	})
+	public async step4RegistrationProcess(
+		@Args('input', { type: () => Step4RegisterInput, description: "Experience data to add to user's profile" })
+		input: Step4RegisterInput,
+		@AuthUser('_id') userId: ObjectId,
+	): Promise<PublicUser> {
+		console.log(`--- @mutation() Step 4 Registration Process is called: ${userId} ---`);
+		return await this.userService.step4RegistrationProcess(userId, input);
 	}
 
 	/**

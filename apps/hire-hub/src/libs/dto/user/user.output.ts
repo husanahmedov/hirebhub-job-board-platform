@@ -46,11 +46,11 @@ export class Education {
 	@Field(() => String, { nullable: true })
 	fieldOfStudy?: string;
 
-	@Field(() => GraphQLISODateTime)
-	startYear: Date;
+	@Field(() => Number)
+	startYear: number;
 
-	@Field(() => GraphQLISODateTime, { nullable: true })
-	endYear?: Date;
+	@Field(() => Number, { nullable: true })
+	endYear?: number;
 }
 
 /**
@@ -67,11 +67,11 @@ export class Experience {
 	@Field(() => String, { nullable: true })
 	location?: string;
 
-	@Field(() => GraphQLISODateTime)
-	startDate: Date;
+	@Field(() => Number)
+	startDate: number;
 
-	@Field(() => GraphQLISODateTime, { nullable: true })
-	endDate?: Date;
+	@Field(() => Number, { nullable: true })
+	endDate?: number;
 
 	@Field(() => String, { nullable: true })
 	description?: string;

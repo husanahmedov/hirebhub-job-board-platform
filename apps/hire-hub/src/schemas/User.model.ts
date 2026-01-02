@@ -255,14 +255,14 @@ const UserSchema = new Schema(
 					 * Start date of education
 					 */
 					startYear: {
-						type: Date,
+						type: Number,
 					},
 
 					/**
 					 * End date of education (null if ongoing)
 					 */
 					endYear: {
-						type: Date,
+						type: Number,
 					},
 				},
 			],
@@ -314,14 +314,14 @@ const UserSchema = new Schema(
 					 * Employment start date
 					 */
 					startDate: {
-						type: Date,
+						type: Number,
 					},
 
 					/**
 					 * Employment end date (null if current)
 					 */
 					endDate: {
-						type: Date,
+						type: Number,
 					},
 
 					/**
@@ -471,6 +471,26 @@ const UserSchema = new Schema(
 		hasCompleteRegistration: {
 			type: Boolean,
 			default: false,
+		},
+
+		/**
+		 * User qualifications
+		 * @type [QualificationSchema]
+		 * @default []
+		 */
+		qualifications: {
+			type: [Object],
+			default: [],
+		},
+
+		/**
+		 * User publications
+		 * @type [PublicationSchema]
+		 * @default []
+		 */
+		publications: {
+			type: [Object],
+			default: [],
 		},
 	},
 	{

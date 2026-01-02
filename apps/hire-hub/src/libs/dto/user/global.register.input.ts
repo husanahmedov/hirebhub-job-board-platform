@@ -1,4 +1,4 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, GraphQLISODateTime, InputType } from '@nestjs/graphql';
 import {
 	IsNotEmpty,
 	IsOptional,
@@ -89,14 +89,14 @@ export class EducationInput {
 	fieldOfStudy?: string;
 
 	@IsNotEmpty()
-	@IsDateString()
-	@Field(() => Date)
-	startYear: Date;
+	@IsNumber()
+	@Field(() => Number)
+	startYear: number;
 
 	@IsOptional()
-	@IsDateString()
-	@Field(() => Date, { nullable: true })
-	endYear?: Date;
+	@IsNumber()
+	@Field(() => Number, { nullable: true })
+	endYear?: number;
 }
 
 /**
@@ -123,95 +123,18 @@ export class ExperienceInput {
 	location?: string;
 
 	@IsNotEmpty()
-	@IsDateString()
-	@Field(() => Date)
-	startDate: Date;
+	@IsNumber()
+	@Field(() => Number)
+	startDate: number;
 
 	@IsOptional()
-	@IsDateString()
-	@Field(() => Date, { nullable: true })
-	endDate?: Date;
+	@IsNumber()
+	@Field(() => Number, { nullable: true })
+	endDate?: number;
 
 	@IsOptional()
 	@IsString()
 	@MaxLength(1000)
 	@Field(() => String, { nullable: true })
 	description?: string;
-}
-
-/**
- * User profile input
- */
-@InputType()
-export class ProfileInput {
-	@IsOptional()
-	@IsString()
-	@MaxLength(200)
-	@Field(() => String, { nullable: true })
-	headline?: string;
-
-	@IsOptional()
-	@IsString()
-	@MaxLength(2000)
-	@Field(() => String, { nullable: true })
-	bio?: string;
-
-	@IsOptional()
-	@ValidateNested()
-	@Type(() => LocationInput)
-	@Field(() => LocationInput, { nullable: false })
-	location: LocationInput;
-
-	@IsNotEmpty()
-	@IsArray()
-	@IsString({ each: true })
-	@Field(() => [String], { nullable: false })
-	skills: string[];
-
-	@IsOptional()
-	@IsArray()
-	@ValidateNested({ each: true })
-	@Type(() => EducationInput)
-	@Field(() => [EducationInput], { nullable: true })
-	education?: EducationInput[];
-
-	@IsOptional()
-	@IsArray()
-	@ValidateNested({ each: true })
-	@Type(() => ExperienceInput)
-	@Field(() => [ExperienceInput], { nullable: true })
-	experience?: ExperienceInput[];
-
-	@IsOptional()
-	@IsArray()
-	@IsString({ each: true })
-	@Field(() => [String], { nullable: true })
-	socialLinks?: string[];
-
-	@IsOptional()
-	@IsString()
-	@Field(() => String, { nullable: true })
-	resumeId?: string;
-
-	@IsOptional()
-	@IsUrl()
-	@Field(() => String, { nullable: true })
-	avatarUrl?: string;
-
-	@IsOptional()
-	@IsUrl()
-	@Field(() => String, { nullable: true })
-	bannerUrl?: string;
-}
-
-/**
- * Update user profile input
- */
-@InputType()
-export class UpdateProfileInput {
-	@IsOptional()
-	@ValidateNested()
-	@Type(() => ProfileInput)
-	@Field(() => ProfileInput, { nullable: true })
-	profile?: ProfileInput;
 }
