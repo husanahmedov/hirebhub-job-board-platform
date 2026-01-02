@@ -8,7 +8,6 @@
  * @module EnvUtil
  */
 
-
 /**
  * Interface defining required environment variables for the application
  */
@@ -25,8 +24,30 @@ export interface EnvironmentConfig {
 	MONGO_PROD?: string;
 	/** JWT secret key */
 	JWT_SECRET?: string;
+	/** JWT refresh secret key */
+	JWT_REFRESH_SECRET?: string;
 	/** CORS origin */
 	CORS_ORIGIN?: string;
+	/** Google OAuth Client ID */
+	GOOGLE_CLIENT_ID?: string;
+	/** Google OAuth Client Secret */
+	GOOGLE_CLIENT_SECRET?: string;
+	/** Google OAuth Callback URL */
+	GOOGLE_CALLBACK_URL?: string;
+	/** LinkedIn OAuth Client ID */
+	LINKEDIN_CLIENT_ID?: string;
+	/** LinkedIn OAuth Client Secret */
+	LINKEDIN_CLIENT_SECRET?: string;
+	/** LinkedIn OAuth Callback URL */
+	LINKEDIN_CALLBACK_URL?: string;
+	/** GitHub OAuth Client ID */
+	GITHUB_CLIENT_ID?: string;
+	/** GitHub OAuth Client Secret */
+	GITHUB_CLIENT_SECRET?: string;
+	/** GitHub OAuth Callback URL */
+	GITHUB_CALLBACK_URL?: string;
+	/** Frontend URL for OAuth redirects */
+	FRONTEND_URL?: string;
 }
 
 /**
@@ -99,7 +120,6 @@ export class EnvUtil {
 		if (errors.length > 0) {
 			throw new Error('Environment validation failed. Check the logs above.');
 		}
-
 	}
 
 	/**
@@ -185,11 +205,147 @@ export class EnvUtil {
 	}
 
 	/**
+	 * Get the JWT refresh secret
+	 * @returns The JWT refresh secret or a default value for development
+	 */
+	public static getJwtRefreshSecret(): string {
+		if (this.isProduction() && !process.env.JWT_REFRESH_SECRET) {
+			throw new Error('JWT_REFRESH_SECRET is required in production');
+		}
+		return process.env.JWT_REFRESH_SECRET ?? 'dev-refresh-secret-key-change-in-production';
+	}
+
+	/**
+	 * Get the frontend URL for OAuth redirects
+	 * @returns The frontend URL
+	 */
+	public static getFrontendUrl(): string {
+		return process.env.FRONTEND_URL ?? (this.isDevelopment() ? 'http://localhost:3000' : '');
+	}
+
+	// ============================================================
+	// OAuth Configuration Methods
+	// ============================================================
+
+	/**
+	 * Get Google OAuth Client ID
+	 * @returns The Google OAuth Client ID
+	 */
+	public static getGoogleClientId(): string {
+		const clientId = process.env.GOOGLE_CLIENT_ID;
+		if (!clientId && this.isProduction()) {
+			throw new Error('GOOGLE_CLIENT_ID is not configured');
+		}
+		return clientId ?? '';
+	}
+
+	/**
+	 * Get Google OAuth Client Secret
+	 * @returns The Google OAuth Client Secret
+	 */
+	public static getGoogleClientSecret(): string {
+		const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+		if (!clientSecret && this.isProduction()) {
+			throw new Error('GOOGLE_CLIENT_SECRET is not configured');
+		}
+		return clientSecret ?? '';
+	}
+
+	/**
+	 * Get Google OAuth Callback URL
+	 * @returns The Google OAuth Callback URL
+	 */
+	public static getGoogleCallbackUrl(): string {
+		return process.env.GOOGLE_CALLBACK_URL ?? `http://localhost:${this.getPort()}/auth/google/callback`;
+	}
+
+	/**
+	 * Get LinkedIn OAuth Client ID
+	 * @returns The LinkedIn OAuth Client ID
+	 */
+	public static getLinkedInClientId(): string {
+		const clientId = process.env.LINKEDIN_CLIENT_ID;
+		if (!clientId && this.isProduction()) {
+			throw new Error('LINKEDIN_CLIENT_ID is not configured');
+		}
+		return clientId ?? '';
+	}
+
+	/**
+	 * Get LinkedIn OAuth Client Secret
+	 * @returns The LinkedIn OAuth Client Secret
+	 */
+	public static getLinkedInClientSecret(): string {
+		const clientSecret = process.env.LINKEDIN_CLIENT_SECRET;
+		if (!clientSecret && this.isProduction()) {
+			throw new Error('LINKEDIN_CLIENT_SECRET is not configured');
+		}
+		return clientSecret ?? '';
+	}
+
+	/**
+	 * Get LinkedIn OAuth Callback URL
+	 * @returns The LinkedIn OAuth Callback URL
+	 */
+	public static getLinkedInCallbackUrl(): string {
+		return process.env.LINKEDIN_CALLBACK_URL ?? `http://localhost:${this.getPort()}/auth/linkedin/callback`;
+	}
+
+	/**
+	 * Get GitHub OAuth Client ID
+	 * @returns The GitHub OAuth Client ID
+	 */
+	public static getGitHubClientId(): string {
+		const clientId = process.env.GITHUB_CLIENT_ID;
+		if (!clientId && this.isProduction()) {
+			throw new Error('GITHUB_CLIENT_ID is not configured');
+		}
+		return clientId ?? '';
+	}
+
+	/**
+	 * Get GitHub OAuth Client Secret
+	 * @returns The GitHub OAuth Client Secret
+	 */
+	public static getGitHubClientSecret(): string {
+		const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+		if (!clientSecret && this.isProduction()) {
+			throw new Error('GITHUB_CLIENT_SECRET is not configured');
+		}
+		return clientSecret ?? '';
+	}
+
+	/**
+	 * Get GitHub OAuth Callback URL
+	 * @returns The GitHub OAuth Callback URL
+	 */
+	public static getGitHubCallbackUrl(): string {
+		return process.env.GITHUB_CALLBACK_URL ?? `http://localhost:${this.getPort()}/auth/github/callback`;
+	}
+
+	/**
+	 * Check if OAuth is configured for a specific provider
+	 * @param provider The OAuth provider name (google, linkedin, github)
+	 * @returns True if the provider is configured
+	 */
+	public static isOAuthConfigured(provider: 'google' | 'linkedin' | 'github'): boolean {
+		switch (provider) {
+			case 'google':
+				return !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+			case 'linkedin':
+				return !!(process.env.LINKEDIN_CLIENT_ID && process.env.LINKEDIN_CLIENT_SECRET);
+			case 'github':
+				return !!(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET);
+			default:
+				return false;
+		}
+	}
+
+	/**
 	 * Print environment configuration summary
 	 * Useful for debugging and verification
 	 */
 	public static printSummary(): void {
-
 		// Only show sensitive info in development
 		if (this.isDevelopment()) {
 		}
@@ -207,7 +363,18 @@ export class EnvUtil {
 			MONGO_DEV: process.env.MONGO_DEV,
 			MONGO_PROD: process.env.MONGO_PROD,
 			JWT_SECRET: process.env.JWT_SECRET,
+			JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
 			CORS_ORIGIN: process.env.CORS_ORIGIN,
+			GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+			GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+			GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL,
+			LINKEDIN_CLIENT_ID: process.env.LINKEDIN_CLIENT_ID,
+			LINKEDIN_CLIENT_SECRET: process.env.LINKEDIN_CLIENT_SECRET,
+			LINKEDIN_CALLBACK_URL: process.env.LINKEDIN_CALLBACK_URL,
+			GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
+			GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+			GITHUB_CALLBACK_URL: process.env.GITHUB_CALLBACK_URL,
+			FRONTEND_URL: process.env.FRONTEND_URL,
 		};
 	}
 }

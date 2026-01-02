@@ -9,6 +9,7 @@
 export * from './user.input';
 export * from './user.update';
 export * from './user.profile.input';
+export * from './refresh-token.input';
 
 // Output DTOs (for queries and responses)
 export * from './user.output';

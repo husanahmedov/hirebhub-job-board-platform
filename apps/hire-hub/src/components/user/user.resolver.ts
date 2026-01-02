@@ -1,6 +1,6 @@
 import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { UserService } from './user.service';
-import { RegisterUserInput, User } from '../../libs/dto/user';
+import { RegisterUserInput, User, RefreshTokenInput, AuthResponse } from '../../libs/dto/user';
 import { LoginUserInput, PublicUser, UpdateUserInput, UserRole } from '../../libs';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -8,11 +8,15 @@ import { AuthUser } from '../auth/decorators/authUser.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { shapeIntoMongoObjectId } from '../../libs/config';
+import { AuthService } from '../auth/auth.service';
 import type { ObjectId } from 'mongoose';
 
 @Resolver()
 export class UserResolver {
-	constructor(private readonly userService: UserService) {}
+	constructor(
+		private readonly userService: UserService,
+		private readonly authService: AuthService,
+	) {}
 
 	/**
 	 * Register a new user account
@@ -235,6 +239,60 @@ export class UserResolver {
 		return {
 			...user,
 			message: 'User has proper roles to access this resource',
+		};
+	}
+
+	/**
+	 * Refresh access token using refresh token
+	 *
+	 * This mutation allows clients to obtain a new access token without re-authenticating.
+	 * It validates the refresh token and generates a new access token if valid.
+	 *
+	 * @param input - Contains the refresh token
+	 * @returns Promise<AuthResponse> - New access token with expiration times
+	 *
+	 * @throws {InvalidCredentialsException} - If refresh token is invalid or expired
+	 * @throws {UserNotFoundException} - If user no longer exists
+	 * @throws {UserDeactivatedException} - If user account is deactivated
+	 * @throws {UserSuspendedException} - If user account is suspended
+	 *
+	 * @example
+	 * mutation {
+	 *   refreshToken(input: { refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." }) {
+	 *     user {
+	 *       _id
+	 *       email
+	 *       fullName
+	 *     }
+	 *     accessToken
+	 *     refreshToken
+	 *     accessTokenExpiresAt
+	 *     refreshTokenExpiresAt
+	 *   }
+	 * }
+	 */
+	@Mutation(() => AuthResponse, {
+		description: 'Refresh access token using a valid refresh token',
+	})
+	public async refreshToken(
+		@Args('input', { type: () => RefreshTokenInput, description: 'Refresh token input' })
+		input: RefreshTokenInput,
+	): Promise<AuthResponse> {
+		console.log('--- @mutation() Refresh Token is called ---');
+
+		// Verify refresh token and extract user ID
+		const payload = await this.authService.verifyRefreshToken(input.refreshToken);
+
+		// Use UserService to validate and refresh
+		const result = await this.userService.refreshAccessToken(payload._id, input.refreshToken);
+
+		// Return AuthResponse with tokens and expiration times
+		return {
+			user: result.user,
+			accessToken: result.accessToken,
+			refreshToken: result.newRefreshToken || input.refreshToken, // Use new token if rotated
+			accessTokenExpiresAt: this.authService.getAccessTokenExpiration(),
+			refreshTokenExpiresAt: this.authService.getRefreshTokenExpiration(),
 		};
 	}
 }

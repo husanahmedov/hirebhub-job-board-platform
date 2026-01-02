@@ -200,6 +200,10 @@ export class User {
 	@Field(() => String)
 	accessToken?: string;
 
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	refreshToken?: string;
+
 	// Virtual methods
 	@IsOptional()
 	@Field(() => String)
@@ -246,18 +250,24 @@ export class PublicUser {
 }
 
 /**
- * User authentication response
+ * User authentication response with tokens
  */
 @ObjectType()
 export class AuthResponse {
-	@Field(() => User)
+	@Field(() => User, { description: 'Authenticated user object with full profile data' })
 	user: User;
 
-	@Field(() => String)
+	@Field(() => String, { description: 'JWT access token for authenticated API requests (short-lived)' })
 	accessToken: string;
 
-	@Field(() => String)
+	@Field(() => String, { description: 'JWT refresh token for obtaining new access tokens (long-lived)' })
 	refreshToken: string;
+
+	@Field(() => GraphQLISODateTime, { nullable: true, description: 'Timestamp when the access token expires' })
+	accessTokenExpiresAt?: Date;
+
+	@Field(() => GraphQLISODateTime, { nullable: true, description: 'Timestamp when the refresh token expires' })
+	refreshTokenExpiresAt?: Date;
 }
 
 /**

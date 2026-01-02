@@ -6,6 +6,8 @@ import { EnvUtil } from './libs';
 import { LoggingInterceptor } from './libs/interceptors/Logging.interceptor';
 import { TimeoutInterceptor } from './libs/interceptors/Timeout.interceptor';
 
+import * as passport from 'passport';
+
 /**
  * Bootstrap function - Initializes and starts the HireHub application
  *
