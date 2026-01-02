@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '../../libs';
+import { User, TokenExpiredException } from '../../libs';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { EnvUtil } from '../../libs/env.util';
 
@@ -81,23 +81,28 @@ export class AuthService {
 	 * @returns Decoded user data
 	 */
 	public async verifyToken(token: string): Promise<User> {
-		const user = await this.jwtService.verifyAsync<User>(token, {
-			secret: EnvUtil.getJwtSecret(),
-		});
-		user._id = shapeIntoMongoObjectId(user._id);
+		try {
+			const user = await this.jwtService.verifyAsync<User>(token, {
+				secret: EnvUtil.getJwtSecret(),
+			});
 
-		// Convert date strings back to Date objects
-		if (user.createdAt && typeof user.createdAt === 'string') {
-			user.createdAt = new Date(user.createdAt);
-		}
-		if (user.updatedAt && typeof user.updatedAt === 'string') {
-			user.updatedAt = new Date(user.updatedAt);
-		}
-		if (user.deletedAt && typeof user.deletedAt === 'string') {
-			user.deletedAt = new Date(user.deletedAt);
-		}
+			user._id = shapeIntoMongoObjectId(user._id);
 
-		return user;
+			// Convert date strings back to Date objects
+			if (user.createdAt && typeof user.createdAt === 'string') {
+				user.createdAt = new Date(user.createdAt);
+			}
+			if (user.updatedAt && typeof user.updatedAt === 'string') {
+				user.updatedAt = new Date(user.updatedAt);
+			}
+			if (user.deletedAt && typeof user.deletedAt === 'string') {
+				user.deletedAt = new Date(user.deletedAt);
+			}
+
+			return user;
+		} catch (error) {
+			throw new TokenExpiredException('Invalid or expired access token');
+		}
 	}
 
 	/**

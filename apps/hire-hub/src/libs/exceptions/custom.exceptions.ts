@@ -74,6 +74,16 @@ export class UserSuspendedException extends BaseGraphQLException {
 }
 
 /**
+ * TokenExpiredException - Thrown when authentication token has expired
+ */
+
+export class TokenExpiredException extends BaseGraphQLException {
+	constructor(details?: any) {
+		super(ErrorCode.TOKEN_EXPIRED, undefined, details);
+	}
+}
+
+/**
  * ForbiddenException - Thrown when user doesn't have permission
  */
 export class ForbiddenException extends BaseGraphQLException {

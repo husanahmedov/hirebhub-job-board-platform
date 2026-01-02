@@ -114,12 +114,12 @@ export class AuthGuard implements CanActivate {
 	async canActivate(context: ExecutionContext | any): Promise<boolean> {
 		if (context.contextType === 'graphql') {
 			const request = context.getArgByIndex(2).req;
-
+			
 			const bearerToken = request.headers.authorization;
 			if (!bearerToken) throw new UnAuthenticatedException(`You are not authenticated. Please login to continue. You cannot access this resource without proper authentication.`);
-
+			
 			const token = bearerToken.split(' ')[1],
-				authUser = await this.authService.verifyToken(token);
+			authUser = await this.authService.verifyToken(token);
 			if (!authUser) throw new UnAuthenticatedException(`You are not authenticated. Please login to continue. You cannot access this resource without proper authentication.`);
 			this.displayUserDetails(authUser);
 			request.body.authUser = authUser;
