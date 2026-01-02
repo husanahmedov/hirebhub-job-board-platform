@@ -100,6 +100,9 @@ export class Profile {
 	@Field(() => [Experience], { nullable: true })
 	experience?: Experience[];
 
+	@Field(() => [String], { nullable: true })
+	socialLinks?: string[];
+
 	@Field(() => String, { nullable: true })
 	resumeId?: string;
 
@@ -212,6 +215,10 @@ export class User {
 	@IsOptional()
 	@Field(() => String)
 	passwordHash?: string;
+
+	@IsOptional()
+	@Field(() => Boolean)
+	hasCompleteRegistration?: boolean;
 }
 
 /**

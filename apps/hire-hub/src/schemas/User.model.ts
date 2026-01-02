@@ -335,6 +335,13 @@ const UserSchema = new Schema(
 				},
 			],
 
+			socialLinks: [
+				{
+					type: String,
+					trim: true,
+					maxlength: 40,
+				},
+			],
 			/**
 			 * Reference to uploaded resume document
 			 */
@@ -455,6 +462,15 @@ const UserSchema = new Schema(
 		deletedAt: {
 			type: Date,
 			default: null,
+		},
+
+		/**
+		 * Flag indicating if the user has completed registration
+		 * @default false
+		 */
+		hasCompleteRegistration: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	{

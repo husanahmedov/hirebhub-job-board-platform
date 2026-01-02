@@ -15,6 +15,7 @@ import {
 	UserSuspendedException,
 	UpdateUserInput,
 	PublicUser,
+	UpdateProfileInput,
 } from '../../libs';
 import { AuthService } from '../auth/auth.service';
 import { shapeIntoMongoObjectId } from '../../libs/config';
@@ -677,6 +678,29 @@ export class UserService {
 			});
 
 			throw new InternalServerErrorException('Failed to update user information. Please try again later.');
+		}
+	}
+
+	public async createProfileAfterRegistration(userId: ObjectId, profileData: UpdateProfileInput): Promise<PublicUser> {
+		try {
+			const updatedUser = await this.userModel
+				.findByIdAndUpdate(userId, { profile: profileData.profile }, { new: true })
+				.exec();
+
+			if (!updatedUser) {
+				throw new UserNotFoundException({
+					message: 'User not found for profile creation',
+					userId,
+				});
+			}
+
+			return updatedUser.toObject() as PublicUser;
+		} catch (error: any) {
+			if (error instanceof UserNotFoundException) {
+				throw error;
+			}
+
+			throw new InternalServerErrorException('Failed to create user profile. Please try again later.');
 		}
 	}
 

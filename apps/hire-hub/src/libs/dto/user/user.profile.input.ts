@@ -183,6 +183,12 @@ export class ProfileInput {
 	experience?: ExperienceInput[];
 
 	@IsOptional()
+	@IsArray()
+	@IsString({ each: true })
+	@Field(() => [String], { nullable: true })
+	socialLinks?: string[];
+
+	@IsOptional()
 	@IsString()
 	@Field(() => String, { nullable: true })
 	resumeId?: string;

@@ -110,12 +110,6 @@ export class RegisterUserInput {
 	@IsEnum(UserRole)
 	@Field(() => UserRole, { nullable: false })
 	role: UserRole;
-
-	@IsNotEmpty()
-	@ValidateNested()
-	@Type(() => ProfileInput)
-	@Field(() => ProfileInput, { nullable: false })
-	profile: ProfileInput;
 }
 
 /**

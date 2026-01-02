@@ -1,0 +1,15 @@
+{
+	"input": {
+		"profile": {
+			"headline": "Experienced Software Developer",
+			"bio": "Passionate about building scalable web applications and working with cutting-edge technologies.",
+			"location": {
+				"city": "San Francisco",
+				"region": "CA",
+				"country": "KZ"
+			},
+			"skills": ["JavaScript", "TypeScript", "Node.js", "React", "GraphQL"],
+			"socialLinks": ["https://www.linkedin.com/in/johndoe", "https://github.com/johndoe"]
+		}
+	}
+}

@@ -1,7 +1,7 @@
 import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { RegisterUserInput, User, RefreshTokenInput, AuthResponse } from '../../libs/dto/user';
-import { LoginUserInput, PublicUser, UpdateUserInput, UserRole } from '../../libs';
+import { LoginUserInput, PublicUser, UpdateProfileInput, UpdateUserInput, UserRole } from '../../libs';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthUser } from '../auth/decorators/authUser.decorator';
@@ -40,7 +40,6 @@ export class UserResolver {
 	 *     firstName: "John"
 	 *     lastName: "Doe"
 	 *     role: JOB_SEEKER
-	 *     profile: { location: { city: "NYC", region: "NY", country: USA } }
 	 *   }) {
 	 *     _id
 	 *     email
@@ -57,6 +56,19 @@ export class UserResolver {
 		input: RegisterUserInput,
 	): Promise<User> {
 		return await this.userService.register(input);
+	}
+
+	@UseGuards(AuthGuard)
+	@Mutation(() => PublicUser, {
+		description: "Create user profile after registration (completes user's profile data)",
+	})
+	public async createProfileAfterRegistration(
+		@Args('input', { type: () => UpdateProfileInput, description: "User's profile data to create" })
+		input: UpdateProfileInput,
+		@AuthUser('_id') userId: ObjectId,
+	): Promise<PublicUser> {
+		console.log(`--- @mutation() Create Profile After Registration is called: ${userId} ---`);
+		return await this.userService.createProfileAfterRegistration(userId, input);
 	}
 
 	/**
