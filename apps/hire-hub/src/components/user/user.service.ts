@@ -16,6 +16,7 @@ import {
 	UpdateUserInput,
 	PublicUser,
 	UpdateProfileInput,
+	Step5RegisterInput,
 } from '../../libs';
 import { AuthService } from '../auth/auth.service';
 import { shapeIntoMongoObjectId } from '../../libs/config';
@@ -784,15 +785,25 @@ export class UserService {
 			// STEP 3: Normalize existing school names for comparison
 			const existingSchoolNames = existingEducation.map((edu: any) => edu.school.toLowerCase().trim());
 
-			// STEP 4: Filter new education entries to remove duplicates
-			const newEducationEntries = (inputData.education || []).filter((newEdu) => {
+			// STEP 4: Check for duplicates in new education entries
+			const duplicateSchools: string[] = [];
+			(inputData.education || []).forEach((newEdu) => {
 				const normalizedNewSchool = newEdu.school.toLowerCase().trim();
-				// Only add if school name doesn't already exist
-				return !existingSchoolNames.includes(normalizedNewSchool);
+				if (existingSchoolNames.includes(normalizedNewSchool)) {
+					duplicateSchools.push(newEdu.school);
+				}
 			});
 
+			// Throw error if duplicates found
+			if (duplicateSchools.length > 0) {
+				throw new DatabaseException(ErrorCode.DUPLICATE_KEY_ERROR, {
+					message: `Education entries already exist for: ${duplicateSchools.join(', ')}`,
+					duplicateSchools,
+				});
+			}
+
 			// STEP 5: Merge existing and new education entries
-			const mergedEducation = [...existingEducation, ...newEducationEntries];
+			const mergedEducation = [...existingEducation, ...(inputData.education || [])];
 
 			// STEP 6: Update user with merged education array
 			const updatedUser = await this.userModel
@@ -808,7 +819,7 @@ export class UserService {
 
 			return updatedUser.toObject() as PublicUser;
 		} catch (error: any) {
-			if (error instanceof UserNotFoundException) {
+			if (error instanceof UserNotFoundException || error instanceof DatabaseException) {
 				throw error;
 			}
 
@@ -873,15 +884,25 @@ export class UserService {
 			// STEP 3: Normalize existing company names for comparison
 			const existingCompanyNames = existingExperience.map((exp: any) => exp.company.toLowerCase().trim());
 
-			// STEP 4: Filter new experience entries to remove duplicates
-			const newExperienceEntries = (inputData.experience || []).filter((newExp) => {
+			// STEP 4: Check for duplicates in new experience entries
+			const duplicateCompanies: string[] = [];
+			(inputData.experience || []).forEach((newExp) => {
 				const normalizedNewCompany = newExp.company.toLowerCase().trim();
-				// Only add if company name doesn't already exist
-				return !existingCompanyNames.includes(normalizedNewCompany);
+				if (existingCompanyNames.includes(normalizedNewCompany)) {
+					duplicateCompanies.push(newExp.company);
+				}
 			});
 
+			// Throw error if duplicates found
+			if (duplicateCompanies.length > 0) {
+				throw new DatabaseException(ErrorCode.DUPLICATE_KEY_ERROR, {
+					message: `Experience entries already exist for: ${duplicateCompanies.join(', ')}`,
+					duplicateCompanies,
+				});
+			}
+
 			// STEP 5: Merge existing and new experience entries
-			const mergedExperience = [...existingExperience, ...newExperienceEntries];
+			const mergedExperience = [...existingExperience, ...(inputData.experience || [])];
 
 			// STEP 6: Update user with merged experience array
 			const updatedUser = await this.userModel
@@ -897,12 +918,113 @@ export class UserService {
 
 			return updatedUser.toObject() as PublicUser;
 		} catch (error: any) {
-			if (error instanceof UserNotFoundException) {
+			if (error instanceof UserNotFoundException || error instanceof DatabaseException) {
 				throw error;
 			}
 
 			throw new InternalServerErrorException(
 				'Failed to update user information during step 4 registration process. Please try again later.',
+			);
+		}
+	}
+
+	/**
+	 * Add qualifications entries to user profile with duplicate detection
+	 *
+	 * This method handles adding new professional certifications, awards, and qualifications to a user's
+	 * profile while preventing duplicates. It's used both in the step 5 registration flow and for
+	 * standalone qualification management. The system checks for existing qualification entries with
+	 * similar profcertorawards names before adding new ones.
+	 *
+	 * Duplicate Detection Logic:
+	 * - Normalizes profcertorawards names (lowercase, trimmed)
+	 * - Compares new entries against existing ones
+	 * - Only adds qualification entries that don't already exist
+	 * - Prevents the same certification/award from being added twice
+	 *
+	 * Workflow:
+	 * 1. Fetch current user with existing qualifications data
+	 * 2. Normalize profcertorawards names for comparison
+	 * 3. Filter out duplicate qualification entries
+	 * 4. Append unique qualification entries to existing list
+	 * 5. Update user document with merged qualifications array
+	 * 6. Return updated user object
+	 *
+	 * @param userId - The authenticated user's MongoDB ObjectId
+	 * @param inputData - Contains array of qualification entries to add
+	 * @returns Promise<PublicUser> - The updated user object with new qualifications entries
+	 *
+	 * @throws {UserNotFoundException} - If user with provided ID doesn't exist
+	 * @throws {InternalServerErrorException} - If qualifications update fails unexpectedly
+	 *
+	 * @example
+	 * // First call adds AWS certification
+	 * await step5RegistrationProcess(userId, { qualifications: [{ profcertorawards: "AWS Certified", ... }] });
+	 * // Second call adds Google certification (different cert, will be added)
+	 * await step5RegistrationProcess(userId, { qualifications: [{ profcertorawards: "Google Cloud Professional", ... }] });
+	 * // Third call tries AWS again (same cert, will be skipped)
+	 * await step5RegistrationProcess(userId, { qualifications: [{ profcertorawards: "AWS Certified", ... }] });
+	 */
+	public async step5RegistrationProcess(userId: ObjectId, inputData: Step5RegisterInput): Promise<PublicUser> {
+		try {
+			// STEP 1: Fetch current user with existing qualifications data
+			const currentUser = await this.userModel.findById(userId).exec();
+
+			if (!currentUser) {
+				throw new UserNotFoundException({
+					message: 'User not found for step 5 registration process',
+					userId,
+				});
+			}
+
+			// STEP 2: Get existing qualifications entries (or empty array if none)
+			const existingQualifications = currentUser.qualifications || [];
+
+			// STEP 3: Normalize existing profcertorawards names for comparison
+			const existingQualificationNames = existingQualifications.map((qual: any) =>
+				qual.profcertorawards.toLowerCase().trim(),
+			);
+
+			// STEP 4: Check for duplicates in new qualification entries
+			const duplicateQualifications: string[] = [];
+			(inputData.qualifications || []).forEach((newQual) => {
+				const normalizedNewQualification = newQual.profcertorawards.toLowerCase().trim();
+				if (existingQualificationNames.includes(normalizedNewQualification)) {
+					duplicateQualifications.push(newQual.profcertorawards);
+				}
+			});
+
+			// Throw error if duplicates found
+			if (duplicateQualifications.length > 0) {
+				throw new DatabaseException(ErrorCode.DUPLICATE_KEY_ERROR, {
+					message: `Qualification entries already exist for: ${duplicateQualifications.join(', ')}`,
+					duplicateQualifications,
+				});
+			}
+
+			// STEP 5: Merge existing and new qualification entries
+			const mergedQualifications = [...existingQualifications, ...(inputData.qualifications || [])];
+
+			// STEP 6: Update user with merged qualifications array
+			const updatedUser = await this.userModel
+				.findByIdAndUpdate(userId, { qualifications: mergedQualifications }, { new: true })
+				.exec();
+
+			if (!updatedUser) {
+				throw new UserNotFoundException({
+					message: 'User not found after qualifications update',
+					userId,
+				});
+			}
+
+			return updatedUser.toObject() as PublicUser;
+		} catch (error: any) {
+			if (error instanceof UserNotFoundException || error instanceof DatabaseException) {
+				throw error;
+			}
+
+			throw new InternalServerErrorException(
+				'Failed to update user information during step 5 registration process. Please try again later.',
 			);
 		}
 	}

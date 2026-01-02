@@ -9,7 +9,7 @@ import * as bcrypt from 'bcryptjs';
 /**
  * Token expiration times
  */
-const ACCESS_TOKEN_EXPIRATION = '15m'; // 15 minutes
+const ACCESS_TOKEN_EXPIRATION = '1d'; // 1 day
 const REFRESH_TOKEN_EXPIRATION = '7d'; // 7 days
 
 @Injectable()
@@ -123,8 +123,8 @@ export class AuthService {
 	 * @returns Date when access token expires
 	 */
 	public getAccessTokenExpiration(): Date {
-		// Convert '15m' to milliseconds: 15 * 60 * 1000
-		const expirationMs = 15 * 60 * 1000;
+		// Convert '1d' to milliseconds: 1 * 24 * 60 * 60 * 1000
+		const expirationMs = 1 * 24 * 60 * 60 * 1000;
 		return new Date(Date.now() + expirationMs);
 	}
 

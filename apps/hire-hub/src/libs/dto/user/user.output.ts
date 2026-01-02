@@ -1,6 +1,24 @@
-import { Field, ObjectType, ID, GraphQLISODateTime } from '@nestjs/graphql';
+import { Field, ObjectType, ID, GraphQLISODateTime, Int } from '@nestjs/graphql';
 import { UserStatus, UserRole } from '../../enums/user.enum';
 import { IsOptional } from 'class-validator';
+
+/**
+ * Qualifications output
+ */
+@ObjectType()
+export class QualificationsOutput {
+	@Field(() => String, { description: 'List of user qualifications' })
+	profcertorawards: string;
+
+	@Field(() => String, { description: 'Organization that conferred the qualification' })
+	conferOrganization: string;
+
+	@Field(() => String, { description: 'Summary of the qualification' })
+	summary: string;
+
+	@Field(() => Int, { description: 'Year the qualification was awarded' })
+	year: number;
+}
 
 /**
  * Geographic coordinates output
@@ -219,6 +237,10 @@ export class User {
 	@IsOptional()
 	@Field(() => Boolean)
 	hasCompleteRegistration?: boolean;
+
+	@IsOptional()
+	@Field(() => [QualificationsOutput], { nullable: true })
+	qualifications?: QualificationsOutput[];
 }
 
 /**
@@ -243,6 +265,10 @@ export class PublicUser {
 
 	@Field(() => String)
 	role: UserRole;
+
+	@IsOptional()
+	@Field(() => [QualificationsOutput], { nullable: true })
+	qualifications?: QualificationsOutput[];
 
 	@Field(() => Profile, { nullable: true })
 	profile?: Profile;

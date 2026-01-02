@@ -219,6 +219,33 @@ export class BadRequestException extends BaseGraphQLException {
 }
 
 /**
+ * DuplicateEducationException - Thrown when trying to add duplicate education entry
+ */
+export class DuplicateEducationException extends BaseGraphQLException {
+	constructor(details?: any) {
+		super(ErrorCode.DUPLICATE_KEY_ERROR, 'Education entry already exists for this school', details);
+	}
+}
+
+/**
+ * DuplicateExperienceException - Thrown when trying to add duplicate experience entry
+ */
+export class DuplicateExperienceException extends BaseGraphQLException {
+	constructor(details?: any) {
+		super(ErrorCode.DUPLICATE_KEY_ERROR, 'Experience entry already exists for this company', details);
+	}
+}
+
+/**
+ * DuplicateQualificationException - Thrown when trying to add duplicate qualification entry
+ */
+export class DuplicateQualificationException extends BaseGraphQLException {
+	constructor(details?: any) {
+		super(ErrorCode.DUPLICATE_KEY_ERROR, 'Qualification entry already exists with this name', details);
+	}
+}
+
+/**
  * InternalServerException - Generic internal server error
  */
 export class InternalServerException extends BaseGraphQLException {

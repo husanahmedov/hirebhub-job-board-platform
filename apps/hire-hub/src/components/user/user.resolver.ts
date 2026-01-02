@@ -10,7 +10,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { AuthService } from '../auth/auth.service';
 import type { ObjectId } from 'mongoose';
-import { Step3RegisterInput, Step4RegisterInput } from '../../libs/';
+import { Step3RegisterInput, Step4RegisterInput, Step5RegisterInput } from '../../libs/';
 
 @Resolver()
 export class UserResolver {
@@ -283,6 +283,85 @@ export class UserResolver {
 	): Promise<PublicUser> {
 		console.log(`--- @mutation() Step 4 Registration Process is called: ${userId} ---`);
 		return await this.userService.step4RegistrationProcess(userId, input);
+	}
+
+	/**
+	 * Add or update qualification entries in user profile
+	 *
+	 * This mutation allows authenticated users to add new professional certifications, awards,
+	 * and qualifications to their profile. It supports both step 5 registration flow and standalone
+	 * qualification management. The system automatically detects and prevents duplicate qualification
+	 * entries by comparing profcertorawards names.
+	 *
+	 * Duplicate Detection:
+	 * - Compares new qualification entries with existing ones
+	 * - Checks for similar profcertorawards names (case-insensitive, normalized)
+	 * - Only adds qualification entries that don't already exist
+	 * - Prevents the same certification from being added multiple times
+	 *
+	 * @param input - Qualifications data containing array of professional certifications and awards
+	 * @param userId - The authenticated user's ID (automatically extracted from JWT token)
+	 * @returns Promise<PublicUser> - The user object with updated qualifications entries
+	 *
+	 * @throws {UserNotFoundException} - If the authenticated user doesn't exist in the system
+	 * @throws {InternalServerErrorException} - If qualifications update fails for unexpected reasons
+	 *
+	 * @security
+	 * - Requires authentication (AuthGuard)
+	 * - Restricted to CANDIDATE role only
+	 * - Users can only update their own qualifications
+	 * - Qualification data is validated against DTO constraints
+	 *
+	 * @features
+	 * - Adds new qualification entries without removing existing ones
+	 * - Prevents duplicate profcertorawards from being added
+	 * - Validates all qualification fields (name, organization, summary, year)
+	 * - Supports multiple qualification entries in a single request
+	 * - Year validation ensures realistic date ranges (1900 - current year + 1)
+	 *
+	 * @example
+	 * mutation {
+	 *   step5RegistrationProcess(input: {
+	 *     qualifications: [
+	 *       {
+	 *         profcertorawards: "AWS Certified Solutions Architect"
+	 *         conferOrganization: "Amazon Web Services"
+	 *         summary: "Professional level certification for AWS cloud architecture"
+	 *         year: 2023
+	 *       },
+	 *       {
+	 *         profcertorawards: "Google Cloud Professional Developer"
+	 *         conferOrganization: "Google Cloud"
+	 *         summary: "Advanced certification for GCP development"
+	 *         year: 2024
+	 *       }
+	 *     ]
+	 *   }) {
+	 *     _id
+	 *     email
+	 *     fullName
+	 *     qualifications {
+	 *       profcertorawards
+	 *       conferOrganization
+	 *       summary
+	 *       year
+	 *     }
+	 *   }
+	 * }
+	 */
+	@Roles(UserRole.CANDIDATE)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Mutation(() => PublicUser, {
+		description: 'Add qualifications to user profile with automatic duplicate detection',
+	})
+	public async step5RegistrationProcess(
+		@Args('input', { type: () => Step5RegisterInput, description: "Qualifications data to add to user's profile" })
+		input: Step5RegisterInput,
+		@AuthUser('_id') userId: ObjectId,
+	): Promise<PublicUser> {
+		console.log(`--- @mutation() Step 5 Registration Process is called: ${userId} ---`);
+		return await this.userService.step5RegistrationProcess(userId, input);
 	}
 
 	/**
