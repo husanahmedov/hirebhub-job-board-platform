@@ -50,12 +50,23 @@ const UserSchema = new Schema(
 
 		/**
 		 * Hashed password - Never store plain text passwords
-		 * @required
+		 * @optional OAuth users may not have passwords
 		 * @select false to exclude from queries by default
 		 */
 		passwordHash: {
 			type: String,
-			required: true,
+			required: false,
+			select: false, // Don't return in queries unless explicitly requested
+		},
+
+		/**
+		 * Refresh token - Used for obtaining new access tokens
+		 * @optional Only present for authenticated users with refresh token support
+		 * @select false to exclude from queries by default
+		 */
+		refreshToken: {
+			type: String,
+			required: false,
 			select: false, // Don't return in queries unless explicitly requested
 		},
 
@@ -65,7 +76,7 @@ const UserSchema = new Schema(
 		 */
 		firstName: {
 			type: String,
-			required: true,
+			required: false,
 			trim: true,
 			maxlength: 50,
 		},
@@ -76,7 +87,7 @@ const UserSchema = new Schema(
 		 */
 		lastName: {
 			type: String,
-			required: true,
+			required: false,
 			trim: true,
 			maxlength: 50,
 		},

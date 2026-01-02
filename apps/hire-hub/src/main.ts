@@ -3,6 +3,10 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { StartupLogger } from './libs/startup-logger.util';
 import { EnvUtil } from './libs';
+import { LoggingInterceptor } from './libs/interceptors/Logging.interceptor';
+import { TimeoutInterceptor } from './libs/interceptors/Timeout.interceptor';
+
+import * as passport from 'passport';
 
 /**
  * Bootstrap function - Initializes and starts the HireHub application
@@ -31,7 +35,7 @@ async function bootstrap(): Promise<void> {
 
 		// Create NestJS application instance with custom logger disabled
 		const app = await NestFactory.create(AppModule, {
-			logger: ['error', 'warn'], // Only log errors and warnings from NestJS
+			logger: ['log', 'error', 'warn'], // Enable log, error and warning levels
 		});
 
 		// Enable CORS for cross-origin requests
@@ -53,6 +57,9 @@ async function bootstrap(): Promise<void> {
 				},
 			}),
 		);
+
+		// Global Interceptors
+		app.useGlobalInterceptors(new TimeoutInterceptor(), new LoggingInterceptor());
 
 		// Set up graceful shutdown handlers
 		setupGracefulShutdown(app);

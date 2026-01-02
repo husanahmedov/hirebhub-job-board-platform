@@ -12,6 +12,7 @@ export enum ErrorCode {
 	TOKEN_INVALID = 'AUTH_1004',
 	FORBIDDEN = 'AUTH_1005',
 	INSUFFICIENT_PERMISSIONS = 'AUTH_1006',
+	USER_NOT_AUTHENTICATED = 'AUTH_1007',
 
 	// User Related Errors (2xxx)
 	USER_NOT_FOUND = 'USER_2001',
@@ -19,7 +20,10 @@ export enum ErrorCode {
 	USER_CREATION_FAILED = 'USER_2003',
 	USER_UPDATE_FAILED = 'USER_2004',
 	USER_DELETION_FAILED = 'USER_2005',
-	INVALID_USER_DATA = 'USER_2006',
+	USER_STATUS_DEACTIVATED = 'USER_2006',
+	USER_STATUS_SUSPENDED = 'USER_2007',
+	// USER_STATUS_ACTIVATE = 'USER_2008',
+	INVALID_USER_DATA = 'USER_2008',
 
 	// Company Related Errors (3xxx)
 	COMPANY_NOT_FOUND = 'COMPANY_3001',
@@ -103,6 +107,7 @@ export const ErrorMessage: Record<ErrorCode, string> = {
 	[ErrorCode.TOKEN_INVALID]: 'Invalid authentication token',
 	[ErrorCode.FORBIDDEN]: 'Access forbidden',
 	[ErrorCode.INSUFFICIENT_PERMISSIONS]: 'You do not have sufficient permissions',
+	[ErrorCode.USER_NOT_AUTHENTICATED]: 'You are not authenticated. Please login to continue',
 
 	// User Related
 	[ErrorCode.USER_NOT_FOUND]: 'User not found',
@@ -110,6 +115,8 @@ export const ErrorMessage: Record<ErrorCode, string> = {
 	[ErrorCode.USER_CREATION_FAILED]: 'Failed to create user',
 	[ErrorCode.USER_UPDATE_FAILED]: 'Failed to update user',
 	[ErrorCode.USER_DELETION_FAILED]: 'Failed to delete user',
+	[ErrorCode.USER_STATUS_DEACTIVATED]: 'User status is deactivated. If you want to activate, please reach us',
+	[ErrorCode.USER_STATUS_SUSPENDED]: 'User status is suspended. If you want to activate, please reach us',
 	[ErrorCode.INVALID_USER_DATA]: 'Invalid user data provided',
 
 	// Company Related
