@@ -1,7 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { UpdateContentSettingsInput, ContentSettings } from '../../libs/dto/admin';
+import {
+	UpdateContentSettingsInput,
+	ContentSettings,
+	FeaturesSettingsInput,
+	FeaturesSettings,
+	EmailNotificationsSettingsInput,
+	EmailNotificationsSettings,
+	PaymentBillingSettingsInput,
+	PaymentBillingSettings,
+	PlatformSettingsInput,
+	PlatformSettings,
+	RateLimitsSettingsInput,
+	RateLimitsSettings,
+} from '../../libs/dto/admin';
 
 /**
  * AdminService - Handles all admin-related operations
@@ -140,5 +153,224 @@ export class AdminService {
 				{ upsert: true },
 			);
 		}
+	}
+
+	// ==================== FEATURES SETTINGS ====================
+
+	async updateFeaturesSettings(input: FeaturesSettingsInput, adminId: string): Promise<FeaturesSettings> {
+		const updates: Promise<any>[] = [];
+
+		for (const [key, value] of Object.entries(input)) {
+			if (value !== undefined) {
+				updates.push(
+					this.systemSettingModel.updateOne(
+						{ key, category: 'feature_flags' },
+						{ value, lastUpdatedBy: adminId, updatedAt: new Date() },
+						{ upsert: true },
+					),
+				);
+			}
+		}
+
+		await Promise.all(updates);
+		return this.getFeaturesSettings();
+	}
+
+	async getFeaturesSettings(): Promise<FeaturesSettings> {
+		const settings = await this.systemSettingModel.find({ category: 'feature_flags' }).lean().exec();
+
+		const result: any = {
+			bookmarksEnabled: true,
+			notificationsEnabled: true,
+			companyReviewsEnabled: true,
+			advancedSearchEnabled: true,
+			aiRecommendationsEnabled: false,
+			chatEnabled: false,
+		};
+
+		settings.forEach((setting) => {
+			if (setting.key in result) {
+				result[setting.key] = setting.value;
+			}
+		});
+
+		return result;
+	}
+
+	// ==================== NOTIFICATIONS SETTINGS ====================
+
+	async updateNotificationsSettings(
+		input: EmailNotificationsSettingsInput,
+		adminId: string,
+	): Promise<EmailNotificationsSettings> {
+		const updates: Promise<any>[] = [];
+
+		for (const [key, value] of Object.entries(input)) {
+			if (value !== undefined) {
+				updates.push(
+					this.systemSettingModel.updateOne(
+						{ key, category: 'notifications' },
+						{ value, lastUpdatedBy: adminId, updatedAt: new Date() },
+						{ upsert: true },
+					),
+				);
+			}
+		}
+
+		await Promise.all(updates);
+		return this.getNotificationsSettings();
+	}
+
+	async getNotificationsSettings(): Promise<EmailNotificationsSettings> {
+		const settings = await this.systemSettingModel.find({ category: 'notifications' }).lean().exec();
+
+		const result: any = {
+			emailNotificationsEnabled: true,
+			smsNotificationsEnabled: false,
+			newJobAlertEnabled: true,
+			applicationStatusEmailEnabled: true,
+			weeklyDigestEnabled: true,
+		};
+
+		settings.forEach((setting) => {
+			if (setting.key in result) {
+				result[setting.key] = setting.value;
+			}
+		});
+
+		return result;
+	}
+
+	// ==================== PAYMENT & BILLING SETTINGS ====================
+
+	async updatePaymentBillingSettings(
+		input: PaymentBillingSettingsInput,
+		adminId: string,
+	): Promise<PaymentBillingSettings> {
+		const updates: Promise<any>[] = [];
+
+		for (const [key, value] of Object.entries(input)) {
+			if (value !== undefined) {
+				updates.push(
+					this.systemSettingModel.updateOne(
+						{ key, category: 'payment' },
+						{ value, lastUpdatedBy: adminId, updatedAt: new Date() },
+						{ upsert: true },
+					),
+				);
+			}
+		}
+
+		await Promise.all(updates);
+		return this.getPaymentBillingSettings();
+	}
+
+	async getPaymentBillingSettings(): Promise<PaymentBillingSettings> {
+		const settings = await this.systemSettingModel.find({ category: 'payment' }).lean().exec();
+
+		const result: any = {
+			autoBillingEnabled: false,
+			billingCycleInDays: 30,
+			sendBillingReminders: true,
+			reminderFrequencyInDays: 7,
+			stripeEnabled: false,
+			freePlanJobPostLimit: 5,
+			proPlanJobPostLimit: 50,
+			enterprisePlanJobPostLimit: 999,
+			subscriptionRequired: false,
+		};
+
+		settings.forEach((setting) => {
+			if (setting.key in result) {
+				result[setting.key] = setting.value;
+			}
+		});
+
+		return result;
+	}
+
+	// ==================== PLATFORM SETTINGS ====================
+
+	async updatePlatformSettings(input: PlatformSettingsInput, adminId: string): Promise<PlatformSettings> {
+		const updates: Promise<any>[] = [];
+
+		for (const [key, value] of Object.entries(input)) {
+			if (value !== undefined) {
+				updates.push(
+					this.systemSettingModel.updateOne(
+						{ key, category: 'platform' },
+						{ value, lastUpdatedBy: adminId, updatedAt: new Date() },
+						{ upsert: true },
+					),
+				);
+			}
+		}
+
+		await Promise.all(updates);
+		return this.getPlatformSettings();
+	}
+
+	async getPlatformSettings(): Promise<PlatformSettings> {
+		const settings = await this.systemSettingModel.find({ category: 'platform' }).lean().exec();
+
+		const result: any = {
+			maintenanceMode: false,
+			registrationEnabled: true,
+			requireEmailVerification: true,
+			allowedEmailDomains: [],
+			allowGuestBrowsing: true,
+			platformName: 'HireHub',
+			platformUrl: 'https://hirehub.com',
+			supportEmail: 'support@hirehub.com',
+		};
+
+		settings.forEach((setting) => {
+			if (setting.key in result) {
+				result[setting.key] = setting.value;
+			}
+		});
+
+		return result;
+	}
+
+	// ==================== RATE LIMITS SETTINGS ====================
+
+	async updateRateLimitsSettings(input: RateLimitsSettingsInput, adminId: string): Promise<RateLimitsSettings> {
+		const updates: Promise<any>[] = [];
+
+		for (const [key, value] of Object.entries(input)) {
+			if (value !== undefined) {
+				updates.push(
+					this.systemSettingModel.updateOne(
+						{ key, category: 'rate_limits' },
+						{ value, lastUpdatedBy: adminId, updatedAt: new Date() },
+						{ upsert: true },
+					),
+				);
+			}
+		}
+
+		await Promise.all(updates);
+		return this.getRateLimitsSettings();
+	}
+
+	async getRateLimitsSettings(): Promise<RateLimitsSettings> {
+		const settings = await this.systemSettingModel.find({ category: 'rate_limits' }).lean().exec();
+
+		const result: any = {
+			maxApplicationsPerDay: 10,
+			maxJobPostsPerMonth: 100,
+			maxResumeUploads: 5,
+			apiRateLimitPerMinute: 60,
+			bulkOperationLimit: 1000,
+		};
+
+		settings.forEach((setting) => {
+			if (setting.key in result) {
+				result[setting.key] = setting.value;
+			}
+		});
+
+		return result;
 	}
 }
