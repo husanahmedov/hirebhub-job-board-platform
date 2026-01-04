@@ -3,7 +3,7 @@ import { IsBoolean, IsNumber, IsOptional, ValidateNested } from 'class-validator
 import { Type } from 'class-transformer';
 
 @InputType()
-export class FeaturesModerationSettingsInput {
+export class FeaturesSettingsInput {
 	@IsOptional()
 	@IsBoolean()
 	@Field(() => Boolean, { nullable: true })

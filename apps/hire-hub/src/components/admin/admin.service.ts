@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { UpdateContentModerationInput, ContentModerationSettings } from '../../libs/dto/admin';
+import { UpdateContentSettingsInput, ContentSettings } from '../../libs/dto/admin';
 
 /**
  * AdminService - Handles all admin-related operations
@@ -17,15 +17,12 @@ export class AdminService {
 	) {}
 
 	/**
-	 * Update content moderation settings
-	 * @param input - Partial update input for moderation settings
+	 * Update content settings
+	 * @param input - Partial update input for content settings
 	 * @param adminId - ID of the admin making the changes
-	 * @returns Updated content moderation settings
+	 * @returns Updated content settings
 	 */
-	async updateContentModeration(
-		input: UpdateContentModerationInput,
-		adminId: string,
-	): Promise<ContentModerationSettings> {
+	async updateContentSettings(input: UpdateContentSettingsInput, adminId: string): Promise<ContentSettings> {
 		const updates: Promise<any>[] = [];
 
 		// Convert input fields to key-value updates
@@ -49,14 +46,14 @@ export class AdminService {
 		await Promise.all(updates);
 
 		// Return updated settings
-		return this.getContentModerationSettings();
+		return this.getContentSettings();
 	}
 
 	/**
-	 * Get all content moderation settings
-	 * @returns Current content moderation settings
+	 * Get all content settings
+	 * @returns Current content settings
 	 */
-	async getContentModerationSettings(): Promise<ContentModerationSettings> {
+	async getContentSettings(): Promise<ContentSettings> {
 		const settings = await this.systemSettingModel.find({ category: 'moderation' }).lean().exec();
 
 		// Convert array of settings to object with default values
@@ -80,10 +77,10 @@ export class AdminService {
 	}
 
 	/**
-	 * Initialize default moderation settings if they don't exist
+	 * Initialize default content settings if they don't exist
 	 * This should be called on application bootstrap
 	 */
-	async initializeDefaultModerationSettings(): Promise<void> {
+	async initializeDefaultContentSettings(): Promise<void> {
 		const defaultSettings = [
 			{
 				key: 'autoModerateJobPosts',

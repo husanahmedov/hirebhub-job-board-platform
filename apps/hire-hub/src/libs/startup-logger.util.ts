@@ -14,14 +14,14 @@ export class StartupLogger {
 		const banner = `
 ╔═══════════════════════════════════════════════════════════════════════╗
 ║                                                                       ║
-║   ${this.COLORS.accent('██╗  ██╗██╗██████╗ ███████╗    ██╗  ██╗██╗   ██╗██████╗')}    ║
-║   ${this.COLORS.accent('██║  ██║██║██╔══██╗██╔════╝    ██║  ██║██║   ██║██╔══██╗')}   ║
-║   ${this.COLORS.accent('███████║██║██████╔╝█████╗      ███████║██║   ██║██████╔╝')}   ║
-║   ${this.COLORS.accent('██╔══██║██║██╔══██╗██╔══╝      ██╔══██║██║   ██║██╔══██╗')}   ║
-║   ${this.COLORS.accent('██║  ██║██║██║  ██║███████╗    ██║  ██║╚██████╔╝██████╔╝')}   ║
-║   ${this.COLORS.accent('╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚══════╝    ╚═╝  ╚═╝ ╚═════╝ ╚═════╝')}    ║
+║   ${this.COLORS.accent('██╗  ██╗██╗██████╗ ███████╗    ██╗  ██╗██╗   ██╗██████╗')}             ║
+║   ${this.COLORS.accent('██║  ██║██║██╔══██╗██╔════╝    ██║  ██║██║   ██║██╔══██╗')}            ║
+║   ${this.COLORS.accent('███████║██║██████╔╝█████╗      ███████║██║   ██║██████╔╝')}            ║
+║   ${this.COLORS.accent('██╔══██║██║██╔══██╗██╔══╝      ██╔══██║██║   ██║██╔══██╗')}            ║
+║   ${this.COLORS.accent('██║  ██║██║██║  ██║███████╗    ██║  ██║╚██████╔╝██████╔╝')}            ║
+║   ${this.COLORS.accent('╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚══════╝    ╚═╝  ╚═╝ ╚═════╝ ╚═════╝')}             ║
 ║                                                                       ║
-║            ${this.COLORS.primary('Your Gateway to Career Opportunities')}                 ║
+║            ${this.COLORS.primary('Your Gateway to Career Opportunities')}                       ║
 ║                                                                       ║
 ╚═══════════════════════════════════════════════════════════════════════╝
 `;
@@ -43,7 +43,7 @@ export class StartupLogger {
 				'  ' +
 				chalk.bold('Application Information') +
 				'                              ' +
-				this.COLORS.primary('│'),
+				this.COLORS.primary('      │'),
 		);
 		console.log(this.COLORS.primary('├─────────────────────────────────────────────────────────────┤'));
 
@@ -64,7 +64,7 @@ export class StartupLogger {
 				'  ' +
 				this.COLORS.muted(paddedLabel) +
 				coloredValue.padEnd(39, ' ') +
-				this.COLORS.primary('│'),
+				this.COLORS.primary('      │'),
 		);
 	}
 

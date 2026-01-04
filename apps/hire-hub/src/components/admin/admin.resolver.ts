@@ -1,7 +1,7 @@
 import { Resolver, Mutation, Query, Args } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { AdminService } from './admin.service';
-import { UpdateContentModerationInput, ContentModerationSettings } from '../../libs/dto/admin';
+import { UpdateContentSettingsInput, ContentSettings } from '../../libs/dto/admin';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -21,18 +21,18 @@ export class AdminResolver {
 	constructor(private readonly adminService: AdminService) {}
 
 	/**
-	 * Update content moderation settings
+	 * Update content settings
 	 *
-	 * Allows admins to configure how user-generated content is moderated,
+	 * Allows admins to configure content-related settings,
 	 * including auto-moderation rules, quotas, and expiration policies.
 	 *
-	 * @param input - Partial update for moderation settings
+	 * @param input - Partial update for content settings
 	 * @param user - Authenticated admin user (from AuthGuard)
-	 * @returns Updated content moderation settings
+	 * @returns Updated content settings
 	 *
 	 * @example
 	 * mutation {
-	 *   updateContentModerationSettings(input: {
+	 *   updateContentSettings(input: {
 	 *     autoModerateJobPosts: true
 	 *     maxJobPostsPerCompany: 100
 	 *   }) {
@@ -41,31 +41,31 @@ export class AdminResolver {
 	 *   }
 	 * }
 	 */
-    @Roles(UserRole.ADMIN)
-    @UseGuards(RolesGuard)
-    @UseGuards(AuthGuard)
-	@Mutation(() => ContentModerationSettings, {
-		description: 'Update content moderation settings (Admin only)',
+	@Roles(UserRole.ADMIN)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Mutation(() => ContentSettings, {
+		description: 'Update content settings (Admin only)',
 	})
-	async updateContentModerationSettings(
-		@Args('input') input: UpdateContentModerationInput,
+	async updateContentSettings(
+		@Args('input') input: UpdateContentSettingsInput,
 		@AuthUser() user: any,
-	): Promise<ContentModerationSettings> {
-		return this.adminService.updateContentModeration(input, user._id);
+	): Promise<ContentSettings> {
+		return this.adminService.updateContentSettings(input, user._id);
 	}
 
 	/**
-	 * Get current content moderation settings
+	 * Get current content settings
 	 *
-	 * Retrieves all current moderation configuration including auto-moderation
+	 * Retrieves all current content configuration including auto-moderation
 	 * rules, content limits, and expiration policies.
 	 *
 	 * @param user - Authenticated admin user (from AuthGuard)
-	 * @returns Current content moderation settings
+	 * @returns Current content settings
 	 *
 	 * @example
 	 * query {
-	 *   getContentModerationSettings {
+	 *   getContentSettings {
 	 *     autoModerateJobPosts
 	 *     autoModerateCompanyReviews
 	 *     profanityFilterEnabled
@@ -75,13 +75,13 @@ export class AdminResolver {
 	 *   }
 	 * }
 	 */
-    @Roles(UserRole.ADMIN)
-    @UseGuards(RolesGuard)
-    @UseGuards(AuthGuard)
-	@Query(() => ContentModerationSettings, {
-		description: 'Get content moderation settings (Admin only)',
+	@Roles(UserRole.ADMIN)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Query(() => ContentSettings, {
+		description: 'Get content settings (Admin only)',
 	})
-	async getContentModerationSettings(@AuthUser() user: any): Promise<ContentModerationSettings> {
-		return this.adminService.getContentModerationSettings();
+	async getContentSettings(@AuthUser() user: any): Promise<ContentSettings> {
+		return this.adminService.getContentSettings();
 	}
 }

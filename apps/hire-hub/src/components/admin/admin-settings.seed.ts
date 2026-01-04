@@ -1,9 +1,9 @@
 import { Model } from 'mongoose';
 import {
 	SystemCategoryEnum,
-	SystemContentModerationKeysEnum,
+	SystemContentKeysEnum,
 	SystemDataTypeEnum,
-	SystemRateLimitModerationKeysEnum,
+	SystemRateLimitKeysEnum,
 } from '../../libs/enums/system-settings.enum';
 
 /**
@@ -18,7 +18,7 @@ export async function seedDefaultSystemSettings(systemSettingModel: Model<any>):
 	const defaultSettings = [
 		// Content Moderation Settings
 		{
-			key: SystemContentModerationKeysEnum.AUTO_MODERATE_JOB_POSTS,
+			key: SystemContentKeysEnum.AUTO_MODERATE_JOB_POSTS,
 			category: SystemCategoryEnum.MODERATION,
 			value: false,
 			type: SystemDataTypeEnum.BOOLEAN,
@@ -26,7 +26,7 @@ export async function seedDefaultSystemSettings(systemSettingModel: Model<any>):
 			isEditable: true,
 		},
 		{
-			key: SystemContentModerationKeysEnum.AUTO_MODERATE_COMPANY_REVIEWS,
+			key: SystemContentKeysEnum.AUTO_MODERATE_COMPANY_REVIEWS,
 			category: SystemCategoryEnum.MODERATION,
 			value: true,
 			type: SystemDataTypeEnum.BOOLEAN,
@@ -34,7 +34,7 @@ export async function seedDefaultSystemSettings(systemSettingModel: Model<any>):
 			isEditable: true,
 		},
 		{
-			key: SystemContentModerationKeysEnum.PROFANITY_FILTER_ENABLED,
+			key: SystemContentKeysEnum.PROFANITY_FILTER_ENABLED,
 			category: SystemCategoryEnum.MODERATION,
 			value: true,
 			type: SystemDataTypeEnum.BOOLEAN,
@@ -42,7 +42,7 @@ export async function seedDefaultSystemSettings(systemSettingModel: Model<any>):
 			isEditable: true,
 		},
 		{
-			key: SystemContentModerationKeysEnum.MAX_JOB_POSTS_PER_COMPANY,
+			key: SystemContentKeysEnum.MAX_JOB_POSTS_PER_COMPANY,
 			category: SystemCategoryEnum.MODERATION,
 			value: 50,
 			type: SystemDataTypeEnum.NUMBER,
@@ -50,7 +50,7 @@ export async function seedDefaultSystemSettings(systemSettingModel: Model<any>):
 			isEditable: true,
 		},
 		{
-			key: SystemContentModerationKeysEnum.JOB_POST_EXPIRATION_DAYS,
+			key: SystemContentKeysEnum.JOB_POST_EXPIRATION_DAYS,
 			category: SystemCategoryEnum.MODERATION,
 			value: 30,
 			type: SystemDataTypeEnum.NUMBER,
@@ -58,7 +58,7 @@ export async function seedDefaultSystemSettings(systemSettingModel: Model<any>):
 			isEditable: true,
 		},
 		{
-			key: SystemContentModerationKeysEnum.REVIEW_MODERATION_REQUIRED,
+			key: SystemContentKeysEnum.REVIEW_MODERATION_REQUIRED,
 			category: SystemCategoryEnum.MODERATION,
 			value: true,
 			type: SystemDataTypeEnum.BOOLEAN,
@@ -68,35 +68,35 @@ export async function seedDefaultSystemSettings(systemSettingModel: Model<any>):
 
 		// rate limits default settings
 		{
-			key: SystemRateLimitModerationKeysEnum.MAX_APPLICATIONS_PER_DAY,
+			key: SystemRateLimitKeysEnum.MAX_APPLICATIONS_PER_DAY,
 			category: SystemCategoryEnum.RATE_LIMITS,
 			value: 100,
 			type: SystemDataTypeEnum.NUMBER,
 			description: 'Maximum job applications allowed per user per day',
 		},
 		{
-			key: SystemRateLimitModerationKeysEnum.MAX_JOB_POSTS_PER_MONTH,
+			key: SystemRateLimitKeysEnum.MAX_JOB_POSTS_PER_MONTH,
 			category: SystemCategoryEnum.RATE_LIMITS,
 			value: 20,
 			type: SystemDataTypeEnum.NUMBER,
 			description: 'Maximum job posts allowed per company per month',
 		},
 		{
-			key: SystemRateLimitModerationKeysEnum.MAX_RESUME_UPLOADS,
+			key: SystemRateLimitKeysEnum.MAX_RESUME_UPLOADS,
 			category: SystemCategoryEnum.RATE_LIMITS,
 			value: 10,
 			type: SystemDataTypeEnum.NUMBER,
 			description: 'Maximum resume uploads allowed per user',
 		},
 		{
-			key: SystemRateLimitModerationKeysEnum.API_RATE_LIMIT_PER_MINUTE,
+			key: SystemRateLimitKeysEnum.API_RATE_LIMIT_PER_MINUTE,
 			category: SystemCategoryEnum.RATE_LIMITS,
 			value: 60,
 			type: SystemDataTypeEnum.NUMBER,
 			description: 'API rate limit per minute per user',
 		},
 		{
-			key: SystemRateLimitModerationKeysEnum.BULK_OPERATION_LIMIT,
+			key: SystemRateLimitKeysEnum.BULK_OPERATION_LIMIT,
 			category: SystemCategoryEnum.RATE_LIMITS,
 			value: 1000,
 			type: SystemDataTypeEnum.NUMBER,

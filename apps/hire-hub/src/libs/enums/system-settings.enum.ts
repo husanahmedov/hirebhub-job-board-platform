@@ -19,7 +19,7 @@ export enum SystemDataTypeEnum {
 	OBJECT = 'object',
 }
 
-export enum SystemContentModerationKeysEnum {
+export enum SystemContentKeysEnum {
 	AUTO_MODERATE_JOB_POSTS = 'autoModerateJobPosts',
 	AUTO_MODERATE_COMPANY_REVIEWS = 'autoModerateCompanyReviews',
 	PROFANITY_FILTER_ENABLED = 'profanityFilterEnabled',
@@ -28,7 +28,7 @@ export enum SystemContentModerationKeysEnum {
 	REVIEW_MODERATION_REQUIRED = 'reviewModerationRequired',
 }
 
-export enum SystemRateLimitModerationKeysEnum {
+export enum SystemRateLimitKeysEnum {
 	MAX_APPLICATIONS_PER_DAY = 'maxApplicationsPerDay',
 	MAX_JOB_POSTS_PER_MONTH = 'maxJobPostsPerMonth',
 	MAX_RESUME_UPLOADS = 'maxResumeUploads',
@@ -36,7 +36,7 @@ export enum SystemRateLimitModerationKeysEnum {
 	BULK_OPERATION_LIMIT = 'bulkOperationLimit',
 }
 
-export enum SystemFeaturesModerationKeysEnum {
+export enum SystemFeaturesKeysEnum {
 	BOOKMARKS_ENABLED = 'bookmarksEnabled',
 	NOTIFICATIONS_ENABLED = 'notificationsEnabled',
 	COMPANY_REVIEWS_ENABLED = 'companyReviewsEnabled',
@@ -86,17 +86,17 @@ registerEnumType(SystemDataTypeEnum, {
 	description: 'Data types for system setting values',
 });
 
-registerEnumType(SystemContentModerationKeysEnum, {
-	name: 'SystemContentModerationKeys',
-	description: 'Keys for content moderation system settings',
+registerEnumType(SystemContentKeysEnum, {
+	name: 'SystemContentKeys',
+	description: 'Keys for content system settings',
 });
 
-registerEnumType(SystemRateLimitModerationKeysEnum, {
+registerEnumType(SystemRateLimitKeysEnum, {
 	name: 'SystemRateLimitKeys',
 	description: 'Keys for rate limit system settings',
 });
 
-registerEnumType(SystemFeaturesModerationKeysEnum, {
+registerEnumType(SystemFeaturesKeysEnum, {
 	name: 'SystemFeaturesKeys',
 	description: 'Keys for feature flags system settings',
 });
