@@ -19,6 +19,7 @@ import { AppResolver } from './app.resolver';
 import { ErrorCode, ErrorMessage, IGraphqlError } from './libs';
 import { GraphQLExceptionFilter } from './libs/filters/graphql-exception.filter';
 import { AuthModule } from './components/auth/auth.module';
+import { AdminModule } from './components/admin/admin.module';
 
 @Module({
 	imports: [
@@ -72,6 +73,7 @@ import { AuthModule } from './components/auth/auth.module';
 		CompanyReviewModule,
 		DatabaseModule,
 		AuthModule,
+		AdminModule,
 	],
 	controllers: [AppController],
 	providers: [

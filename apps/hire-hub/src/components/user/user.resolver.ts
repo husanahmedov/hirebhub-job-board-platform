@@ -360,7 +360,7 @@ export class UserResolver {
 		input: Step5RegisterInput,
 		@AuthUser('_id') userId: ObjectId,
 	): Promise<PublicUser> {
-		console.log(`--- @mutation() Step 5 Registration Process is called: ${userId} ---`);
+		console.log(`--- @mutation() Step 5 Registration Process is called: ${userId}  ---`);
 		return await this.userService.step5RegistrationProcess(userId, input);
 	}
 
