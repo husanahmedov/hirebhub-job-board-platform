@@ -22,17 +22,20 @@ export const AuthUser = createParamDecorator((data: string, context: ExecutionCo
 
 		// Attach the authorization header to authMember for reference
 		// This is useful if you need to access the original token later
-		if (request.body.autUser) {
-			request.body.authUser.authorization = request.headers?.authorization;
+		if (request.autUser) {
+			request.authUser.authorization = request.headers?.authorization;
 		}
 	} else {
 		// For HTTP requests, switch to HTTP context and get the request object
 		request = context.switchToHttp().getRequest();
+		if (request.autUser) {
+			request.authUser.authorization = request.headers?.authorization;
+		}
 	}
 
 	// Extract the authenticated member from request.body
 	// This was previously set by AuthGuard or RolesGuard after token verification
-	const user = request.body.authUser;
+	const user = request.authUser;
 
 	// Return logic:
 	// - If member exists and data parameter is provided, return specific property (e.g., member['_id'])

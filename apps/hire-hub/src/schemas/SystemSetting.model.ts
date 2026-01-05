@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { SystemCategoryEnum, SystemDataTypeEnum } from '../libs/enums/system-settings.enum';
+import { SystemCategoryEnum, SystemDataTypeEnum } from '../libs/enums';
 
 /**
  * SystemSetting Schema - Key-value storage for system-wide configuration

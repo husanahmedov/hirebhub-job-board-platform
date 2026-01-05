@@ -11,20 +11,20 @@ export * from './env.util';
 export * from './exceptions/base.exception';
 export * from './exceptions/custom.exceptions';
 
-// Enums
-export * from './enums/error.enum';
-export * from './enums/user.enum';
-export * from './enums/company.enum';
-export * from './enums/job.enum';
-export * from './enums/application.enum';
-export * from './enums/resume.enum';
-export * from './enums/notification.enum';
-
 // Interfaces
 export * from './interfaces/error.interface';
+
+export * from './enums';
 
 // Filters
 export * from './filters/graphql-exception.filter';
 
 // GraphQL Types
-export * from './dto/user/index';
+export * from './dto/admin';
+export * from './dto/user';
+export * from './dto/company';
+export * from './dto/job';
+export * from './dto/application';
+export * from './dto/resume';
+export * from './dto/notification';
+export * from './dto/admin';

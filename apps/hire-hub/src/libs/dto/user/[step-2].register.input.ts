@@ -17,7 +17,8 @@ import {
 	IsDateString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { UserStatus, UserRole, UserCountry, LocationInput, EducationInput, ExperienceInput } from '../../index';
+import { LocationInput, EducationInput, ExperienceInput } from '../../index';
+import {UserStatus, UserRole, UserCountry} from "../../enums";
 
 /**
  * User profile input

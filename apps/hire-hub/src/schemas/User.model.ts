@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { UserStatus, UserRole } from '../libs/enums/user.enum';
+import { UserStatus, UserRole } from '../libs/enums';
 
 /**
  * User Schema - MongoDB schema definition for user documents

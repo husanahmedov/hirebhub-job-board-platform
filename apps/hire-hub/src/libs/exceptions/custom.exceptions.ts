@@ -1,5 +1,5 @@
 import { BaseGraphQLException } from './base.exception';
-import { ErrorCode } from '../enums/error.enum';
+import { ErrorCode } from '../enums';
 
 /**
  * UserNotFoundException - Thrown when a user is not found

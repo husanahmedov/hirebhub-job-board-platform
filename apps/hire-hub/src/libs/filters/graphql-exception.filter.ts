@@ -1,7 +1,7 @@
 import { Catch, ArgumentsHost, ExceptionFilter, BadRequestException } from '@nestjs/common';
 import { GqlArgumentsHost, GqlContextType } from '@nestjs/graphql';
 import { BaseGraphQLException } from '../exceptions/base.exception';
-import { ErrorCode, ErrorMessage } from '../enums/error.enum';
+import { ErrorCode, ErrorMessage } from '../enums';
 
 /**
  * GraphQLExceptionFilter - Global exception filter for GraphQL operations

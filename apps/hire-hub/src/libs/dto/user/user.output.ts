@@ -1,5 +1,5 @@
 import { Field, ObjectType, ID, GraphQLISODateTime, Int } from '@nestjs/graphql';
-import { UserStatus, UserRole } from '../../enums/user.enum';
+import { UserStatus, UserRole } from '../../enums';
 import { IsOptional } from 'class-validator';
 
 /**

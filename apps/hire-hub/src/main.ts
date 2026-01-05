@@ -38,7 +38,10 @@ async function bootstrap(): Promise<void> {
 		const app = await NestFactory.create(AppModule, {
 			logger: ['log', 'error', 'warn'], // Enable log, error and warning levels
 		});
-
+		// Serve static files from uploads directory
+		const express = require('express');
+		const path = require('path');
+		app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 		// Enable CORS for cross-origin requests
 		app.enableCors({
 			origin: process.env.CORS_ORIGIN ?? '*',

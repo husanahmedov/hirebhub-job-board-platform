@@ -13,7 +13,8 @@ import {
 	ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { UserRole, ProfileInput } from '../../index';
+import { ProfileInput } from '../../index';
+import { UserStatus, UserCountry, UserRole } from '../../enums';
 
 /**
  * OAuth provider input

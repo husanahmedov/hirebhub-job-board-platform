@@ -17,7 +17,7 @@ import {
 	IsDateString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { UserStatus, UserRole, UserCountry } from '../../index';
+import { UserStatus, UserRole, UserCountry } from '../../enums';
 
 /**
  * Geographic coordinates input for location

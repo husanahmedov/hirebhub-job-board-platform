@@ -4,7 +4,7 @@ import {
 	SystemContentKeysEnum,
 	SystemDataTypeEnum,
 	SystemRateLimitKeysEnum,
-} from '../../libs/enums/system-settings.enum';
+} from '../../libs/enums';
 
 /**
  * Seed default system settings
