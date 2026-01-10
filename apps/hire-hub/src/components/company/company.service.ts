@@ -8,6 +8,9 @@ import {
 	UpdateCompanyInput,
 	CompanySortField,
 	SortOrder,
+	BadRequestException,
+	User,
+	UserNotFoundException,
 } from '../../libs';
 import { PaginatedCompaniesOutput, CompanyOutput } from '../../libs';
 import { shapeIntoMongoObjectId } from '../../libs/config';
@@ -28,6 +31,8 @@ export class CompanyService {
 	constructor(
 		@InjectModel('Company')
 		private readonly companyModel: Model<CompanyOutput>,
+		@InjectModel('User')
+		private readonly userModel: Model<User>,
 	) {}
 
 	/**
@@ -481,7 +486,27 @@ export class CompanyService {
 	 * @returns Created company
 	 */
 	async createCompany(input: CreateCompanyInput): Promise<CompanyOutput> {
-		const company = new this.companyModel(input);
+		// Ensure owner is in recruiterIds array
+		const recruiterIds = input.recruiterIds || [];
+		const ownerIdObj = shapeIntoMongoObjectId(input.ownerId);
+		
+		// check if ownerId is in the recruiterIds array
+		if (recruiterIds.includes(input.ownerId)) {
+			throw new BadRequestException(
+				`Owner ID cannot be in the recruiter IDs array @ ----- Owner Id ${input.ownerId} ----- @`,
+			);
+		}
+		// check if owenerId is valid
+		const ownerIdCheck = await this.userModel.findById(ownerIdObj).exec();
+		if (!ownerIdCheck) {
+			throw new UserNotFoundException(`Owner with ID ${input.ownerId} not found`);
+		}
+
+		const company = new this.companyModel({
+			...input,
+			ownerId: ownerIdObj,
+			recruiterIds: recruiterIds.map((id) => shapeIntoMongoObjectId(id)),
+		});
 		await company.save();
 		return await this.getCompanyById(company._id.toString());
 	}

@@ -75,6 +75,10 @@ export class CreateCompanyInput {
 	@MaxLength(250)
 	slug: string;
 
+	@Field({ description: 'Owner user ID - The user who owns this company' })
+	@IsString()
+	ownerId: string;
+
 	@Field(() => CompanyIndustry, {
 		nullable: true,
 		description: 'Industry classification',

@@ -213,10 +213,23 @@ const CompanySchema = new Schema(
 		},
 
 		/**
-		 * Array of recruiter user IDs associated with this company
-		 * @type ObjectId[] - References to User documents
-		 * @indexed For finding companies by recruiter
+		 * Company owner ID - The user who created and owns the company
+		 * @type ObjectId - References to User document
+		 * @required Owner is mandatory for every company
+		 * @indexed For finding companies by owner
 		 */
+		ownerId: {
+			type: Schema.Types.ObjectId,
+			ref: 'User',
+			required: [true, 'Company owner is required'],
+			index: true,
+		},
+
+		/**
+	 * Array of recruiter user IDs associated with this company
+	 * @type ObjectId[] - References to User documents
+	 * @indexed For finding companies by recruiter
+	 * @note The owner is typically included in this array
 		recruiterIds: {
 			type: [Schema.Types.ObjectId],
 			ref: 'User',
@@ -320,6 +333,12 @@ CompanySchema.index({ industry: 1, size: 1 }, { name: 'industry_size_idx' });
  * Common query pattern: Show me all verified PRO companies
  */
 CompanySchema.index({ verified: 1, plan: 1 }, { name: 'verified_plan_idx' });
+
+/**
+ * Index on ownerId for finding companies by owner
+ * Allows efficient queries like: "Show me all companies this user owns"
+ */
+CompanySchema.index({ ownerId: 1 }, { name: 'owner_id_idx' });
 
 /**
  * Index on recruiterIds for finding companies by recruiter

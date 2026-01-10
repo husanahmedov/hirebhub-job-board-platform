@@ -70,6 +70,11 @@ export class CompanyOutput {
 	@Field({ nullable: true, description: 'URL to company logo image' })
 	logoUrl?: string;
 
+	@Field(() => ID, {
+		description: 'Owner user ID - The user who owns this company',
+	})
+	ownerId: string;
+
 	@Field(() => [ID], {
 		description: 'Array of recruiter user IDs associated with this company',
 	})

@@ -4,6 +4,8 @@ import CompanySchema from '../../schemas/Company.model';
 import { CompanyResolver } from './company.resolver';
 import { CompanyService } from './company.service';
 import { AuthModule } from '../auth/auth.module';
+import { UserModule } from '../user/user.module';
+import UserSchema from '../../schemas/User.model';
 
 /**
  * CompanyModule - Module for company-related functionality
@@ -18,8 +20,12 @@ import { AuthModule } from '../auth/auth.module';
 @Module({
 	imports: [
 		// Register the Company schema with Mongoose
-		MongooseModule.forFeature([{ name: 'Company', schema: CompanySchema }]),
+		MongooseModule.forFeature([
+			{ name: 'Company', schema: CompanySchema },
+			{ name: 'User', schema: UserSchema },
+		]),
 		AuthModule, // Import AuthModule for authentication and authorization
+		UserModule, // Import UserModule to access user-related functionality
 	],
 	providers: [
 		CompanyResolver, // GraphQL resolver
