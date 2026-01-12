@@ -17,11 +17,13 @@
 
 **HireHub** is a NestJS-based GraphQL API for a job recruitment platform built with:
 
-- **Framework**: NestJS (Node.js)
+- **Framework**: NestJS v10.x (Node.js)
 - **API Type**: GraphQL (Apollo Server)
-- **Database**: MongoDB (Mongoose ODM)
-- **Language**: TypeScript
+- **Database**: MongoDB (Mongoose ODM with Aggregation Pipelines)
+- **Language**: TypeScript (Strict Mode)
 - **Architecture**: Monorepo (contains hire-hub main app and hirehub-batch)
+- **Template Engine**: Handlebars (hbs) for health monitoring dashboard
+- **Monitoring**: @nestjs/terminus for health checks
 
 ---
 
@@ -53,14 +55,18 @@ apps/hire-hub/
 │   ├── app.resolver.ts            # Root GraphQL resolver
 │   │
 │   ├── components/                # Feature modules (business logic)
-│   │   ├── user/
-│   │   ├── company/
-│   │   ├── job/
-│   │   ├── application/
-│   │   ├── notification/
-│   │   ├── bookmark/
-│   │   ├── resume/
-│   │   └── company-review/
+│   │   ├── admin/                 # System settings & admin operations
+│   │   ├── application/           # Job applications
+│   │   ├── auth/                  # Authentication & authorization
+│   │   ├── bookmark/              # Job bookmarks
+│   │   ├── company/               # Company management
+│   │   ├── company-review/        # Company reviews & ratings
+│   │   ├── health/                # Health check monitoring
+│   │   ├── job/                   # Job postings (CRUD, filtering)
+│   │   ├── notification/          # User notifications
+│   │   ├── resume/                # Resume management
+│   │   ├── uploader/              # File upload service
+│   │   └── user/                  # User management
 │   │
 │   ├── database/                  # Database configuration
 │   │   └── database.module.ts
@@ -78,13 +84,27 @@ apps/hire-hub/
 │   │   └── index.ts               # Barrel export
 │   │
 │   └── schemas/                   # Mongoose schemas
-│       └── User.model.ts
+│       ├── User.model.ts
+│       ├── Company.model.ts
+│       ├── Job.model.ts
+│       └── SystemSetting.model.ts
 │
 ├── docs/                          # Documentation
+│   ├── ADMIN_SYSTEM_SETTINGS_API.md
+│   ├── AGGREGATION_GUIDE.md
+│   ├── AGGREGATION_OPERATORS_REFERENCE.md
 │   ├── APP_MODULE_EXPLAINED.md
+│   ├── COMPANY_ARCHITECTURE.md
+│   ├── COMPANY_MODULE_SUMMARY.md
+│   ├── CONTENT_MODERATION_API.md
 │   ├── ERROR_HANDLING_QUICK_REF.md
+│   ├── FILE_UPLOAD_GUIDE.md
 │   ├── GRAPHQL_EXCEPTION_MIGRATION.md
-│   └── PROJECT_STANDARDS.md
+│   ├── JOB_API_GUIDE.md
+│   ├── OAUTH_IMPLEMENTATION.md
+│   ├── PROJECT_STANDARDS.md
+│   ├── STARTING_PROMPT.md
+│   └── VALIDATION_ERROR_HANDLING.md
 │
 └── test/                          # E2E tests
     ├── app.e2e-spec.ts
@@ -161,6 +181,9 @@ export class InvalidCredentialsException extends BaseGraphQLException {
 - `ApplicationNotFoundException`
 - `ApplicationAlreadyExistsException`
 - `ResumeNotFoundException`
+- `InvalidFileTypeException`
+- `FileTooLargeException`
+- `SettingNotFoundException`
 - And more...
 
 #### 3. Error Handler Utility
@@ -429,6 +452,158 @@ export class UserService {
 | **Service**  | Business logic, data access   | Database operations, business rules      |
 | **Model**    | Data structure, schema        | Define Mongoose schemas                  |
 
+### Real-World Example: Job Module
+
+A complete implementation demonstrating all architecture patterns:
+
+#### File Structure
+
+```
+job/
+├── job.module.ts      # Module configuration
+├── job.resolver.ts    # GraphQL queries & mutations (348 lines)
+└── job.service.ts     # Business logic with aggregation (463 lines)
+```
+
+#### Schema (`schemas/Job.model.ts`)
+
+```typescript
+const JobSchema = new Schema(
+	{
+		companyId: { type: Schema.Types.ObjectId, ref: 'Company', required: true },
+		postedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+		title: { type: String, required: true, index: 'text' },
+		slug: { type: String, required: true, unique: true },
+		description: { type: String, index: 'text' },
+		employmentType: { type: String, enum: JobType },
+		seniorityLevel: { type: String, enum: JobLevel },
+		location: { type: JobLocationSchema, required: true },
+		salaryRange: { type: SalaryRangeSchema },
+		tags: [String],
+		skills: [String],
+		isPublished: { type: Boolean, default: false },
+		viewsCount: { type: Number, default: 0 },
+		applicationsCount: { type: Number, default: 0 },
+		deletedAt: { type: Date },
+	},
+	{ timestamps: true },
+);
+
+// Text index for full-text search
+JobSchema.index({ title: 'text', description: 'text' });
+```
+
+#### Service Methods
+
+```typescript
+@Injectable()
+export class JobService {
+	// Create job with slug uniqueness check
+	async createJob(input: CreateJobInput, userId: string): Promise<JobOutput>;
+
+	// List with aggregation pipeline (filters, pagination, joins)
+	async getJobs(input: GetJobsInput): Promise<PaginatedJobsOutput>;
+
+	// Single job with .populate() and view tracking
+	async getJobById(jobId: string, incrementView?: boolean): Promise<JobOutput>;
+	async getJobBySlug(slug: string, incrementView?: boolean): Promise<JobOutput>;
+
+	// Update with validation
+	async updateJob(input: UpdateJobInput, userId: string): Promise<JobOutput>;
+
+	// Soft delete
+	async deleteJob(jobId: string): Promise<boolean>;
+
+	// Close job (mark as filled)
+	async closeJob(jobId: string): Promise<JobOutput>;
+
+	// Aggregation for statistics
+	async getJobStats(companyId?: string): Promise<JobStatsOutput>;
+
+	// Private mapper for consistent output
+	private mapToJobOutput(job: any): JobOutput;
+}
+```
+
+#### Resolver Queries & Mutations
+
+```typescript
+@Resolver(() => JobOutput)
+export class JobResolver {
+  // PUBLIC QUERIES
+  @Query(() => PaginatedJobsOutput)
+  async getJobs(@Args('input') input: GetJobsInput): Promise<PaginatedJobsOutput>
+
+  @Query(() => JobOutput)
+  async getJobById(@Args('jobId') jobId: string): Promise<JobOutput>
+
+  @Query(() => JobOutput)
+  async getJobBySlug(@Args('slug') slug: string): Promise<JobOutput>
+
+  // AUTHENTICATED QUERIES
+  @Query(() => JobStatsOutput)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.RECRUITER, UserRole.ADMIN)
+  async getJobStats(@Context() context): Promise<JobStatsOutput>
+
+  // MUTATIONS (RECRUITER/ADMIN ONLY)
+  @Mutation(() => JobOutput)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.RECRUITER, UserRole.ADMIN)
+  async createJob(@Args('input') input: CreateJobInput, @Context() context)
+
+  @Mutation(() => JobOutput)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.RECRUITER, UserRole.ADMIN)
+  async updateJob(@Args('input') input: UpdateJobInput, @Context() context)
+
+  @Mutation(() => Boolean)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.RECRUITER, UserRole.ADMIN)
+  async deleteJob(@Args('jobId') jobId: string): Promise<boolean>
+
+  @Mutation(() => JobOutput)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.RECRUITER, UserRole.ADMIN)
+  async closeJob(@Args('jobId') jobId: string): Promise<JobOutput>
+}
+```
+
+#### Input/Output DTOs
+
+```typescript
+// 9 Input Types (libs/dto/job/input.ts - 471 lines)
+-CreateJobInput - // Full job creation
+	UpdateJobInput - // Partial updates
+	GetJobsInput - // With nested filters
+	JobFilterInput - // All filter options
+	JobSortInput - // Sort configuration
+	PaginationInput - // Page, limit
+	JobLocationInput - // Location sub-schema
+	SalaryRangeInput - // Salary sub-schema
+	// 5 Output Types (libs/dto/job/output.ts - 180 lines)
+	JobOutput - // Complete job data
+	JobLocationOutput - // Location data
+	SalaryRangeOutput - // Salary data
+	PaginatedJobsOutput - // List with pagination meta
+	JobStatsOutput; // Aggregated statistics
+```
+
+#### Advanced Features
+
+- **Full-text search** on title & description
+- **Advanced filtering**: location, skills, tags, salary, employment type
+- **Role-based access control**: Public queries, protected mutations
+- **View tracking**: Increment views on job access
+- **Aggregation pipeline**: Efficient list queries with joins
+- **Soft deletes**: Preserve data with `deletedAt` timestamp
+- **Slug uniqueness**: Prevent duplicate URLs
+- **Populated relations**: Company and user data in responses
+
+#### API Documentation
+
+Complete Postman/Bruno guide available at: `docs/JOB_API_GUIDE.md`
+
 ---
 
 ## 🔌 GraphQL Standards
@@ -494,7 +669,189 @@ export class UserQueryArgs {
 
 ---
 
+## 🏥 Health Check & Monitoring
+
+### Health Check System
+
+Located in `components/health/`
+
+The application includes a comprehensive health monitoring system using **@nestjs/terminus**.
+
+#### Available Endpoints
+
+1. **HTML Dashboard**: `http://localhost:8080/health`
+   - Beautiful Handlebars-rendered dashboard
+   - Real-time health indicators
+   - Auto-refresh every 30 seconds
+   - Displays: Database, Memory, Disk storage status
+
+2. **JSON API**: `http://localhost:8080/health/json`
+   - Machine-readable health status
+   - For monitoring tools integration
+   - Returns structured health data
+
+#### Health Indicators
+
+```typescript
+@Get('/json')
+async check() {
+  return this.health.check([
+    () => this.db.pingCheck('database'),
+    () => this.memory.checkHeap('memory_heap', 150 * 1024 * 1024),
+    () => this.disk.checkStorage('storage', {
+      path: '/',
+      thresholdPercent: 0.9
+    }),
+  ]);
+}
+```
+
+**Monitored Resources:**
+
+- **Database**: MongoDB connection health
+- **Memory**: Heap usage (150MB threshold)
+- **Disk**: Storage usage (90% threshold)
+
+#### Handlebars Configuration
+
+Configured in `main.ts`:
+
+```typescript
+const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+// Configure Handlebars
+app.useStaticAssets(join(process.cwd(), 'apps', 'hire-hub', 'public'));
+app.setBaseViewsDir(join(process.cwd(), 'apps', 'hire-hub', 'views'));
+app.setViewEngine('hbs');
+
+// Register custom helpers
+hbs.registerHelper('eq', function (a, b) {
+	return a === b;
+});
+```
+
+### Why Health Checks Matter
+
+- **System Monitoring**: Real-time visibility into application health
+- **Error Detection**: Identify issues before users experience problems
+- **DevOps Integration**: Kubernetes/Docker health probes
+- **Performance Tracking**: Monitor resource usage trends
+- **Debugging**: Quick diagnosis of database/memory issues
+
+---
+
 ## 🗂️ Code Organization
+
+### MongoDB Aggregation Pipeline Standards
+
+#### When to Use Aggregation vs. `.populate()`
+
+**Use `.populate()` when:**
+
+- Fetching single documents (e.g., `getJobById`, `getUserById`)
+- Simple 1-2 relation joins
+- Prototyping or rapid development
+- Need Mongoose virtuals or middleware
+
+**Use Aggregation Pipeline when:**
+
+- Fetching lists with pagination (e.g., `getJobs`, `getCompanies`)
+- Multiple joins (3+ relations)
+- Complex filtering on related data
+- Need computed fields (counts, averages)
+- Performance-critical queries
+- Combining data retrieval with count (using `$facet`)
+
+#### Aggregation Pipeline Pattern
+
+Example from `job.service.ts`:
+
+```typescript
+async getJobs(input: GetJobsInput = {}): Promise<PaginatedJobsOutput> {
+  const pipeline: PipelineStage[] = [];
+
+  // STAGE 1: TEXT SEARCH (if search query exists)
+  if (filter.search) {
+    pipeline.push({
+      $match: { $text: { $search: filter.search } }
+    });
+    pipeline.push({
+      $addFields: { textScore: { $meta: 'textScore' } }
+    });
+  }
+
+  // STAGE 2: MATCH (filtering)
+  pipeline.push({
+    $match: {
+      deletedAt: null,
+      isPublished: true,
+      // ... other filters
+    }
+  });
+
+  // STAGE 3: LOOKUP (joins with sub-pipelines)
+  pipeline.push({
+    $lookup: {
+      from: 'companies',
+      localField: 'companyId',
+      foreignField: '_id',
+      as: 'companyData',
+      pipeline: [
+        { $project: { _id: 1, name: 1, logoUrl: 1 } }
+      ]
+    }
+  });
+
+  // STAGE 4: PROJECT (shape output)
+  pipeline.push({
+    $addFields: {
+      companyData: { $arrayElemAt: ['$companyData', 0] }
+    }
+  });
+
+  // STAGE 5: SORT
+  pipeline.push({ $sort: { createdAt: -1 } });
+
+  // STAGE 6: FACET (parallel data + count)
+  pipeline.push({
+    $facet: {
+      data: [{ $skip: skip }, { $limit: limit }],
+      metadata: [{ $count: 'totalCount' }]
+    }
+  });
+
+  const result = await this.jobModel.aggregate(pipeline).exec();
+  return this.mapResults(result);
+}
+```
+
+#### Key Aggregation Operators
+
+| Operator     | Purpose                 | Example                                         |
+| ------------ | ----------------------- | ----------------------------------------------- |
+| `$match`     | Filter documents        | `{ $match: { deletedAt: null } }`               |
+| `$lookup`    | Join collections        | `{ $lookup: { from: 'users', ... } }`           |
+| `$project`   | Select/transform fields | `{ $project: { name: 1, email: 1 } }`           |
+| `$addFields` | Add computed fields     | `{ $addFields: { total: { $sum: ... } } }`      |
+| `$sort`      | Order results           | `{ $sort: { createdAt: -1 } }`                  |
+| `$group`     | Aggregate data          | `{ $group: { _id: null, count: { $sum: 1 } } }` |
+| `$facet`     | Parallel pipelines      | `{ $facet: { data: [...], meta: [...] } }`      |
+| `$text`      | Full-text search        | `{ $text: { $search: 'engineer' } }`            |
+| `$in`        | Match in array          | `{ employmentType: { $in: ['FULL_TIME'] } }`    |
+| `$all`       | Match all in array      | `{ skills: { $all: ['React', 'Node'] } }`       |
+
+**Note:** The `$` symbol indicates MongoDB operators - you cannot create custom operators.
+
+#### Text Search Index Configuration
+
+In schema files (e.g., `Job.model.ts`):
+
+```typescript
+// Define text index on multiple fields
+JobSchema.index({ title: 'text', description: 'text' });
+
+// MongoDB will search BOTH fields when using $text operator
+```
 
 ### Barrel Exports
 
@@ -572,7 +929,12 @@ src/
 - ✅ Use dependency injection
 - ✅ Handle errors gracefully
 - ✅ Validate input data
+- ✅ Use aggregation pipelines for list queries
+- ✅ Use `.populate()` for single document queries
+- ✅ Implement soft deletes with `deletedAt` timestamps
+- ✅ Create mapper functions for consistent output (e.g., `mapToJobOutput`)
 - ❌ Don't access database directly from resolvers
+- ❌ Don't use `.find()` with multiple `.populate()` - use aggregation instead
 
 ### 5. Code Style
 
@@ -597,6 +959,28 @@ src/
 - ✅ Test error scenarios
 - ✅ Mock external dependencies
 - ❌ Don't test implementation details
+
+### 8. Database & Indexing
+
+- ✅ Create indexes on frequently queried fields
+- ✅ Use compound indexes for multi-field queries
+- ✅ Create text indexes for full-text search
+- ✅ Use aggregation for complex queries with multiple joins
+- ✅ Monitor query performance with `.explain()`
+- ✅ Implement pagination for all list endpoints
+- ❌ Don't create too many indexes (impacts write performance)
+- ❌ Don't forget to index foreign keys (ObjectId references)
+
+### 9. Schema Design
+
+- ✅ Use sub-schemas for nested structures (e.g., `JobLocationSchema`)
+- ✅ Add validation at schema level (`required`, `min`, `max`, `enum`)
+- ✅ Use enums for predefined values
+- ✅ Include timestamps (`{ timestamps: true }`)
+- ✅ Add indexes for common query patterns
+- ✅ Use soft deletes with `deletedAt` field
+- ❌ Don't expose internal fields to GraphQL output
+- ❌ Don't use deeply nested structures (max 2-3 levels)
 
 ---
 
@@ -635,13 +1019,30 @@ CORS_ORIGIN=http://localhost:3001
 
 Access at: `http://localhost:3000/graphql`
 
+### Health Dashboard
+
+Access at: `http://localhost:8080/health`
+
 ---
 
 ## 📚 Additional Resources
 
+### Internal Documentation
+
+- [Job API Guide](./JOB_API_GUIDE.md) - Complete Postman/Bruno testing guide
+- [Aggregation Guide](./AGGREGATION_GUIDE.md) - MongoDB aggregation patterns
+- [Aggregation Operators](./AGGREGATION_OPERATORS_REFERENCE.md) - Operator reference
+- [Company Architecture](./COMPANY_ARCHITECTURE.md) - Company module deep dive
+- [File Upload Guide](./FILE_UPLOAD_GUIDE.md) - File handling with Multer
+- [OAuth Implementation](./OAUTH_IMPLEMENTATION.md) - Social login setup
+- [Error Handling](./ERROR_HANDLING_QUICK_REF.md) - Quick reference
+
+### External Resources
+
 - [NestJS Documentation](https://docs.nestjs.com/)
 - [GraphQL Best Practices](https://graphql.org/learn/best-practices/)
 - [Mongoose Documentation](https://mongoosejs.com/)
+- [MongoDB Aggregation](https://www.mongodb.com/docs/manual/aggregation/)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 
 ---
@@ -655,9 +1056,42 @@ Access at: `http://localhost:3000/graphql`
 5. **Type Safety**: Leverage TypeScript's type system
 6. **Documentation**: Document complex logic and public APIs
 7. **Testing**: Write tests for critical functionality
+8. **Performance**: Use aggregation pipelines for complex queries
+9. **Monitoring**: Health checks for production readiness
+10. **Security**: Role-based access control on sensitive operations
 
 ---
 
-**Last Updated**: December 31, 2025  
-**Version**: 1.0.0  
+**Last Updated**: January 12, 2026  
+**Version**: 2.0.0  
 **Maintained By**: HireHub Development Team
+
+---
+
+## 📊 Project Status
+
+### Implemented Modules
+
+- ✅ **User Module**: Authentication, profile management
+- ✅ **Company Module**: Company CRUD with aggregation, reviews
+- ✅ **Job Module**: Full CRUD, advanced filtering, aggregation
+- ✅ **Auth Module**: JWT, OAuth, role-based access
+- ✅ **Admin Module**: System settings management
+- ✅ **Health Module**: Monitoring dashboard
+- ✅ **Uploader Module**: File upload with Multer
+- 🚧 **Application Module**: Job applications (in progress)
+- 🚧 **Notification Module**: User notifications (in progress)
+- 🚧 **Resume Module**: Resume management (in progress)
+- 🚧 **Bookmark Module**: Job bookmarks (in progress)
+
+### Key Features
+
+- MongoDB aggregation pipelines for efficient queries
+- Full-text search with text indexes
+- Role-based access control (ADMIN, RECRUITER, CANDIDATE)
+- Soft delete pattern
+- Health monitoring dashboard
+- Comprehensive error handling
+- Request/response logging
+- File upload support
+- GraphQL schema-first approach
