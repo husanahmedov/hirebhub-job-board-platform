@@ -1,11 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { StartupLogger } from './libs/startup-logger.util';
 import { EnvUtil } from './libs';
 import { LoggingInterceptor } from './libs/interceptors/Logging.interceptor';
 import { TimeoutInterceptor } from './libs/interceptors/Timeout.interceptor';
 import { HttpExceptionFilter } from './libs/filters/http-exception.filter';
+import { join } from 'path';
 
 declare const module: any;
 
@@ -35,9 +37,21 @@ async function bootstrap(): Promise<void> {
 		const DATABASE_URL = process.env.HIREHUB_MONGODB_URI ?? 'mongodb://localhost:27017/hirehub';
 
 		// Create NestJS application instance with custom logger disabled
-		const app = await NestFactory.create(AppModule, {
+		const app = await NestFactory.create<NestExpressApplication>(AppModule, {
 			logger: ['log', 'error', 'warn'], // Enable log, error and warning levels
 		});
+
+		// Configure Handlebars as the view engine
+		const viewsPath = join(process.cwd(), 'apps', 'hire-hub', 'views');
+		app.setBaseViewsDir(viewsPath);
+		app.setViewEngine('hbs');
+
+		// Register Handlebars helpers
+		const hbs = require('hbs');
+		hbs.registerHelper('eq', function (a: any, b: any) {
+			return a === b;
+		});
+
 		// Serve static files from uploads directory
 		const express = require('express');
 		const path = require('path');

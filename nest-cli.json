@@ -16,7 +16,14 @@
 			"entryFile": "main",
 			"sourceRoot": "apps/hire-hub/src",
 			"compilerOptions": {
-				"tsConfigPath": "apps/hire-hub/tsconfig.app.json"
+				"tsConfigPath": "apps/hire-hub/tsconfig.app.json",
+				"assets": [
+					{
+						"include": "views/**/*",
+						"outDir": "dist/apps/hire-hub",
+						"watchAssets": true
+					}
+				]
 			}
 		},
 		"hirehub-batch": {
