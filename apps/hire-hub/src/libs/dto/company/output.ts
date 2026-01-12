@@ -1,5 +1,7 @@
 import { ObjectType, Field, ID, Int, Float } from '@nestjs/graphql';
 import { CompanyIndustry, CompanySize, CompanyPlan } from '../../enums/company';
+import { PublicUser } from '../..';
+import { IsOptional } from 'class-validator';
 
 /**
  * LocationOutput - GraphQL output type for company location
@@ -74,6 +76,12 @@ export class CompanyOutput {
 		description: 'Owner user ID - The user who owns this company',
 	})
 	ownerId: string;
+
+	@IsOptional()
+	@Field(() => PublicUser, {
+		description: 'Owner user details',
+	})
+	ownerData?: PublicUser;
 
 	@Field(() => [ID], {
 		description: 'Array of recruiter user IDs associated with this company',

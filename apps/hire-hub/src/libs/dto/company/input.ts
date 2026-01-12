@@ -356,6 +356,9 @@ export class GetCompaniesInput {
 	})
 	@IsOptional()
 	pagination?: CompanyPaginationInput;
+
+	@IsOptional()
+	ownerId?: string;
 }
 
 /**

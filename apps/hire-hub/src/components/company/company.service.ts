@@ -128,26 +128,50 @@ export class CompanyService {
 
 		// ==================== STAGE 3: LOOKUP (Joins) ====================
 		// Join with Job collection to count active jobs
-		pipeline.push({
-			$lookup: {
-				from: 'jobs',
-				let: { companyId: '$_id' },
-				pipeline: [
-					{
-						$match: {
-							$expr: {
-								$and: [
-									{ $eq: ['$companyId', '$$companyId'] },
-									{ $eq: ['$deletedAt', null] }, // Only count active jobs
-								],
+		pipeline.push(
+			{
+				$lookup: {
+					from: 'jobs',
+					let: { companyId: '$_id' },
+					pipeline: [
+						{
+							$match: {
+								$expr: {
+									$and: [
+										{ $eq: ['$companyId', '$$companyId'] },
+										{ $eq: ['$deletedAt', null] }, // Only count active jobs
+									],
+								},
 							},
 						},
-					},
-					{ $count: 'count' },
-				],
-				as: 'jobData',
+						{ $count: 'count' },
+					],
+					as: 'jobData',
+				},
 			},
-		});
+			{
+				$lookup: {
+					from: 'users',
+					localField: 'ownerId',
+					foreignField: '_id',
+					as: 'ownerData',
+					pipeline: [
+						{
+							$project: {
+								_id: 1,
+								firstName: 1,
+								fullName: {
+									$concat: [{ $ifNull: ['$firstName', ''] }, ' ', { $ifNull: ['$lastName', ''] }],
+								},
+								lastName: 1,
+								email: 1,
+								role: 1,
+							},
+						},
+					],
+				},
+			},
+		);
 
 		// Join with CompanyReview collection for review stats
 		pipeline.push({
@@ -184,6 +208,7 @@ export class CompanyService {
 				averageRating: {
 					$ifNull: [{ $arrayElemAt: ['$reviewData.avgRating', 0] }, 0],
 				},
+				ownerData: { $arrayElemAt: ['$ownerData', 0] },
 			},
 		});
 
@@ -247,6 +272,7 @@ export class CompanyService {
 		const result = await this.companyModel.aggregate(pipeline).exec();
 
 		const companies = result[0]?.data || [];
+		// console.log('----- companies -----', companies);
 		const totalCount = result[0]?.metadata[0]?.totalCount || 0;
 		const totalPages = Math.ceil(totalCount / limit);
 
@@ -298,23 +324,45 @@ export class CompanyService {
 
 		// ==================== STAGE 2: LOOKUP (Joins) ====================
 		// Add job count
-		pipeline.push({
-			$lookup: {
-				from: 'jobs',
-				let: { companyId: '$_id' },
-				pipeline: [
-					{
-						$match: {
-							$expr: {
-								$and: [{ $eq: ['$companyId', '$$companyId'] }, { $eq: ['$deletedAt', null] }],
+		pipeline.push(
+			{
+				$lookup: {
+					from: 'jobs',
+					let: { companyId: '$_id' },
+					pipeline: [
+						{
+							$match: {
+								$expr: {
+									$and: [{ $eq: ['$companyId', '$$companyId'] }, { $eq: ['$deletedAt', null] }],
+								},
 							},
 						},
-					},
-					{ $count: 'count' },
-				],
-				as: 'jobData',
+						{ $count: 'count' },
+					],
+					as: 'jobData',
+				},
 			},
-		});
+			{
+				$lookup: {
+					from: 'users',
+					localField: 'ownerId',
+					foreignField: '_id',
+					as: 'ownerData',
+					pipeline: [
+						{
+							$project: {
+								_id: 1,
+								firstName: 1,
+								fullName: { $concat: [{ $ifNull: ['$firstName', ''] }, ' ', { $ifNull: ['$lastName', ''] }] },
+								lastName: 1,
+								email: 1,
+								role: 1,
+							},
+						},
+					],
+				},
+			},
+		);
 
 		// Add review stats
 		pipeline.push({
@@ -346,6 +394,7 @@ export class CompanyService {
 				reviewCount: { $ifNull: [{ $arrayElemAt: ['$reviewData.count', 0] }, 0] },
 				averageRating: { $ifNull: [{ $arrayElemAt: ['$reviewData.avgRating', 0] }, 0] },
 				distanceKm: { $divide: ['$distance', 1000] }, // Convert meters to km
+				ownerData: { $arrayElemAt: ['$ownerData', 0] },
 			},
 		});
 
@@ -438,10 +487,28 @@ export class CompanyService {
 				},
 			},
 			{
+				$lookup: {
+					from: 'users',
+					localField: 'ownerId',
+					foreignField: '_id',
+					as: 'ownerData',
+					pipeline: [
+						{
+							$project: {
+								_id: 1,
+								name: 1,
+								email: 1,
+							},
+						},
+					],
+				},
+			},
+			{
 				$addFields: {
 					jobCount: { $ifNull: [{ $arrayElemAt: ['$jobData.count', 0] }, 0] },
 					reviewCount: { $ifNull: [{ $arrayElemAt: ['$reviewData.count', 0] }, 0] },
 					averageRating: { $ifNull: [{ $arrayElemAt: ['$reviewData.avgRating', 0] }, 0] },
+					ownerData: { $arrayElemAt: ['$ownerData', 0] },
 				},
 			},
 			{
@@ -489,7 +556,7 @@ export class CompanyService {
 		// Ensure owner is in recruiterIds array
 		const recruiterIds = input.recruiterIds || [];
 		const ownerIdObj = shapeIntoMongoObjectId(input.ownerId);
-		
+
 		// check if ownerId is in the recruiterIds array
 		if (recruiterIds.includes(input.ownerId)) {
 			throw new BadRequestException(

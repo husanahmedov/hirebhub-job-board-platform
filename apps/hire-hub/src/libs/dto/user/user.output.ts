@@ -251,16 +251,17 @@ export class PublicUser {
 	@Field(() => ID)
 	_id: string;
 
-	@Field(() => String)
-	firstName: string;
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	firstName?: string;
 
 	@Field(() => String)
 	lastName: string;
 
-	@Field(() => String)
-	fullName: string;
+	@Field(() => String, { nullable: true })
+	fullName?: string;
 
-	@Field(() => String)
+	@Field(() => String, { nullable: true })
 	email?: string;
 
 	@Field(() => String)

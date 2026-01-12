@@ -339,6 +339,9 @@ CompanySchema.index({ verified: 1, plan: 1 }, { name: 'verified_plan_idx' });
  * Allows efficient queries like: "Show me all companies this user owns"
  */
 CompanySchema.index({ ownerId: 1 }, { name: 'owner_id_idx' });
+// ==================== INDEXES ====================
+// create uniquenes for owner for company
+CompanySchema.index({ ownerId: 1 }, { unique: true, name: 'unique_owner_idx' });
 
 /**
  * Index on recruiterIds for finding companies by recruiter
