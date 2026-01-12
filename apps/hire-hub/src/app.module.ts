@@ -19,6 +19,9 @@ import { AppResolver } from './app.resolver';
 import { ErrorCode, ErrorMessage, IGraphqlError } from './libs';
 import { GraphQLExceptionFilter } from './libs/filters/graphql-exception.filter';
 import { AuthModule } from './components/auth/auth.module';
+import { AdminModule } from './components/admin/admin.module';
+import { UploaderModule } from './components/uploader/uploader.module';
+import { HealthModule } from './components/health/health.module';
 
 @Module({
 	imports: [
@@ -40,16 +43,12 @@ import { AuthModule } from './components/auth/auth.module';
 				if (code === 'BAD_USER_INPUT') {
 					// Parse field name from error message
 					const fieldMatch = message.match(/Field "(\w+)" of required type/);
-					const field = fieldMatch ? fieldMatch[1] : 'unknown';
+					const field = fieldMatch ? fieldMatch[1] : message;
 
+					console.log('Detected BAD_USER_INPUT for field:', message);
 					message = ErrorMessage[ErrorCode.BAD_USER_INPUT];
 					details = {
-						validationErrors: [
-							{
-								field,
-								constraints: [`${field} is required`],
-							},
-						],
+						field: `${field} is missing or invalid`,
 					};
 				} else {
 				}
@@ -72,6 +71,9 @@ import { AuthModule } from './components/auth/auth.module';
 		CompanyReviewModule,
 		DatabaseModule,
 		AuthModule,
+		AdminModule,
+		UploaderModule,
+		HealthModule,
 	],
 	controllers: [AppController],
 	providers: [

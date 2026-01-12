@@ -29,7 +29,7 @@ import { UserModule } from '../user/user.module';
 		// Note: Refresh tokens use a separate secret configured in AuthService
 		JwtModule.register({
 			secret: `${EnvUtil.getJwtSecret()}`,
-			signOptions: { expiresIn: '15m' }, // Short-lived access tokens
+			signOptions: { expiresIn: '1d' }, // Short-lived access tokens
 		}),
 
 		// UserModule for UserService (needed by OAuth strategies)

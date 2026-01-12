@@ -1,12 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { StartupLogger } from './libs/startup-logger.util';
 import { EnvUtil } from './libs';
 import { LoggingInterceptor } from './libs/interceptors/Logging.interceptor';
 import { TimeoutInterceptor } from './libs/interceptors/Timeout.interceptor';
+import { HttpExceptionFilter } from './libs/filters/http-exception.filter';
+import { join } from 'path';
 
-import * as passport from 'passport';
+declare const module: any;
 
 /**
  * Bootstrap function - Initializes and starts the HireHub application
@@ -34,10 +37,25 @@ async function bootstrap(): Promise<void> {
 		const DATABASE_URL = process.env.HIREHUB_MONGODB_URI ?? 'mongodb://localhost:27017/hirehub';
 
 		// Create NestJS application instance with custom logger disabled
-		const app = await NestFactory.create(AppModule, {
+		const app = await NestFactory.create<NestExpressApplication>(AppModule, {
 			logger: ['log', 'error', 'warn'], // Enable log, error and warning levels
 		});
 
+		// Configure Handlebars as the view engine
+		const viewsPath = join(process.cwd(), 'apps', 'hire-hub', 'views');
+		app.setBaseViewsDir(viewsPath);
+		app.setViewEngine('hbs');
+
+		// Register Handlebars helpers
+		const hbs = require('hbs');
+		hbs.registerHelper('eq', function (a: any, b: any) {
+			return a === b;
+		});
+
+		// Serve static files from uploads directory
+		const express = require('express');
+		const path = require('path');
+		app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 		// Enable CORS for cross-origin requests
 		app.enableCors({
 			origin: process.env.CORS_ORIGIN ?? '*',
@@ -60,6 +78,9 @@ async function bootstrap(): Promise<void> {
 
 		// Global Interceptors
 		app.useGlobalInterceptors(new TimeoutInterceptor(), new LoggingInterceptor());
+
+		// Global Exception Filter
+		app.useGlobalFilters(new HttpExceptionFilter());
 
 		// Set up graceful shutdown handlers
 		setupGracefulShutdown(app);
@@ -112,11 +133,22 @@ function setupGracefulShutdown(app: any): void {
 		process.exit(1);
 	});
 
-	// Handle unhandled promise rejections
+	// Handle unhandled promise rejections (only for critical errors)
 	process.on('unhandledRejection', (reason: any) => {
+		// Log the error but don't exit for HTTP exceptions (they're handled by filters)
+		if (reason?.name === 'NotFoundException' || reason?.status === 404) {
+			// Ignore 404 errors (like favicon.ico) - they're handled by exception filters
+			return;
+		}
 		console.error('Unhandled Rejection:', reason);
 		process.exit(1);
 	});
+	// salom
+	// Enable hot-reload in development
+	if (module.hot) {
+		module.hot.accept();
+		module.hot.dispose(() => app.close());
+	}
 }
 
 // Start the application

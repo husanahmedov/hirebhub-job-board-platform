@@ -1,0 +1,184 @@
+import { ObjectType, Field, ID, Int } from '@nestjs/graphql';
+import { JobType, JobLevel, SalaryCurrency, Visibility } from '../../enums/job';
+import { CompanyOutput } from '../company/output';
+import { PublicUser } from '../../';
+
+/**
+ * JobLocationOutput - GraphQL output type for job location
+ */
+@ObjectType({ description: 'Job location information' })
+export class JobLocationOutput {
+	@Field({ nullable: true, description: 'City where the job is located' })
+	city?: string;
+
+	@Field({ nullable: true, description: 'Region or state' })
+	region?: string;
+
+	@Field({ nullable: true, description: 'Country where the job is located' })
+	country?: string;
+
+	@Field({ description: 'Whether the job is remote' })
+	remote: boolean;
+}
+
+/**
+ * SalaryRangeOutput - GraphQL output type for salary information
+ */
+@ObjectType({ description: 'Salary range information' })
+export class SalaryRangeOutput {
+	@Field(() => Int, { nullable: true, description: 'Minimum salary' })
+	min?: number;
+
+	@Field(() => Int, { nullable: true, description: 'Maximum salary' })
+	max?: number;
+
+	@Field(() => SalaryCurrency, { description: 'Currency for salary' })
+	currency: SalaryCurrency;
+
+	@Field(() => Visibility, { description: 'Visibility of salary information' })
+	visibility: Visibility;
+}
+
+/**
+ * JobOutput - Main GraphQL output type for job data
+ */
+@ObjectType({ description: 'Job posting information' })
+export class JobOutput {
+	@Field(() => ID, { description: 'Unique job identifier' })
+	_id: string;
+
+	@Field(() => ID, { description: 'Company ID' })
+	companyId: string;
+
+	@Field(() => CompanyOutput, {
+		nullable: true,
+		description: 'Company details',
+	})
+	companyData?: CompanyOutput;
+
+	@Field(() => ID, { description: 'User ID who posted this job' })
+	postedBy: string;
+
+	@Field(() => PublicUser, {
+		nullable: true,
+		description: 'User who posted this job',
+	})
+	postedByData?: PublicUser;
+
+	@Field({ description: 'Job title' })
+	title: string;
+
+	@Field({ description: 'URL-friendly slug' })
+	slug: string;
+
+	@Field({ nullable: true, description: 'Full job description' })
+	description?: string;
+
+	@Field({ nullable: true, description: 'Short description or summary' })
+	shortDescription?: string;
+
+	@Field(() => JobType, { description: 'Employment type' })
+	employmentType: JobType;
+
+	@Field(() => JobLevel, { description: 'Seniority level' })
+	seniorityLevel: JobLevel;
+
+	@Field(() => JobLocationOutput, { description: 'Job location' })
+	location: JobLocationOutput;
+
+	@Field(() => SalaryRangeOutput, {
+		nullable: true,
+		description: 'Salary range',
+	})
+	salaryRange?: SalaryRangeOutput;
+
+	@Field(() => [String], { description: 'Job tags' })
+	tags: string[];
+
+	@Field(() => [String], { description: 'Required skills' })
+	skills: string[];
+
+	@Field(() => [String], { description: 'Job requirements' })
+	requirements: string[];
+
+	@Field(() => [String], { description: 'Benefits offered' })
+	benefits: string[];
+
+	@Field({ nullable: true, description: 'Application deadline' })
+	applicationDeadline?: Date;
+
+	@Field({ description: 'Whether the job is published' })
+	isPublished: boolean;
+
+	@Field(() => Visibility, { description: 'Visibility level' })
+	visibility: Visibility;
+
+	@Field(() => Int, { description: 'Number of views' })
+	viewsCount: number;
+
+	@Field(() => Int, { description: 'Number of applications' })
+	applicationsCount: number;
+
+	@Field({ description: 'Date when the job was created' })
+	createdAt: Date;
+
+	@Field({ description: 'Date when the job was last updated' })
+	updatedAt: Date;
+
+	@Field({ nullable: true, description: 'Date when the job was closed' })
+	closedAt?: Date;
+
+	@Field({ nullable: true, description: 'Soft delete timestamp' })
+	deletedAt?: Date;
+}
+
+/**
+ * PaginatedJobsOutput - Output type for paginated job lists
+ */
+@ObjectType({ description: 'Paginated list of jobs' })
+export class PaginatedJobsOutput {
+	@Field(() => [JobOutput], { description: 'List of jobs' })
+	jobs: JobOutput[];
+
+	@Field(() => Int, { description: 'Total number of jobs matching the query' })
+	totalCount: number;
+
+	@Field(() => Int, { description: 'Current page number' })
+	page: number;
+
+	@Field(() => Int, { description: 'Number of items per page' })
+	limit: number;
+
+	@Field(() => Int, { description: 'Total number of pages' })
+	totalPages: number;
+
+	@Field({ description: 'Whether there is a next page' })
+	hasNextPage: boolean;
+
+	@Field({ description: 'Whether there is a previous page' })
+	hasPreviousPage: boolean;
+}
+
+/**
+ * JobStatsOutput - Output type for job statistics
+ */
+@ObjectType({ description: 'Job statistics' })
+export class JobStatsOutput {
+	@Field(() => Int, { description: 'Total number of jobs' })
+	totalJobs: number;
+
+	@Field(() => Int, { description: 'Number of published jobs' })
+	publishedJobs: number;
+
+	@Field(() => Int, { description: 'Number of draft jobs' })
+	draftJobs: number;
+
+	@Field(() => Int, { description: 'Number of closed jobs' })
+	closedJobs: number;
+
+	@Field(() => Int, { description: 'Total number of applications' })
+	totalApplications: number;
+
+	@Field(() => Int, { description: 'Total number of views' })
+	totalViews: number;
+}

@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { UserStatus, UserRole } from '../libs/enums/user.enum';
+import { UserStatus, UserRole } from '../libs/enums';
 
 /**
  * User Schema - MongoDB schema definition for user documents
@@ -255,14 +255,14 @@ const UserSchema = new Schema(
 					 * Start date of education
 					 */
 					startYear: {
-						type: Date,
+						type: Number,
 					},
 
 					/**
 					 * End date of education (null if ongoing)
 					 */
 					endYear: {
-						type: Date,
+						type: Number,
 					},
 				},
 			],
@@ -314,14 +314,14 @@ const UserSchema = new Schema(
 					 * Employment start date
 					 */
 					startDate: {
-						type: Date,
+						type: Number,
 					},
 
 					/**
 					 * Employment end date (null if current)
 					 */
 					endDate: {
-						type: Date,
+						type: Number,
 					},
 
 					/**
@@ -335,6 +335,13 @@ const UserSchema = new Schema(
 				},
 			],
 
+			socialLinks: [
+				{
+					type: String,
+					trim: true,
+					maxlength: 40,
+				},
+			],
 			/**
 			 * Reference to uploaded resume document
 			 */
@@ -455,6 +462,35 @@ const UserSchema = new Schema(
 		deletedAt: {
 			type: Date,
 			default: null,
+		},
+
+		/**
+		 * Flag indicating if the user has completed registration
+		 * @default false
+		 */
+		hasCompleteRegistration: {
+			type: Boolean,
+			default: false,
+		},
+
+		/**
+		 * User qualifications
+		 * @type [QualificationSchema]
+		 * @default []
+		 */
+		qualifications: {
+			type: [Object],
+			default: [],
+		},
+
+		/**
+		 * User publications
+		 * @type [PublicationSchema]
+		 * @default []
+		 */
+		publications: {
+			type: [Object],
+			default: [],
 		},
 	},
 	{

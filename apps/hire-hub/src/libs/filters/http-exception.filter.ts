@@ -1,6 +1,6 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { ErrorCode } from '../enums/error.enum';
+import { ErrorCode } from '../enums';
 
 type RequestLike = Pick<Request, 'url' | 'method' | 'get' | 'ip'>;
 

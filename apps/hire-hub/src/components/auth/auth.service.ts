@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '../../libs';
+import { User, TokenExpiredException } from '../../libs';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { EnvUtil } from '../../libs/env.util';
 
@@ -9,7 +9,7 @@ import * as bcrypt from 'bcryptjs';
 /**
  * Token expiration times
  */
-const ACCESS_TOKEN_EXPIRATION = '15m'; // 15 minutes
+const ACCESS_TOKEN_EXPIRATION = '1d'; // 1 day
 const REFRESH_TOKEN_EXPIRATION = '7d'; // 7 days
 
 @Injectable()
@@ -81,23 +81,28 @@ export class AuthService {
 	 * @returns Decoded user data
 	 */
 	public async verifyToken(token: string): Promise<User> {
-		const user = await this.jwtService.verifyAsync<User>(token, {
-			secret: EnvUtil.getJwtSecret(),
-		});
-		user._id = shapeIntoMongoObjectId(user._id);
+		try {
+			const user = await this.jwtService.verifyAsync<User>(token, {
+				secret: EnvUtil.getJwtSecret(),
+			});
 
-		// Convert date strings back to Date objects
-		if (user.createdAt && typeof user.createdAt === 'string') {
-			user.createdAt = new Date(user.createdAt);
-		}
-		if (user.updatedAt && typeof user.updatedAt === 'string') {
-			user.updatedAt = new Date(user.updatedAt);
-		}
-		if (user.deletedAt && typeof user.deletedAt === 'string') {
-			user.deletedAt = new Date(user.deletedAt);
-		}
+			user._id = shapeIntoMongoObjectId(user._id);
 
-		return user;
+			// Convert date strings back to Date objects
+			if (user.createdAt && typeof user.createdAt === 'string') {
+				user.createdAt = new Date(user.createdAt);
+			}
+			if (user.updatedAt && typeof user.updatedAt === 'string') {
+				user.updatedAt = new Date(user.updatedAt);
+			}
+			if (user.deletedAt && typeof user.deletedAt === 'string') {
+				user.deletedAt = new Date(user.deletedAt);
+			}
+
+			return user;
+		} catch (error) {
+			throw new TokenExpiredException('Invalid or expired access token');
+		}
 	}
 
 	/**
@@ -118,8 +123,8 @@ export class AuthService {
 	 * @returns Date when access token expires
 	 */
 	public getAccessTokenExpiration(): Date {
-		// Convert '15m' to milliseconds: 15 * 60 * 1000
-		const expirationMs = 15 * 60 * 1000;
+		// Convert '1d' to milliseconds: 1 * 24 * 60 * 60 * 1000
+		const expirationMs = 1 * 24 * 60 * 60 * 1000;
 		return new Date(Date.now() + expirationMs);
 	}
 

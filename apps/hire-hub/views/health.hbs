@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HireHub - Health Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            padding: 24px 16px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: #0f172a;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 6px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.75rem;
+            margin-top: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-ok {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-color: #cbd5e1;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .card-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-icon {
+            font-size: 1.25rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-up {
+            background: #22c55e;
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+        }
+
+        .status-down {
+            background: #ef4444;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+        }
+
+        .metric {
+            margin: 12px 0;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #f1f5f9;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .info-item {
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 6px;
+        }
+
+        .info-label {
+            font-size: 0.688rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-top: 4px;
+        }
+
+        .footer {
+            text-align: center;
+            color: #64748b;
+            margin-top: 32px;
+            font-size: 0.813rem;
+        }
+
+        .refresh-btn {
+            background: #0f172a;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.813rem;
+            margin-top: 16px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+        }
+
+        .refresh-btn:hover {
+            background: #1e293b;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+        }
+
+        .refresh-btn:active {
+            transform: scale(0.98);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            body {
+                padding: 16px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Health Dashboard</h1>
+            <p>Real-time system monitoring</p>
+            <span class="status-badge {{#if (eq status 'ok')}}status-ok{{else}}status-error{{/if}}">
+                {{#if (eq status 'ok')}}✓ All Systems Operational{{else}}⚠ System Issues Detected{{/if}}
+            </span>
+        </div>
+
+        <div class="cards-grid">
+            <!-- Database Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">🗄️</span>
+                        Database
+                    </div>
+                    <span class="status-indicator {{#if (eq database.status 'up')}}status-up{{else}}status-down{{/if}}"></span>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Connection Status</div>
+                    <div class="metric-value">{{database.status}}</div>
+                </div>
+                {{#if database.message}}
+                <div class="info-item" style="margin-top: 12px;">
+                    <div class="info-label">Message</div>
+                    <div class="info-value">{{database.message}}</div>
+                </div>
+                {{/if}}
+            </div>
+
+            <!-- Memory Heap Card -->
+            {{#if memoryHeap}}
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">💾</span>
+                        Memory Heap
+                    </div>
+                    <span class="status-indicator {{#if (eq memoryHeap.status 'up')}}status-up{{else}}status-down{{/if}}"></span>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Heap Usage</div>
+                    <div class="metric-value">{{heapPercentage}}%</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{heapPercentage}}%"></div>
+                    </div>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Used</div>
+                        <div class="info-value">{{memoryHeapUsed}}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Total</div>
+                        <div class="info-value">{{memoryHeapTotal}}</div>
+                    </div>
+                </div>
+            </div>
+            {{/if}}
+
+            <!-- Memory RSS Card -->
+            {{#if memoryRss}}
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">🧠</span>
+                        Memory RSS
+                    </div>
+                    <span class="status-indicator {{#if (eq memoryRss.status 'up')}}status-up{{else}}status-down{{/if}}"></span>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">RSS Usage</div>
+                    <div class="metric-value">{{memoryRssUsed}}</div>
+                </div>
+            </div>
+            {{/if}}
+
+            <!-- Disk Storage Card -->
+            {{#if disk}}
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">💿</span>
+                        Disk Storage
+                    </div>
+                    <span class="status-indicator {{#if (eq disk.status 'up')}}status-up{{else}}status-down{{/if}}"></span>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Storage Status</div>
+                    <div class="metric-value">{{disk.status}}</div>
+                </div>
+            </div>
+            {{/if}}
+
+            <!-- Uptime Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">⏱️</span>
+                        Uptime
+                    </div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Service Running For</div>
+                    <div class="metric-value">{{uptime}}</div>
+                </div>
+            </div>
+
+            <!-- Timestamp Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">🕐</span>
+                        Last Check
+                    </div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Timestamp</div>
+                    <div class="metric-value" style="font-size: 0.813rem;">{{timestamp}}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <button class="refresh-btn" onclick="window.location.reload()">🔄 Refresh Status</button>
+            <p style="margin-top: 16px;">HireHub Health Monitoring System</p>
+            <p style="margin-top: 6px; font-size: 0.75rem;">
+                <a href="/health/json" style="color: #3b82f6; text-decoration: none;">View JSON API</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Handlebars helper equivalent in vanilla JS
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-refresh every 30 seconds
+            setTimeout(function() {
+                window.location.reload();
+            }, 30000);
+        });
+    </script>
+</body>
+</html>

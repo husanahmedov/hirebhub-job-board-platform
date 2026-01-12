@@ -1,6 +1,24 @@
-import { Field, ObjectType, ID, GraphQLISODateTime } from '@nestjs/graphql';
-import { UserStatus, UserRole } from '../../enums/user.enum';
+import { Field, ObjectType, ID, GraphQLISODateTime, Int } from '@nestjs/graphql';
+import { UserStatus, UserRole } from '../../enums';
 import { IsOptional } from 'class-validator';
+
+/**
+ * Qualifications output
+ */
+@ObjectType()
+export class QualificationsOutput {
+	@Field(() => String, { description: 'List of user qualifications' })
+	profcertorawards: string;
+
+	@Field(() => String, { description: 'Organization that conferred the qualification' })
+	conferOrganization: string;
+
+	@Field(() => String, { description: 'Summary of the qualification' })
+	summary: string;
+
+	@Field(() => Int, { description: 'Year the qualification was awarded' })
+	year: number;
+}
 
 /**
  * Geographic coordinates output
@@ -46,11 +64,11 @@ export class Education {
 	@Field(() => String, { nullable: true })
 	fieldOfStudy?: string;
 
-	@Field(() => GraphQLISODateTime)
-	startYear: Date;
+	@Field(() => Number)
+	startYear: number;
 
-	@Field(() => GraphQLISODateTime, { nullable: true })
-	endYear?: Date;
+	@Field(() => Number, { nullable: true })
+	endYear?: number;
 }
 
 /**
@@ -67,11 +85,11 @@ export class Experience {
 	@Field(() => String, { nullable: true })
 	location?: string;
 
-	@Field(() => GraphQLISODateTime)
-	startDate: Date;
+	@Field(() => Number)
+	startDate: number;
 
-	@Field(() => GraphQLISODateTime, { nullable: true })
-	endDate?: Date;
+	@Field(() => Number, { nullable: true })
+	endDate?: number;
 
 	@Field(() => String, { nullable: true })
 	description?: string;
@@ -99,6 +117,9 @@ export class Profile {
 
 	@Field(() => [Experience], { nullable: true })
 	experience?: Experience[];
+
+	@Field(() => [String], { nullable: true })
+	socialLinks?: string[];
 
 	@Field(() => String, { nullable: true })
 	resumeId?: string;
@@ -212,6 +233,14 @@ export class User {
 	@IsOptional()
 	@Field(() => String)
 	passwordHash?: string;
+
+	@IsOptional()
+	@Field(() => Boolean)
+	hasCompleteRegistration?: boolean;
+
+	@IsOptional()
+	@Field(() => [QualificationsOutput], { nullable: true })
+	qualifications?: QualificationsOutput[];
 }
 
 /**
@@ -222,20 +251,25 @@ export class PublicUser {
 	@Field(() => ID)
 	_id: string;
 
-	@Field(() => String)
-	firstName: string;
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	firstName?: string;
 
 	@Field(() => String)
 	lastName: string;
 
-	@Field(() => String)
-	fullName: string;
+	@Field(() => String, { nullable: true })
+	fullName?: string;
 
-	@Field(() => String)
+	@Field(() => String, { nullable: true })
 	email?: string;
 
 	@Field(() => String)
 	role: UserRole;
+
+	@IsOptional()
+	@Field(() => [QualificationsOutput], { nullable: true })
+	qualifications?: QualificationsOutput[];
 
 	@Field(() => Profile, { nullable: true })
 	profile?: Profile;

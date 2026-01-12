@@ -13,7 +13,8 @@ import {
 	ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { UserRole, ProfileInput } from '../../index';
+import { ProfileInput } from '../../index';
+import { UserStatus, UserCountry, UserRole } from '../../enums';
 
 /**
  * OAuth provider input
@@ -110,12 +111,6 @@ export class RegisterUserInput {
 	@IsEnum(UserRole)
 	@Field(() => UserRole, { nullable: false })
 	role: UserRole;
-
-	@IsNotEmpty()
-	@ValidateNested()
-	@Type(() => ProfileInput)
-	@Field(() => ProfileInput, { nullable: false })
-	profile: ProfileInput;
 }
 
 /**

@@ -11,7 +11,8 @@ import {
 	IsEmail,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { UserStatus, UserRole, UserCountry, UpdateProfileInput, ProfileInput } from '../../index';
+import { UserStatus, UserRole, UserCountry } from '../../enums';
+import {UpdateProfileInput, ProfileInput} from './';
 
 /**
  * Update user basic info input

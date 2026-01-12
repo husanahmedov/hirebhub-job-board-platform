@@ -1,6 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsOptional, IsEnum, IsNumber, Min, Max, IsString, IsBoolean } from 'class-validator';
-import { UserStatus, UserRole } from '../../enums/user.enum';
+import { UserStatus, UserRole } from '../../enums';
 
 /**
  * Pagination input

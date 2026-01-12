@@ -1,5 +1,5 @@
 import { BaseGraphQLException } from './base.exception';
-import { ErrorCode } from '../enums/error.enum';
+import { ErrorCode } from '../enums';
 
 /**
  * UserNotFoundException - Thrown when a user is not found
@@ -70,6 +70,16 @@ export class UserDeactivatedException extends BaseGraphQLException {
 export class UserSuspendedException extends BaseGraphQLException {
 	constructor(details?: any) {
 		super(ErrorCode.USER_STATUS_SUSPENDED, undefined, details);
+	}
+}
+
+/**
+ * TokenExpiredException - Thrown when authentication token has expired
+ */
+
+export class TokenExpiredException extends BaseGraphQLException {
+	constructor(details?: any) {
+		super(ErrorCode.TOKEN_EXPIRED, undefined, details);
 	}
 }
 
@@ -205,6 +215,33 @@ export class NotFoundException extends BaseGraphQLException {
 export class BadRequestException extends BaseGraphQLException {
 	constructor(message?: string, details?: any) {
 		super(ErrorCode.BAD_REQUEST, message, details);
+	}
+}
+
+/**
+ * DuplicateEducationException - Thrown when trying to add duplicate education entry
+ */
+export class DuplicateEducationException extends BaseGraphQLException {
+	constructor(details?: any) {
+		super(ErrorCode.DUPLICATE_KEY_ERROR, 'Education entry already exists for this school', details);
+	}
+}
+
+/**
+ * DuplicateExperienceException - Thrown when trying to add duplicate experience entry
+ */
+export class DuplicateExperienceException extends BaseGraphQLException {
+	constructor(details?: any) {
+		super(ErrorCode.DUPLICATE_KEY_ERROR, 'Experience entry already exists for this company', details);
+	}
+}
+
+/**
+ * DuplicateQualificationException - Thrown when trying to add duplicate qualification entry
+ */
+export class DuplicateQualificationException extends BaseGraphQLException {
+	constructor(details?: any) {
+		super(ErrorCode.DUPLICATE_KEY_ERROR, 'Qualification entry already exists with this name', details);
 	}
 }
 

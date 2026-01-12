@@ -1,5 +1,5 @@
 import { GraphQLError } from 'graphql';
-import { ErrorCode, ErrorMessage } from '../enums/error.enum';
+import { ErrorCode, ErrorMessage } from '../enums';
 
 /**
  * BaseGraphQLException - Base class for all custom GraphQL exceptions

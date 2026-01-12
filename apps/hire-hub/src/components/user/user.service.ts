@@ -15,9 +15,12 @@ import {
 	UserSuspendedException,
 	UpdateUserInput,
 	PublicUser,
+	UpdateProfileInput,
+	Step5RegisterInput,
 } from '../../libs';
 import { AuthService } from '../auth/auth.service';
 import { shapeIntoMongoObjectId } from '../../libs/config';
+import { Step3RegisterInput, Step4RegisterInput } from '../../libs';
 
 @Injectable()
 export class UserService {
@@ -677,6 +680,352 @@ export class UserService {
 			});
 
 			throw new InternalServerErrorException('Failed to update user information. Please try again later.');
+		}
+	}
+
+	/**
+	 * Create user profile after registration
+	 *
+	 * This method handles the profile creation process after a user has completed their
+	 * initial registration. It updates the user document with complete profile information
+	 * including location, skills, bio, headline, education, experience, and other details.
+	 *
+	 * Workflow:
+	 * 1. Validates the authenticated user exists in the database
+	 * 2. Updates the user's profile field with provided data
+	 * 3. Returns the updated user object without sensitive data
+	 *
+	 * @param userId - The authenticated user's MongoDB ObjectId
+	 * @param profileData - Complete profile data wrapped in UpdateProfileInput DTO
+	 * @returns Promise<PublicUser> - The updated user object with new profile data
+	 *
+	 * @throws {UserNotFoundException} - If user with provided ID doesn't exist
+	 * @throws {InternalServerErrorException} - If profile update fails unexpectedly
+	 *
+	 * @performance
+	 * - Single atomic update operation
+	 * - Returns updated document immediately
+	 * - No additional database queries needed
+	 */
+	public async createProfileAfterRegistration(userId: ObjectId, profileData: UpdateProfileInput): Promise<PublicUser> {
+		try {
+			const updatedUser = await this.userModel
+				.findByIdAndUpdate(userId, { profile: profileData.profile }, { new: true })
+				.exec();
+
+			if (!updatedUser) {
+				throw new UserNotFoundException({
+					message: 'User not found for profile creation',
+					userId,
+				});
+			}
+
+			return updatedUser.toObject() as PublicUser;
+		} catch (error: any) {
+			if (error instanceof UserNotFoundException) {
+				throw error;
+			}
+
+			throw new InternalServerErrorException('Failed to create user profile. Please try again later.');
+		}
+	}
+
+	/**
+	 * Add education entries to user profile with duplicate detection
+	 *
+	 * This method handles adding new education entries to a user's profile while preventing
+	 * duplicates. It's used both in the step 3 registration flow and for standalone education
+	 * management. The system checks for existing education entries with similar school names
+	 * before adding new ones.
+	 *
+	 * Duplicate Detection Logic:
+	 * - Normalizes school names (lowercase, trimmed)
+	 * - Compares new entries against existing ones
+	 * - Only adds education entries that don't already exist
+	 * - Allows different degrees from the same school
+	 *
+	 * Workflow:
+	 * 1. Fetch current user with existing education data
+	 * 2. Normalize school names for comparison
+	 * 3. Filter out duplicate education entries
+	 * 4. Append unique education entries to existing list
+	 * 5. Update user document with merged education array
+	 * 6. Return updated user object
+	 *
+	 * @param userId - The authenticated user's MongoDB ObjectId
+	 * @param inputData - Contains array of education entries to add
+	 * @returns Promise<PublicUser> - The updated user object with new education entries
+	 *
+	 * @throws {UserNotFoundException} - If user with provided ID doesn't exist
+	 * @throws {InternalServerErrorException} - If education update fails unexpectedly
+	 *
+	 * @example
+	 * // First call adds MIT
+	 * await step3RegistrationProcess(userId, { education: [{ school: "MIT", ... }] });
+	 * // Second call adds Stanford (different school, will be added)
+	 * await step3RegistrationProcess(userId, { education: [{ school: "Stanford", ... }] });
+	 * // Third call tries MIT again (same school, will be skipped)
+	 * await step3RegistrationProcess(userId, { education: [{ school: "MIT", ... }] });
+	 */
+	public async step3RegistrationProcess(userId: ObjectId, inputData: Step3RegisterInput): Promise<PublicUser> {
+		try {
+			// STEP 1: Fetch current user with existing education data
+			const currentUser = await this.userModel.findById(userId).exec();
+
+			if (!currentUser) {
+				throw new UserNotFoundException({
+					message: 'User not found for step 3 registration process',
+					userId,
+				});
+			}
+
+			// STEP 2: Get existing education entries (or empty array if none)
+			const existingEducation = currentUser.profile?.education || [];
+
+			// STEP 3: Normalize existing school names for comparison
+			const existingSchoolNames = existingEducation.map((edu: any) => edu.school.toLowerCase().trim());
+
+			// STEP 4: Check for duplicates in new education entries
+			const duplicateSchools: string[] = [];
+			(inputData.education || []).forEach((newEdu) => {
+				const normalizedNewSchool = newEdu.school.toLowerCase().trim();
+				if (existingSchoolNames.includes(normalizedNewSchool)) {
+					duplicateSchools.push(newEdu.school);
+				}
+			});
+
+			// Throw error if duplicates found
+			if (duplicateSchools.length > 0) {
+				throw new DatabaseException(ErrorCode.DUPLICATE_KEY_ERROR, {
+					message: `Education entries already exist for: ${duplicateSchools.join(', ')}`,
+					duplicateSchools,
+				});
+			}
+
+			// STEP 5: Merge existing and new education entries
+			const mergedEducation = [...existingEducation, ...(inputData.education || [])];
+
+			// STEP 6: Update user with merged education array
+			const updatedUser = await this.userModel
+				.findByIdAndUpdate(userId, { 'profile.education': mergedEducation }, { new: true })
+				.exec();
+
+			if (!updatedUser) {
+				throw new UserNotFoundException({
+					message: 'User not found after education update',
+					userId,
+				});
+			}
+
+			return updatedUser.toObject() as PublicUser;
+		} catch (error: any) {
+			if (error instanceof UserNotFoundException || error instanceof DatabaseException) {
+				throw error;
+			}
+
+			throw new InternalServerErrorException(
+				'Failed to update user information during step 3 registration process. Please try again later.',
+			);
+		}
+	}
+
+	/**
+	 * Add work experience entries to user profile with duplicate detection
+	 *
+	 * This method handles adding new work experience entries to a user's profile while preventing
+	 * duplicates. It's used both in the step 4 registration flow and for standalone experience
+	 * management. The system checks for existing experience entries with similar company names
+	 * before adding new ones.
+	 *
+	 * Duplicate Detection Logic:
+	 * - Normalizes company names (lowercase, trimmed)
+	 * - Compares new entries against existing ones
+	 * - Only adds experience entries that don't already exist
+	 * - Allows different positions from the same company
+	 *
+	 * Workflow:
+	 * 1. Fetch current user with existing experience data
+	 * 2. Normalize company names for comparison
+	 * 3. Filter out duplicate experience entries
+	 * 4. Append unique experience entries to existing list
+	 * 5. Update user document with merged experience array
+	 * 6. Return updated user object
+	 *
+	 * @param userId - The authenticated user's MongoDB ObjectId
+	 * @param inputData - Contains array of work experience entries to add
+	 * @returns Promise<PublicUser> - The updated user object with new experience entries
+	 *
+	 * @throws {UserNotFoundException} - If user with provided ID doesn't exist
+	 * @throws {InternalServerErrorException} - If experience update fails unexpectedly
+	 *
+	 * @example
+	 * // First call adds Google
+	 * await step4RegistrationProcess(userId, { experience: [{ company: "Google", ... }] });
+	 * // Second call adds Facebook (different company, will be added)
+	 * await step4RegistrationProcess(userId, { experience: [{ company: "Facebook", ... }] });
+	 * // Third call tries Google again (same company, will be skipped)
+	 * await step4RegistrationProcess(userId, { experience: [{ company: "Google", ... }] });
+	 */
+	public async step4RegistrationProcess(userId: ObjectId, inputData: Step4RegisterInput): Promise<PublicUser> {
+		try {
+			// STEP 1: Fetch current user with existing experience data
+			const currentUser = await this.userModel.findById(userId).exec();
+
+			if (!currentUser) {
+				throw new UserNotFoundException({
+					message: 'User not found for step 4 registration process',
+					userId,
+				});
+			}
+
+			// STEP 2: Get existing experience entries (or empty array if none)
+			const existingExperience = currentUser.profile?.experience || [];
+
+			// STEP 3: Normalize existing company names for comparison
+			const existingCompanyNames = existingExperience.map((exp: any) => exp.company.toLowerCase().trim());
+
+			// STEP 4: Check for duplicates in new experience entries
+			const duplicateCompanies: string[] = [];
+			(inputData.experience || []).forEach((newExp) => {
+				const normalizedNewCompany = newExp.company.toLowerCase().trim();
+				if (existingCompanyNames.includes(normalizedNewCompany)) {
+					duplicateCompanies.push(newExp.company);
+				}
+			});
+
+			// Throw error if duplicates found
+			if (duplicateCompanies.length > 0) {
+				throw new DatabaseException(ErrorCode.DUPLICATE_KEY_ERROR, {
+					message: `Experience entries already exist for: ${duplicateCompanies.join(', ')}`,
+					duplicateCompanies,
+				});
+			}
+
+			// STEP 5: Merge existing and new experience entries
+			const mergedExperience = [...existingExperience, ...(inputData.experience || [])];
+
+			// STEP 6: Update user with merged experience array
+			const updatedUser = await this.userModel
+				.findByIdAndUpdate(userId, { 'profile.experience': mergedExperience }, { new: true })
+				.exec();
+
+			if (!updatedUser) {
+				throw new UserNotFoundException({
+					message: 'User not found after experience update',
+					userId,
+				});
+			}
+
+			return updatedUser.toObject() as PublicUser;
+		} catch (error: any) {
+			if (error instanceof UserNotFoundException || error instanceof DatabaseException) {
+				throw error;
+			}
+
+			throw new InternalServerErrorException(
+				'Failed to update user information during step 4 registration process. Please try again later.',
+			);
+		}
+	}
+
+	/**
+	 * Add qualifications entries to user profile with duplicate detection
+	 *
+	 * This method handles adding new professional certifications, awards, and qualifications to a user's
+	 * profile while preventing duplicates. It's used both in the step 5 registration flow and for
+	 * standalone qualification management. The system checks for existing qualification entries with
+	 * similar profcertorawards names before adding new ones.
+	 *
+	 * Duplicate Detection Logic:
+	 * - Normalizes profcertorawards names (lowercase, trimmed)
+	 * - Compares new entries against existing ones
+	 * - Only adds qualification entries that don't already exist
+	 * - Prevents the same certification/award from being added twice
+	 *
+	 * Workflow:
+	 * 1. Fetch current user with existing qualifications data
+	 * 2. Normalize profcertorawards names for comparison
+	 * 3. Filter out duplicate qualification entries
+	 * 4. Append unique qualification entries to existing list
+	 * 5. Update user document with merged qualifications array
+	 * 6. Return updated user object
+	 *
+	 * @param userId - The authenticated user's MongoDB ObjectId
+	 * @param inputData - Contains array of qualification entries to add
+	 * @returns Promise<PublicUser> - The updated user object with new qualifications entries
+	 *
+	 * @throws {UserNotFoundException} - If user with provided ID doesn't exist
+	 * @throws {InternalServerErrorException} - If qualifications update fails unexpectedly
+	 *
+	 * @example
+	 * // First call adds AWS certification
+	 * await step5RegistrationProcess(userId, { qualifications: [{ profcertorawards: "AWS Certified", ... }] });
+	 * // Second call adds Google certification (different cert, will be added)
+	 * await step5RegistrationProcess(userId, { qualifications: [{ profcertorawards: "Google Cloud Professional", ... }] });
+	 * // Third call tries AWS again (same cert, will be skipped)
+	 * await step5RegistrationProcess(userId, { qualifications: [{ profcertorawards: "AWS Certified", ... }] });
+	 */
+	public async step5RegistrationProcess(userId: ObjectId, inputData: Step5RegisterInput): Promise<PublicUser> {
+		try {
+			// STEP 1: Fetch current user with existing qualifications data
+			const currentUser = await this.userModel.findById(userId).exec();
+
+			if (!currentUser) {
+				throw new UserNotFoundException({
+					message: 'User not found for step 5 registration process',
+					userId,
+				});
+			}
+
+			// STEP 2: Get existing qualifications entries (or empty array if none)
+			const existingQualifications = currentUser.qualifications || [];
+
+			// STEP 3: Normalize existing profcertorawards names for comparison
+			const existingQualificationNames = existingQualifications.map((qual: any) =>
+				qual.profcertorawards.toLowerCase().trim(),
+			);
+
+			// STEP 4: Check for duplicates in new qualification entries
+			const duplicateQualifications: string[] = [];
+			(inputData.qualifications || []).forEach((newQual) => {
+				const normalizedNewQualification = newQual.profcertorawards.toLowerCase().trim();
+				if (existingQualificationNames.includes(normalizedNewQualification)) {
+					duplicateQualifications.push(newQual.profcertorawards);
+				}
+			});
+
+			// Throw error if duplicates found
+			if (duplicateQualifications.length > 0) {
+				throw new DatabaseException(ErrorCode.DUPLICATE_KEY_ERROR, {
+					message: `Qualification entries already exist for: ${duplicateQualifications.join(', ')}`,
+					duplicateQualifications,
+				});
+			}
+
+			// STEP 5: Merge existing and new qualification entries
+			const mergedQualifications = [...existingQualifications, ...(inputData.qualifications || [])];
+
+			// STEP 6: Update user with merged qualifications array
+			const updatedUser = await this.userModel
+				.findByIdAndUpdate(userId, { qualifications: mergedQualifications }, { new: true })
+				.exec();
+
+			if (!updatedUser) {
+				throw new UserNotFoundException({
+					message: 'User not found after qualifications update',
+					userId,
+				});
+			}
+
+			return updatedUser.toObject() as PublicUser;
+		} catch (error: any) {
+			if (error instanceof UserNotFoundException || error instanceof DatabaseException) {
+				throw error;
+			}
+
+			throw new InternalServerErrorException(
+				'Failed to update user information during step 5 registration process. Please try again later.',
+			);
 		}
 	}
 

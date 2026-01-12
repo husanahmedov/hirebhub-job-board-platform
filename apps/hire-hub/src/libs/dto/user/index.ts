@@ -6,10 +6,14 @@
  */
 
 // Input DTOs (for mutations and user input)
-export * from './user.input';
 export * from './user.update';
-export * from './user.profile.input';
+export * from './[step-1].register.input';
+export * from './[step-2].register.input';
+export * from './[step-3].register.input';
+export * from './[step-4].register.input';
+export * from './[step-5].register.input';
 export * from './refresh-token.input';
+export * from './global.register.input';
 
 // Output DTOs (for queries and responses)
 export * from './user.output';
