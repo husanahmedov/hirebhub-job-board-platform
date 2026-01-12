@@ -39,8 +39,8 @@ export class CompanyOutput {
 	@Field(() => ID, { description: 'Unique company identifier' })
 	_id: string;
 
-	@Field({ description: 'Company name' })
-	name: string;
+	@Field({ description: 'Company title' })
+	title: string;
 
 	@Field({ description: 'URL-friendly slug for the company' })
 	slug: string;

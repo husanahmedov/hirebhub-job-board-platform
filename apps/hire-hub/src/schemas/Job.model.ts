@@ -1,0 +1,277 @@
+import { Schema } from 'mongoose';
+import { JobType, JobLevel, SalaryCurrency, Visibility } from '../libs/enums/job';
+
+/**
+ * Location Sub-Schema - Job location information
+ */
+const JobLocationSchema = new Schema(
+	{
+		city: {
+			type: String,
+			trim: true,
+			maxlength: 100,
+		},
+		region: {
+			type: String,
+			trim: true,
+			maxlength: 100,
+		},
+		country: {
+			type: String,
+			trim: true,
+			maxlength: 100,
+		},
+		remote: {
+			type: Boolean,
+			default: false,
+		},
+	},
+	{ _id: false },
+);
+
+/**
+ * Salary Range Sub-Schema - Salary information with visibility control
+ */
+const SalaryRangeSchema = new Schema(
+	{
+		min: {
+			type: Number,
+			min: 0,
+		},
+		max: {
+			type: Number,
+			min: 0,
+		},
+		currency: {
+			type: String,
+			enum: Object.values(SalaryCurrency),
+			default: SalaryCurrency.USD,
+		},
+		visibility: {
+			type: String,
+			enum: Object.values(Visibility),
+			default: Visibility.PUBLIC,
+		},
+	},
+	{ _id: false },
+);
+
+/**
+ * Job Schema - Main schema for job postings
+ *
+ * This schema stores all information related to job postings including
+ * company details, job requirements, salary information, and application tracking.
+ */
+const JobSchema = new Schema(
+	{
+		/**
+		 * Reference to the company posting this job
+		 */
+		companyId: {
+			type: Schema.Types.ObjectId,
+			ref: 'Company',
+			required: [true, 'Company ID is required'],
+			index: true,
+		},
+
+		/**
+		 * Reference to the user who posted this job (typically a recruiter or company owner)
+		 */
+		postedBy: {
+			type: Schema.Types.ObjectId,
+			ref: 'User',
+			required: [true, 'Posted by user ID is required'],
+			index: true,
+		},
+
+		/**
+		 * Job title
+		 */
+		title: {
+			type: String,
+			required: [true, 'Job title is required'],
+			trim: true,
+			minlength: [3, 'Job title must be at least 3 characters'],
+			maxlength: [200, 'Job title cannot exceed 200 characters'],
+			index: 'text',
+		},
+
+		/**
+		 * URL-friendly slug for the job
+		 */
+		slug: {
+			type: String,
+			required: [true, 'Job slug is required'],
+			unique: true,
+			trim: true,
+			lowercase: true,
+			index: true,
+		},
+
+		/**
+		 * Full job description (HTML or markdown)
+		 */
+		description: {
+			type: String,
+			trim: true,
+			maxlength: [10000, 'Description cannot exceed 10000 characters'],
+			index: 'text',
+		},
+
+		/**
+		 * Short description or summary
+		 */
+		shortDescription: {
+			type: String,
+			trim: true,
+			maxlength: [500, 'Short description cannot exceed 500 characters'],
+		},
+
+		/**
+		 * Employment type (full-time, part-time, contract, etc.)
+		 */
+		employmentType: {
+			type: String,
+			enum: Object.values(JobType),
+			required: [true, 'Employment type is required'],
+			index: true,
+		},
+
+		/**
+		 * Seniority level (entry, middle, senior, etc.)
+		 */
+		seniorityLevel: {
+			type: String,
+			enum: Object.values(JobLevel),
+			required: [true, 'Seniority level is required'],
+			index: true,
+		},
+
+		/**
+		 * Job location information
+		 */
+		location: {
+			type: JobLocationSchema,
+			required: [true, 'Location is required'],
+		},
+
+		/**
+		 * Salary range information
+		 */
+		salaryRange: {
+			type: SalaryRangeSchema,
+		},
+
+		/**
+		 * Job tags for categorization (e.g., "JavaScript", "Remote", "Healthcare")
+		 */
+		tags: {
+			type: [String],
+			default: [],
+			index: true,
+		},
+
+		/**
+		 * Required skills for the position
+		 */
+		skills: {
+			type: [String],
+			default: [],
+		},
+
+		/**
+		 * Job requirements/qualifications
+		 */
+		requirements: {
+			type: [String],
+			default: [],
+		},
+
+		/**
+		 * Benefits offered with this position
+		 */
+		benefits: {
+			type: [String],
+			default: [],
+		},
+
+		/**
+		 * Application deadline
+		 */
+		applicationDeadline: {
+			type: Date,
+			index: true,
+		},
+
+		/**
+		 * Whether the job is published and visible
+		 */
+		isPublished: {
+			type: Boolean,
+			default: false,
+			index: true,
+		},
+
+		/**
+		 * Visibility level (public, private, unlisted)
+		 */
+		visibility: {
+			type: String,
+			enum: Object.values(Visibility),
+			default: Visibility.PUBLIC,
+			index: true,
+		},
+
+		/**
+		 * Number of times this job has been viewed
+		 */
+		viewsCount: {
+			type: Number,
+			default: 0,
+			min: 0,
+		},
+
+		/**
+		 * Number of applications received for this job
+		 */
+		applicationsCount: {
+			type: Number,
+			default: 0,
+			min: 0,
+		},
+
+		/**
+		 * Date when the job was closed/filled
+		 */
+		closedAt: {
+			type: Date,
+		},
+
+		/**
+		 * Soft delete timestamp
+		 */
+		deletedAt: {
+			type: Date,
+			index: true,
+		},
+	},
+	{
+		timestamps: true,
+		collection: 'jobs',
+	},
+);
+
+// Indexes for common query patterns
+JobSchema.index({ companyId: 1, isPublished: 1, deletedAt: 1 });
+JobSchema.index({ employmentType: 1, seniorityLevel: 1, isPublished: 1 });
+JobSchema.index({ 'location.city': 1, isPublished: 1 });
+JobSchema.index({ 'location.remote': 1, isPublished: 1 });
+JobSchema.index({ tags: 1, isPublished: 1 });
+JobSchema.index({ createdAt: -1, isPublished: 1 });
+JobSchema.index({ applicationDeadline: 1, isPublished: 1 });
+
+// Text index for full-text search
+JobSchema.index({ title: 'text', description: 'text' });
+
+export { JobSchema };
+export type JobDocument = any;
