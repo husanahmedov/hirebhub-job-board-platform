@@ -718,4 +718,14 @@ export class CompanyService {
 			}, {}),
 		};
 	}
+
+	public async getRecruiterCompanyId(userId: string): Promise<string | null> {
+		const shapedUserId = shapeIntoMongoObjectId(userId);
+		try {
+			const company = await this.companyModel.findOne({ recruiterIds: shapedUserId, deletedAt: null }).exec();
+			return company ? company._id.toString() : null;
+		} catch (error) {
+			throw new NotFoundException(`Company for recruiter ID ${userId} not found`);
+		}
+	}
 }

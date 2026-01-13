@@ -17,6 +17,8 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthUser } from '../auth/decorators/authUser.decorator';
 
+import type { ObjectId } from 'mongoose';
+
 /**
  * ApplicationResolver - GraphQL resolver for application queries and mutations
  *
@@ -34,15 +36,18 @@ export class ApplicationResolver {
 	/**
 	 * Query: Get applications with filters, sorting, and pagination
 	 */
+	@Roles(UserRole.CANDIDATE, UserRole.ADMIN, UserRole.RECRUITER)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
 	@Query(() => PaginatedApplicationsOutput, {
 		name: 'getApplications',
 		description: 'Get applications with advanced filtering, sorting, and pagination',
 	})
-	@UseGuards(AuthGuard)
 	async getApplications(
 		@Args('input', { nullable: true }) input: GetApplicationsInput = {},
+		@AuthUser() user: User,
 	): Promise<PaginatedApplicationsOutput> {
-		return this.applicationService.getApplications(input);
+		return this.applicationService.getApplications(input, user);
 	}
 
 	/**
@@ -55,8 +60,9 @@ export class ApplicationResolver {
 	@UseGuards(AuthGuard)
 	async getApplicationById(
 		@Args('applicationId', { type: () => ID }) applicationId: string,
+		@AuthUser('_id') candidateId: ObjectId | string,
 	): Promise<ApplicationOutput> {
-		return this.applicationService.getApplicationById(applicationId);
+		return this.applicationService.getApplicationById(applicationId, candidateId);
 	}
 
 	/**
@@ -102,8 +108,11 @@ export class ApplicationResolver {
 		description: 'Update an existing application',
 	})
 	@UseGuards(AuthGuard)
-	async updateApplication(@Args('input') input: UpdateApplicationInput): Promise<ApplicationOutput> {
-		return this.applicationService.updateApplication(input);
+	async updateApplication(
+		@Args('input') input: UpdateApplicationInput,
+		@AuthUser('_id') candidateId: ObjectId | string,
+	): Promise<ApplicationOutput> {
+		return this.applicationService.updateApplication(input, candidateId);
 	}
 
 	/**

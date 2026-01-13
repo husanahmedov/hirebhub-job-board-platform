@@ -7,6 +7,7 @@ import { JobSchema } from '../../schemas/Job.model';
 import UserSchema from '../../schemas/User.model';
 import { AuthModule } from '../auth/auth.module';
 import { JobModule } from '../job/job.module';
+import { CompanyModule } from '../company/company.module';
 
 @Module({
 	imports: [
@@ -14,7 +15,8 @@ import { JobModule } from '../job/job.module';
 			{ name: 'Application', schema: ApplicationSchema }
 		]),
     AuthModule,
-    JobModule
+    JobModule,
+    CompanyModule
 	],
 	providers: [ApplicationResolver, ApplicationService],
 	exports: [ApplicationService],
