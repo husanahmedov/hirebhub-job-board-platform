@@ -182,6 +182,51 @@ export class JobResolver {
 	}
 
 	/**
+	 * Query: Get a single job by ID or slug (combined)
+	 *
+	 * This unified query automatically detects whether the input is an ID or slug
+	 * and returns the appropriate job. This is more convenient than having separate
+	 * queries for ID and slug.
+	 *
+	 * @example GraphQL Query (with ID):
+	 * ```graphql
+	 * query GetJob {
+	 *   getJobByIdOrSlug(idOrSlug: "507f1f77bcf86cd799439011", incrementView: true) {
+	 *     _id
+	 *     title
+	 *     description
+	 *     companyData {
+	 *       name
+	 *       logoUrl
+	 *     }
+	 *   }
+	 * }
+	 * ```
+	 *
+	 * @example GraphQL Query (with slug):
+	 * ```graphql
+	 * query GetJob {
+	 *   getJobByIdOrSlug(idOrSlug: "senior-software-engineer-react", incrementView: true) {
+	 *     _id
+	 *     title
+	 *     description
+	 *   }
+	 * }
+	 * ```
+	 */
+	@Query(() => JobOutput, {
+		name: 'getJobByIdOrSlug',
+		description: 'Get a single job by ID or slug (automatically detects which one)',
+	})
+	async getJobByIdOrSlug(
+		@Args('idOrSlug') idOrSlug: string,
+		@Args('incrementView', { type: () => Boolean, nullable: true, defaultValue: false })
+		incrementView: boolean,
+	): Promise<JobOutput> {
+		return this.jobService.getJobByIdOrSlug(idOrSlug, incrementView);
+	}
+
+	/**
 	 * Query: Get job statistics
 	 *
 	 * @example GraphQL Query:

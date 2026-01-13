@@ -14,6 +14,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { JobType, JobLevel, SalaryCurrency, Visibility } from '../../enums/job';
+import { SortOrder, PaginationInput } from '../..';
 
 /**
  * JobLocationInput - Input type for job location
@@ -392,7 +393,7 @@ export class JobSortInput {
  * PaginationInput - Input type for pagination
  */
 @InputType({ description: 'Input for pagination' })
-export class PaginationInput {
+export class JobPaginationInput {
 	@Field(() => Int, { nullable: true, description: 'Page number (starts from 1)' })
 	@IsOptional()
 	@IsNumber()
@@ -423,9 +424,9 @@ export class GetJobsInput {
 	@Type(() => JobSortInput)
 	sort?: JobSortInput;
 
-	@Field(() => PaginationInput, { nullable: true, description: 'Pagination options' })
+	@Field(() => JobPaginationInput, { nullable: true, description: 'Pagination options' })
 	@IsOptional()
 	@ValidateNested()
-	@Type(() => PaginationInput)
-	pagination?: PaginationInput;
+	@Type(() => JobPaginationInput)
+	pagination?: JobPaginationInput;
 }

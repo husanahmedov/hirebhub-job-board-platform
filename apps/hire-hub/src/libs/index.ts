@@ -16,6 +16,10 @@ export * from './interfaces/error.interface';
 
 export * from './enums';
 
+// General/Common inputs (must come before DTOs that use them)
+export * from './dto/gn.input';
+export * from './dto/gn.output';
+
 // Filters
 export * from './filters/graphql-exception.filter';
 

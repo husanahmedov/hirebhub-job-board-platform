@@ -13,6 +13,7 @@ import {
 	Max,
 } from 'class-validator';
 import { CompanyIndustry, CompanySize, CompanyPlan } from '../../enums/company';
+import { SortOrder, PaginationInput } from '../..';
 
 /**
  * LocationInput - Input type for company location
@@ -278,11 +279,6 @@ export enum CompanySortField {
 	AVERAGE_RATING = 'averageRating',
 }
 
-export enum SortOrder {
-	ASC = 'asc',
-	DESC = 'desc',
-}
-
 @InputType({ description: 'Input for sorting companies' })
 export class CompanySortInput {
 	@Field(() => String, {
@@ -305,33 +301,6 @@ export class CompanySortInput {
 }
 
 /**
- * CompanyPaginationInput - Input type for pagination
- */
-@InputType({ description: 'Input for pagination' })
-export class CompanyPaginationInput {
-	@Field(() => Int, {
-		nullable: true,
-		description: 'Page number (starting from 1)',
-		defaultValue: 1,
-	})
-	@IsOptional()
-	@IsNumber()
-	@Min(1)
-	page?: number;
-
-	@Field(() => Int, {
-		nullable: true,
-		description: 'Number of items per page',
-		defaultValue: 10,
-	})
-	@IsOptional()
-	@IsNumber()
-	@Min(1)
-	@Max(100)
-	limit?: number;
-}
-
-/**
  * GetCompaniesInput - Combined input for getting companies with filtering, sorting, and pagination
  */
 @InputType({ description: 'Input for getting companies with filters, sorting, and pagination' })
@@ -350,12 +319,12 @@ export class GetCompaniesInput {
 	@IsOptional()
 	sort?: CompanySortInput;
 
-	@Field(() => CompanyPaginationInput, {
+	@Field(() => PaginationInput, {
 		nullable: true,
-		description: 'Pagination options',
+		description: 'Pagination',
 	})
 	@IsOptional()
-	pagination?: CompanyPaginationInput;
+	pagination?: PaginationInput;
 
 	@IsOptional()
 	ownerId?: string;
@@ -389,10 +358,10 @@ export class NearbyCompaniesInput {
 	@Max(1000)
 	maxDistance?: number;
 
-	@Field(() => CompanyPaginationInput, {
+	@Field(() => PaginationInput, {
 		nullable: true,
 		description: 'Pagination options',
 	})
 	@IsOptional()
-	pagination?: CompanyPaginationInput;
+	pagination?: PaginationInput;
 }

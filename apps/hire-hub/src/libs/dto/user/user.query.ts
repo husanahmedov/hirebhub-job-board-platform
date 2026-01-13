@@ -1,33 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsOptional, IsEnum, IsNumber, Min, Max, IsString, IsBoolean } from 'class-validator';
-import { UserStatus, UserRole } from '../../enums';
-
-/**
- * Pagination input
- */
-@InputType()
-export class PaginationInput {
-	@IsOptional()
-	@IsNumber()
-	@Min(1)
-	@Field(() => Int, { nullable: true, defaultValue: 1, description: 'Page number' })
-	page?: number;
-
-	@IsOptional()
-	@IsNumber()
-	@Min(1)
-	@Max(100)
-	@Field(() => Int, { nullable: true, defaultValue: 10, description: 'Items per page' })
-	limit?: number;
-}
-
-/**
- * Sort direction enum
- */
-export enum SortDirection {
-	ASC = 'ASC',
-	DESC = 'DESC',
-}
+import { UserStatus, UserRole, SortOrder, PaginationInput } from '../..';
 
 /**
  * User sort options
@@ -35,24 +8,24 @@ export enum SortDirection {
 @InputType()
 export class UserSortInput {
 	@IsOptional()
-	@IsEnum(SortDirection)
-	@Field(() => String, { nullable: true, defaultValue: SortDirection.DESC })
-	createdAt?: SortDirection;
+	@IsEnum(SortOrder)
+	@Field(() => String, { nullable: true, defaultValue: SortOrder.DESC })
+	createdAt?: SortOrder;
 
 	@IsOptional()
-	@IsEnum(SortDirection)
+	@IsEnum(SortOrder)
 	@Field(() => String, { nullable: true })
-	updatedAt?: SortDirection;
+	updatedAt?: SortOrder;
 
 	@IsOptional()
-	@IsEnum(SortDirection)
+	@IsEnum(SortOrder)
 	@Field(() => String, { nullable: true })
-	firstName?: SortDirection;
+	firstName?: SortOrder;
 
 	@IsOptional()
-	@IsEnum(SortDirection)
+	@IsEnum(SortOrder)
 	@Field(() => String, { nullable: true })
-	lastName?: SortDirection;
+	lastName?: SortOrder;
 }
 
 /**
