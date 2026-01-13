@@ -309,6 +309,23 @@ export class JobService {
 	}
 
 	/**
+	 * Get a single job by ID or slug (combined method)
+	 * Automatically detects if the input is a valid ObjectId or a slug
+	 */
+	async getJobByIdOrSlug(idOrSlug: string, incrementView = false): Promise<JobOutput> {
+		// Check if the input looks like a MongoDB ObjectId (24 hex characters)
+		const isObjectId = /^[0-9a-fA-F]{24}$/.test(idOrSlug);
+
+		if (isObjectId) {
+			// Try to get by ID first
+			return this.getJobById(idOrSlug, incrementView);
+		} else {
+			// Otherwise, treat it as a slug
+			return this.getJobBySlug(idOrSlug, incrementView);
+		}
+	}
+
+	/**
 	 * Update a job
 	 */
 	async updateJob(input: UpdateJobInput, userId: string): Promise<JobOutput> {
@@ -402,6 +419,15 @@ export class JobService {
 	async incrementApplicationCount(jobId: string): Promise<void> {
 		await this.jobModel.findByIdAndUpdate(jobId, {
 			$inc: { applicationsCount: 1 },
+		});
+	}
+
+	/**
+	 * Decrement application count for a job
+	 */
+	async decrementApplicationCount(jobId: string): Promise<void> {
+		await this.jobModel.findByIdAndUpdate(jobId, {
+			$inc: { applicationsCount: -1 },
 		});
 	}
 
