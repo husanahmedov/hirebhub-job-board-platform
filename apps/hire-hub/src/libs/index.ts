@@ -37,3 +37,5 @@ export * from './dto/resume/output';
 export * from './dto/notification/input';
 export * from './dto/notification/output';
 export * from './dto/admin';
+export * from './dto/view/input';
+export * from './dto/view/output';

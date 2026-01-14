@@ -22,6 +22,7 @@ import { AuthModule } from './components/auth/auth.module';
 import { AdminModule } from './components/admin/admin.module';
 import { UploaderModule } from './components/uploader/uploader.module';
 import { HealthModule } from './components/health/health.module';
+import { ViewModule } from './components/view/view.module';
 
 @Module({
 	imports: [
@@ -74,6 +75,7 @@ import { HealthModule } from './components/health/health.module';
 		AdminModule,
 		UploaderModule,
 		HealthModule,
+		ViewModule,
 	],
 	controllers: [AppController],
 	providers: [

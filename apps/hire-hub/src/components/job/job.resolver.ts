@@ -15,6 +15,7 @@ import { UserRole } from '../../libs';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthUser } from '../auth/decorators/authUser.decorator';
+import { WithoutGuard } from '../auth/guards/without.guard';
 
 /**
  * JobResolver - GraphQL resolver for job queries and mutations
@@ -169,6 +170,7 @@ export class JobResolver {
 	 * }
 	 * ```
 	 */
+	@UseGuards(WithoutGuard)
 	@Query(() => JobOutput, {
 		name: 'getJobBySlug',
 		description: 'Get a single job by slug',
@@ -177,8 +179,9 @@ export class JobResolver {
 		@Args('slug') slug: string,
 		@Args('incrementView', { type: () => Boolean, nullable: true, defaultValue: false })
 		incrementView: boolean,
+		@AuthUser('_id') userId: string,
 	): Promise<JobOutput> {
-		return this.jobService.getJobBySlug(slug, incrementView);
+		return this.jobService.getJobBySlug(slug, incrementView, userId);
 	}
 
 	/**
@@ -214,6 +217,7 @@ export class JobResolver {
 	 * }
 	 * ```
 	 */
+	@UseGuards(WithoutGuard)
 	@Query(() => JobOutput, {
 		name: 'getJobByIdOrSlug',
 		description: 'Get a single job by ID or slug (automatically detects which one)',
@@ -221,9 +225,11 @@ export class JobResolver {
 	async getJobByIdOrSlug(
 		@Args('idOrSlug') idOrSlug: string,
 		@Args('incrementView', { type: () => Boolean, nullable: true, defaultValue: false })
+		@AuthUser('_id')
+		userId: string,
 		incrementView: boolean,
 	): Promise<JobOutput> {
-		return this.jobService.getJobByIdOrSlug(idOrSlug, incrementView);
+		return this.jobService.getJobByIdOrSlug(idOrSlug, incrementView, userId);
 	}
 
 	/**

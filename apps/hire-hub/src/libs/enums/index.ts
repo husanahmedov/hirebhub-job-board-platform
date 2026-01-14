@@ -6,5 +6,6 @@ export * from './resume/index';
 export * from './notification/index';
 export * from './general/error.enum';
 export * from './system-settings/index';
+export * from './view'
 
 export * from './filtering/index'

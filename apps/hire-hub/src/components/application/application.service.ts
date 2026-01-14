@@ -50,7 +50,7 @@ export class ApplicationService {
 			const jobObjectId = shapeIntoMongoObjectId(input.jobId);
 
 			// Check if job exists
-			const job = await this.jobService.getJobByIdOrSlug(input.jobId);
+			const job = await this.jobService.getJobByIdOrSlug(input.jobId, false, userId);
 
 			if (!job) {
 				throw new JobNotFoundException({ jobId: input.jobId });
@@ -107,7 +107,7 @@ export class ApplicationService {
 		user.role === UserRole.CANDIDATE && (filter.candidateId = user._id.toString());
 		user.role === UserRole.RECRUITER &&
 			(filter.companyId = (await this.companyService.getRecruiterCompanyId(user._id.toString())) || undefined);
-		user.role === UserRole.ADMIN && null;   
+		user.role === UserRole.ADMIN && null;
 		// ==================== STAGE 1: MATCH (Filtering) ====================
 		const matchStage: any = {};
 

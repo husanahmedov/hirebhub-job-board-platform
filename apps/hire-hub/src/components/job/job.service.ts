@@ -9,8 +9,11 @@ import {
 	PaginatedJobsOutput,
 	JobStatsOutput,
 	JobNotFoundException,
+	ViewInput,
+	ViewGroup,
 } from '../../libs';
 import { ErrorCode, ErrorMessage } from '../../libs';
+import { ViewService } from '../view/view.service';
 
 /**
  * JobService - Business logic for job management
@@ -25,7 +28,8 @@ import { ErrorCode, ErrorMessage } from '../../libs';
 export class JobService {
 	constructor(
 		@InjectModel('Job')
-		private readonly jobModel: Model<any>,
+		private readonly jobModel: Model<JobOutput>,
+		private readonly viewService: ViewService,
 	) {}
 
 	/**
@@ -283,7 +287,7 @@ export class JobService {
 	/**
 	 * Get a single job by slug
 	 */
-	async getJobBySlug(slug: string, incrementView = false): Promise<JobOutput> {
+	async getJobBySlug(slug: string, incrementView = false, userId: string): Promise<JobOutput> {
 		const job = await this.jobModel
 			.findOne({ slug, deletedAt: null })
 			.populate('companyId', 'name slug logoUrl verified')
@@ -293,16 +297,23 @@ export class JobService {
 		if (!job) {
 			throw new JobNotFoundException(`Job with slug "${slug}" not found`);
 		}
+		if (userId) {
+			const viewInputData: ViewInput = {
+				userId: userId,
+				viewRefId: job._id,
+				viewGroup: ViewGroup.JOB,
+			};
 
-		// Increment view count if requested
-		if (incrementView) {
-			await this.jobModel.findOneAndUpdate(
-				{ slug },
-				{
-					$inc: { viewsCount: 1 },
-				},
-			);
-			(job as any).viewsCount = ((job as any).viewsCount || 0) + 1;
+			const incrementViewCount = await this.viewService.incremenetViewCount(viewInputData);
+			if (incrementViewCount) {
+				await this.jobModel.findOneAndUpdate(
+					{ slug },
+					{
+						$inc: { viewsCount: 1 },
+					},
+				);
+				(job as any).viewsCount = ((job as any).viewsCount || 0) + 1;
+			}
 		}
 
 		return this.mapToJobOutput(job);
@@ -312,7 +323,7 @@ export class JobService {
 	 * Get a single job by ID or slug (combined method)
 	 * Automatically detects if the input is a valid ObjectId or a slug
 	 */
-	async getJobByIdOrSlug(idOrSlug: string, incrementView = false): Promise<JobOutput> {
+	async getJobByIdOrSlug(idOrSlug: string, incrementView = false, userId: string): Promise<JobOutput> {
 		// Check if the input looks like a MongoDB ObjectId (24 hex characters)
 		const isObjectId = /^[0-9a-fA-F]{24}$/.test(idOrSlug);
 
@@ -321,7 +332,7 @@ export class JobService {
 			return this.getJobById(idOrSlug, incrementView);
 		} else {
 			// Otherwise, treat it as a slug
-			return this.getJobBySlug(idOrSlug, incrementView);
+			return this.getJobBySlug(idOrSlug, incrementView, userId);
 		}
 	}
 

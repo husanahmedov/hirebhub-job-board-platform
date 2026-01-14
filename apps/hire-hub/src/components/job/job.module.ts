@@ -4,9 +4,10 @@ import { JobSchema } from '../../schemas/Job.model';
 import { JobService } from './job.service';
 import { JobResolver } from './job.resolver';
 import { AuthModule } from '../auth/auth.module';
+import { ViewModule } from '../view/view.module';
 
 @Module({
-	imports: [MongooseModule.forFeature([{ name: 'Job', schema: JobSchema }]), AuthModule],
+	imports: [MongooseModule.forFeature([{ name: 'Job', schema: JobSchema }]), AuthModule, ViewModule],
 	providers: [JobService, JobResolver],
 	exports: [JobService],
 })
