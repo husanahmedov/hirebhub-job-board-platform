@@ -20,22 +20,13 @@ import { AuthUser } from '../auth/decorators/authUser.decorator';
 import type { ObjectId } from 'mongoose';
 
 /**
- * ApplicationResolver - GraphQL resolver for application queries and mutations
- *
- * This resolver exposes GraphQL endpoints for:
- * - Querying applications with advanced filtering, sorting, and pagination
- * - Getting individual applications by ID
- * - Creating, updating, and deleting applications
- * - Managing application notes
- * - Getting application statistics
+ * ApplicationResolver - Handles application queries and mutations
  */
 @Resolver()
 export class ApplicationResolver {
 	constructor(private readonly applicationService: ApplicationService) {}
 
-	/**
-	 * Query: Get applications with filters, sorting, and pagination
-	 */
+	/** Get applications with filtering, sorting, and pagination */
 	@Roles(UserRole.CANDIDATE, UserRole.ADMIN, UserRole.RECRUITER)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -50,9 +41,7 @@ export class ApplicationResolver {
 		return this.applicationService.getApplications(input, user);
 	}
 
-	/**
-	 * Query: Get a single application by ID
-	 */
+	/** Get a single application by ID */
 	@Query(() => ApplicationOutput, {
 		name: 'getApplicationById',
 		description: 'Get a single application by ID',
@@ -65,9 +54,7 @@ export class ApplicationResolver {
 		return this.applicationService.getApplicationById(applicationId, candidateId);
 	}
 
-	/**
-	 * Query: Get application statistics
-	 */
+	/** Get application statistics with optional filters */
 	@Query(() => ApplicationStatsOutput, {
 		name: 'getApplicationStats',
 		description: 'Get application statistics with optional filters',
@@ -85,9 +72,7 @@ export class ApplicationResolver {
 		});
 	}
 
-	/**
-	 * Mutation: Create a new application
-	 */
+	/** Create a new job application */
 	@Mutation(() => ApplicationOutput, {
 		name: 'createApplication',
 		description: 'Create a new job application',
@@ -100,9 +85,7 @@ export class ApplicationResolver {
 		return this.applicationService.createApplication(input, user._id);
 	}
 
-	/**
-	 * Mutation: Update an application
-	 */
+	/** Update an existing application */
 	@Mutation(() => ApplicationOutput, {
 		name: 'updateApplication',
 		description: 'Update an existing application',
@@ -115,9 +98,7 @@ export class ApplicationResolver {
 		return this.applicationService.updateApplication(input, candidateId);
 	}
 
-	/**
-	 * Mutation: Delete an application (soft delete)
-	 */
+	/** Delete an application (soft delete) */
 	@Mutation(() => Boolean, {
 		name: 'deleteApplication',
 		description: 'Delete an application (soft delete)',
@@ -127,9 +108,7 @@ export class ApplicationResolver {
 		return this.applicationService.deleteApplication(applicationId);
 	}
 
-	/**
-	 * Mutation: Add a note to an application
-	 */
+	/** Add a note to an application */
 	@Mutation(() => ApplicationOutput, {
 		name: 'addApplicationNote',
 		description: 'Add a note to an application',
