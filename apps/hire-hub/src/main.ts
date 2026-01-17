@@ -8,6 +8,8 @@ import { StatusInterceptor } from './libs/interceptors/Status.interceptor';
 import { TimeoutInterceptor } from './libs/interceptors/Timeout.interceptor';
 import { HttpExceptionFilter } from './libs/filters/http-exception.filter';
 import { join } from 'path';
+import * as express from 'express';
+import * as path from 'path';
 
 declare const module: any;
 
@@ -53,8 +55,6 @@ async function bootstrap(): Promise<void> {
 		});
 
 		// Serve static files from uploads directory
-		const express = require('express');
-		const path = require('path');
 		app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 		// Enable CORS for cross-origin requests
 		app.enableCors({

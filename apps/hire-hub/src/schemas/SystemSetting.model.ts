@@ -120,10 +120,4 @@ const SystemSettingSchema = new Schema(
  */
 SystemSettingSchema.index({ category: 1, key: 1 });
 
-/**
- * Index for key-only lookups
- * Already covered by unique constraint, but explicitly defined for clarity
- */
-SystemSettingSchema.index({ key: 1 });
-
 export { SystemSettingSchema };

@@ -93,7 +93,6 @@ const JobSchema = new Schema(
 			trim: true,
 			minlength: [3, 'Job title must be at least 3 characters'],
 			maxlength: [200, 'Job title cannot exceed 200 characters'],
-			index: 'text',
 		},
 
 		/**
@@ -115,7 +114,6 @@ const JobSchema = new Schema(
 			type: String,
 			trim: true,
 			maxlength: [10000, 'Description cannot exceed 10000 characters'],
-			index: 'text',
 		},
 
 		/**
