@@ -226,4 +226,10 @@ export class JobStatsOutput {
 
 	@Field(() => Int, { description: 'Total number of views' })
 	totalViews: number;
+
+	@Field(() => Int, { description: 'Number of applications in the last 30 days' })
+	last30DaysApplications?: number;
+
+	@Field(() => Int, { description: 'Number of views in the last 30 days' })
+	last30DaysViews?: number;
 }

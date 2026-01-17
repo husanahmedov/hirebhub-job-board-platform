@@ -11,6 +11,8 @@ import {
 	JobNotFoundException,
 	ViewInput,
 	ViewGroup,
+	User,
+	UserRole,
 } from '../../libs';
 import { ErrorCode, ErrorMessage, BadRequestException } from '../../libs';
 import { ViewService } from '../view/view.service';
@@ -375,17 +377,27 @@ export class JobService {
 			},
 		);
 		const [job] = await this.jobModel.aggregate(pipeline).exec();
-		console.log(job);
 
 		if (!job) {
 			throw new JobNotFoundException(`Job with ID "${jobId}" not found`);
 		}
+		console.log('------------------- USER LOG INCREMENT VIEWS -------------------');
+		console.log('User', userId);
+		console.log('-------------------- USER LOG INCREMENT VIEWS ---------------------');
 		if (userId) {
-			await this.viewService.incremenetViewCount({
+			const $resultIncrement = await this.viewService.incremenetViewCount({
 				userId: objUserId,
 				viewRefId: objJobId,
 				viewGroup: ViewGroup.JOB,
 			});
+			if ($resultIncrement) {
+				await this.jobStatsModifier({
+					id: objJobId,
+					targetKey: 'viewsCount',
+					modifier: 1,
+				});
+				[job.viewsCount] = [job.viewsCount + 1];
+			}
 		}
 
 		return this.mapToJobOutput(job);
@@ -475,11 +487,12 @@ export class JobService {
 	/**
 	 * Get job statistics
 	 */
-	async getJobStats(companyId?: string): Promise<JobStatsOutput> {
+	async getJobStats(companyId?: string, user?: User): Promise<JobStatsOutput> {
 		const query: any = { deletedAt: null };
 		if (companyId) {
 			query.companyId = companyId;
 		}
+		user?.role === UserRole.RECRUITER ? (query.postedBy = user._id) : null;
 
 		const [stats] = await this.jobModel.aggregate([
 			{ $match: query },
@@ -498,6 +511,34 @@ export class JobService {
 					},
 					totalApplications: { $sum: '$applicationsCount' },
 					totalViews: { $sum: '$viewsCount' },
+					last30DaysApplications: {
+						$sum: {
+							$cond: [
+								{
+									$and: [
+										{ $gte: ['$createdAt', new Date(new Date().setDate(new Date().getDate() - 30))] },
+										{ $ne: ['$applicationsCount', null] },
+									],
+								},
+								'$applicationsCount',
+								0,
+							],
+						},
+					},
+					last30DaysViews: {
+						$sum: {
+							$cond: [
+								{
+									$and: [
+										{ $gte: ['$createdAt', new Date(new Date().setDate(new Date().getDate() - 30))] },
+										{ $ne: ['$viewsCount', null] },
+									],
+								},
+								'$viewsCount',
+								0,
+							],
+						},
+					},
 				},
 			},
 		]);
@@ -510,6 +551,8 @@ export class JobService {
 				closedJobs: 0,
 				totalApplications: 0,
 				totalViews: 0,
+				last30DaysApplications: 0,
+				last30DaysViews: 0,
 			}
 		);
 	}
@@ -538,8 +581,8 @@ export class JobService {
 			applicationDeadline: job.applicationDeadline,
 			// metrics
 			metrics: {
-				applicationsCount: job.applicationsCount ? job.applicationsCount : 0,
-				viewsCount: job.viewsCount ? job.viewsCount : 0,
+				applicationsCount: job.applicationsCount,
+				viewsCount: job.viewsCount,
 			},
 			// engagement score
 			engagementScore: job.engagementScore,

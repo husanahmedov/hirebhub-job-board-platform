@@ -34,16 +34,15 @@ export class JobResolver {
 	}
 
 	/** Get a single job by ID */
+	@UseGuards(WithoutGuard)
 	@Query(() => JobOutput, {
 		name: 'getJobById',
 		description: 'Get a single job by ID',
 	})
 	async getJobById(
 		@Args('jobId', { type: () => ID }) jobId: string,
-		@Args('incrementView', { type: () => Boolean, nullable: true, defaultValue: false })
 		@AuthUser('_id')
 		userId: string,
-		incrementView: boolean,
 	): Promise<JobOutput> {
 		return this.jobService.getJobById(jobId, userId);
 	}
@@ -58,8 +57,9 @@ export class JobResolver {
 	})
 	async getJobStats(
 		@Args('companyId', { type: () => ID, nullable: true }) companyId?: string,
+		@AuthUser() user?: User,
 	): Promise<JobStatsOutput> {
-		return this.jobService.getJobStats(companyId);
+		return this.jobService.getJobStats(companyId, user);
 	}
 
 	/** Create a new job posting */
