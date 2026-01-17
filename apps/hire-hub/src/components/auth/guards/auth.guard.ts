@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
-import { UnAuthenticatedException } from '../../../libs';
+import { UnAuthenticatedException, User } from '../../../libs';
 import chalk from 'chalk';
 import { HttpExceptionFilter } from 'apps/hire-hub/src/libs/filters/http-exception.filter';
 
@@ -8,7 +8,7 @@ import { HttpExceptionFilter } from 'apps/hire-hub/src/libs/filters/http-excepti
 export class AuthGuard implements CanActivate {
 	constructor(private authService: AuthService) {}
 
-	private displayUserDetails(authUser: any): void {
+	private displayUserDetails(authUser: User): void {
 		const boxWidth = 70;
 		const line = '═'.repeat(boxWidth);
 		const separator = '─'.repeat(boxWidth);
@@ -65,7 +65,7 @@ export class AuthGuard implements CanActivate {
 				const location = `${authUser.profile.location.city}${authUser.profile.location.country ? ', ' + authUser.profile.location.country : ''}`;
 				this.printField('Location', location, '📍 ', boxWidth);
 			}
-			if (authUser.profile.skills?.length > 0) {
+			if (authUser?.profile?.skills && authUser.profile.skills.length > 0) {
 				const skills =
 					authUser.profile.skills.slice(0, 3).join(', ') + (authUser.profile.skills.length > 3 ? '...' : '');
 				this.printField('Skills', skills, '🎯 ', boxWidth);

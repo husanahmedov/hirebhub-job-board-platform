@@ -4,10 +4,12 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { StartupLogger } from './libs/startup-logger.util';
 import { EnvUtil } from './libs';
-import { LoggingInterceptor } from './libs/interceptors/Logging.interceptor';
+import { StatusInterceptor } from './libs/interceptors/Status.interceptor';
 import { TimeoutInterceptor } from './libs/interceptors/Timeout.interceptor';
 import { HttpExceptionFilter } from './libs/filters/http-exception.filter';
 import { join } from 'path';
+import * as express from 'express';
+import * as path from 'path';
 
 declare const module: any;
 
@@ -53,8 +55,6 @@ async function bootstrap(): Promise<void> {
 		});
 
 		// Serve static files from uploads directory
-		const express = require('express');
-		const path = require('path');
 		app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 		// Enable CORS for cross-origin requests
 		app.enableCors({
@@ -77,7 +77,7 @@ async function bootstrap(): Promise<void> {
 		);
 
 		// Global Interceptors
-		app.useGlobalInterceptors(new TimeoutInterceptor(), new LoggingInterceptor());
+		app.useGlobalInterceptors(new TimeoutInterceptor(), new StatusInterceptor());
 
 		// Global Exception Filter
 		app.useGlobalFilters(new HttpExceptionFilter());
@@ -97,6 +97,9 @@ async function bootstrap(): Promise<void> {
 		});
 
 		StartupLogger.printSuccessMessage('Application is ready to accept requests! 🚀');
+
+		// Print status interceptor header
+		StatusInterceptor.printHeader();
 	} catch (error) {
 		console.error('\n❌ Failed to start application:', error);
 		process.exit(1);

@@ -50,6 +50,8 @@ import { StartupLogger } from '../libs/startup-logger.util';
 					// Connection options
 					retryWrites: true,
 					retryReads: true,
+					// Automatically build indexes (enable in development, disable in production for performance)
+					autoIndex: environment !== 'production',
 				};
 			},
 		}),
@@ -70,6 +72,9 @@ export class DatabaseModule implements OnModuleInit {
 	async onModuleInit(): Promise<void> {
 		this.setupConnectionEventListeners();
 		this.logConnectionStatus();
+
+		// Ensure indexes are created/synced
+		await this.syncIndexes();
 	}
 
 	/**
@@ -141,5 +146,30 @@ export class DatabaseModule implements OnModuleInit {
 	 */
 	public isConnected(): boolean {
 		return this.connection.readyState === 1;
+	}
+
+	/**
+	 * Sync all indexes for all models
+	 * This ensures that indexes defined in schemas are created in the database
+	 * @private
+	 */
+	private async syncIndexes(): Promise<void> {
+		try {
+			console.log('🔄 Syncing database indexes...');
+
+			// Get all registered models
+			const models = this.connection.modelNames();
+
+			// Sync indexes for each model
+			for (const modelName of models) {
+				const model = this.connection.model(modelName);
+				await model.syncIndexes();
+				console.log(`✓ Synced indexes for ${modelName}`);
+			}
+
+			console.log('✅ All indexes synced successfully');
+		} catch (error) {
+			console.error('❌ Error syncing indexes:', error);
+		}
 	}
 }

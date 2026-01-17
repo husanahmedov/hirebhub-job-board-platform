@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, PipelineStage } from 'mongoose';
+import { Model, ObjectId, PipelineStage } from 'mongoose';
 import {
 	GetCompaniesInput,
 	NearbyCompaniesInput,
@@ -11,6 +11,8 @@ import {
 	BadRequestException,
 	User,
 	UserNotFoundException,
+	DuplicatedOnwerCompanyException,
+	CompanyNotFoundException,
 } from '../../libs';
 import { PaginatedCompaniesOutput, CompanyOutput } from '../../libs';
 import { shapeIntoMongoObjectId } from '../../libs/config';
@@ -529,24 +531,6 @@ export class CompanyService {
 	}
 
 	/**
-	 * Get a company by slug
-	 *
-	 * @param slug - URL-friendly company identifier
-	 * @returns Company data
-	 * @throws NotFoundException if company not found
-	 */
-	async getCompanyBySlug(slug: string): Promise<CompanyOutput> {
-		const company = await this.companyModel.findOne({ slug, deletedAt: null }).exec();
-
-		if (!company) {
-			throw new NotFoundException(`Company with slug "${slug}" not found`);
-		}
-
-		// Use getCompanyById to get full data with aggregations
-		return await this.getCompanyById(company._id.toString());
-	}
-
-	/**
 	 * Create a new company
 	 *
 	 * @param input - Company data
@@ -564,9 +548,15 @@ export class CompanyService {
 			);
 		}
 		// check if owenerId is valid
-		const ownerIdCheck = await this.userModel.findById(ownerIdObj).exec();
+		const ownerIdCheck = await this.userModel.findOne({ _id: ownerIdObj }).exec();
 		if (!ownerIdCheck) {
 			throw new UserNotFoundException(`Owner with ID ${input.ownerId} not found`);
+		}
+		const checkDuplicatedOwner = await this.companyModel.findOne({
+			ownerId: ownerIdObj,
+		});
+		if (checkDuplicatedOwner) {
+			throw new DuplicatedOnwerCompanyException('Not Succesfull');
 		}
 
 		const company = new this.companyModel({
@@ -586,10 +576,28 @@ export class CompanyService {
 	 * @returns Updated company
 	 * @throws NotFoundException if company not found
 	 */
-	async updateCompany(id: string, input: UpdateCompanyInput): Promise<CompanyOutput> {
-		const company = await this.companyModel.findByIdAndUpdate(id, input, { new: true }).exec();
+	async updateCompany(id: string, userId: ObjectId, input: UpdateCompanyInput): Promise<CompanyOutput> {
+		const objId = shapeIntoMongoObjectId(id);
+		const objUserId = shapeIntoMongoObjectId(userId);
+		const recruiterIds = input.recruiterIds?.map((rid) => shapeIntoMongoObjectId(rid));
+
+		// Ensure owner is not in recruiterIds array
+		if (recruiterIds && recruiterIds.includes(objUserId)) {
+			throw new BadRequestException(`Owner ID cannot be in the recruiter IDs array @ ----- Owner Id ${userId} ----- @`);
+		}
+		const company = await this.companyModel
+			.findOneAndUpdate(
+				{
+					_id: objId,
+					ownerId: objUserId,
+				},
+				{ ...input, recruiterIds: recruiterIds },
+				{ new: true },
+			)
+			.exec();
 
 		if (!company) {
+			console.log(objUserId);
 			throw new NotFoundException(`Company with ID ${id} not found`);
 		}
 
@@ -717,5 +725,30 @@ export class CompanyService {
 				return acc;
 			}, {}),
 		};
+	}
+
+	public async getRecruiterCompanyId(userId: string): Promise<string | null> {
+		const shapedUserId = shapeIntoMongoObjectId(userId);
+		try {
+			const company = await this.companyModel.findOne({ recruiterIds: shapedUserId, deletedAt: null }).exec();
+			return company ? company._id.toString() : null;
+		} catch (error) {
+			throw new NotFoundException(`Company for recruiter ID ${userId} not found`);
+		}
+	}
+
+	public async checkOwnerOfCompany(companyId: string, userId: string): Promise<boolean | null> {
+		const shapedUserId = shapeIntoMongoObjectId(userId);
+		const company = await this.companyModel.findOne({ _id: companyId, ownerId: shapedUserId, deletedAt: null }).exec();
+		return company ? true : false;
+	}
+
+	public async checkRecruiterOfCompany(companyId: string, userId: string): Promise<boolean | null> {
+		const shapedUserId = shapeIntoMongoObjectId(userId);
+		const company = await this.companyModel
+			.findOne({ _id: companyId, recruiterIds: { $in: [shapedUserId] }, deletedAt: null })
+			.exec();
+		
+		return company ? true : false;
 	}
 }

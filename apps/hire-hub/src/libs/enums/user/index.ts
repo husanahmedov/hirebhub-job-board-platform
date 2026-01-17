@@ -4,6 +4,7 @@ export enum UserRole {
 	ADMIN = 'ADMIN',
 	RECRUITER = 'RECRUITER',
 	CANDIDATE = 'CANDIDATE',
+	COMPANY_OWNER = 'COMPANY_OWNER',
 }
 
 export enum UserStatus {

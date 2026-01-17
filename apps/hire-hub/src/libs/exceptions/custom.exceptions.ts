@@ -102,6 +102,15 @@ export class CompanyNotFoundException extends BaseGraphQLException {
 }
 
 /**
+ * DuplicatedOnwerCompanyException - Thrown when a company owner is already registered for another company
+ */
+export class DuplicatedOnwerCompanyException extends BaseGraphQLException {
+	constructor(details?: any) {
+		super(ErrorCode.COMPANY_OWNER_DUPLICATED, undefined, details);
+	}
+}
+
+/**
  * JobNotFoundException - Thrown when a job is not found
  */
 export class JobNotFoundException extends BaseGraphQLException {

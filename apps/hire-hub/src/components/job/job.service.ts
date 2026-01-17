@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage } from 'mongoose';
 import {
@@ -9,8 +9,18 @@ import {
 	PaginatedJobsOutput,
 	JobStatsOutput,
 	JobNotFoundException,
+	ViewInput,
+	ViewGroup,
+	User,
+	UserRole,
+	UnauthorizedException,
+	CompanyNotFoundException,
 } from '../../libs';
-import { ErrorCode, ErrorMessage } from '../../libs';
+import { ErrorCode, ErrorMessage, BadRequestException } from '../../libs';
+import { ViewService } from '../view/view.service';
+import { shapeIntoMongoObjectId } from '../../libs/config';
+import { StatsModifier } from '../../libs/interfaces/common';
+import { CompanyService } from '../company/company.service';
 
 /**
  * JobService - Business logic for job management
@@ -25,43 +35,62 @@ import { ErrorCode, ErrorMessage } from '../../libs';
 export class JobService {
 	constructor(
 		@InjectModel('Job')
-		private readonly jobModel: Model<any>,
+		private readonly jobModel: Model<JobOutput>,
+		private readonly viewService: ViewService,
+		private readonly companyService: CompanyService,
 	) {}
 
 	/**
 	 * Create a new job posting
 	 */
 	async createJob(input: CreateJobInput, userId: string): Promise<JobOutput> {
+		const objUserId = shapeIntoMongoObjectId(userId);
 		try {
-			// Check if slug already exists
-			const existingJob = await this.jobModel.findOne({
-				slug: input.slug,
-				deletedAt: null,
-			});
-
-			if (existingJob) {
-				throw new BadRequestException({
-					code: ErrorCode.BAD_REQUEST,
-					message: 'Job with this slug already exists',
-				});
+			let job;
+			const isOwnerOfCompany = await this.companyService.checkOwnerOfCompany(input.companyId, userId.toString());
+			switch (isOwnerOfCompany) {
+				case false:
+					const isRecruiterOfCompany = await this.companyService.checkRecruiterOfCompany(
+						input.companyId,
+						userId.toString(),
+					);
+					switch (isRecruiterOfCompany) {
+						case true:
+							job = await this.jobModel.create({
+								...input,
+								postedBy: objUserId,
+								viewsCount: 0,
+								applicationsCount: 0,
+							});
+							return this.mapToJobOutput(job);
+						case false:
+							throw new CompanyNotFoundException({
+								message: `Company with ID "${input.companyId}" not found or you are not recruiter of this company`,
+							});
+					}
+				case true:
+					job = await this.jobModel.create({
+						...input,
+						postedBy: objUserId,
+						viewsCount: 0,
+						applicationsCount: 0,
+					});
+					return this.mapToJobOutput(job);
+				default:
+					throw new CompanyNotFoundException({
+						message: `Company with ID "${input.companyId}" not found or you are not owner of this company`,
+					});
 			}
-
-			const job = await this.jobModel.create({
-				...input,
-				postedBy: userId,
-				viewsCount: 0,
-				applicationsCount: 0,
-			});
-
-			return this.mapToJobOutput(job);
 		} catch (error) {
-			if (error instanceof BadRequestException) {
+			if (error instanceof CompanyNotFoundException) {
 				throw error;
 			}
-			throw new BadRequestException({
+			console.log(error);
+
+			throw new BadRequestException('Failed', {
 				code: ErrorCode.BAD_REQUEST,
 				message: 'Failed to create job',
-				details: error.message,
+				details: error.details,
 			});
 		}
 	}
@@ -173,12 +202,20 @@ export class JobService {
 						$project: {
 							_id: 1,
 							name: 1,
-							slug: 1,
 							logoUrl: 1,
 							verified: 1,
 						},
 					},
 				],
+			},
+		});
+
+		pipeline.push({
+			$lookup: {
+				from: 'applications',
+				localField: '_id',
+				foreignField: 'jobId',
+				as: 'applicationsData',
 			},
 		});
 
@@ -258,71 +295,152 @@ export class JobService {
 	/**
 	 * Get a single job by ID
 	 */
-	async getJobById(jobId: string, incrementView = false): Promise<JobOutput> {
-		const job = await this.jobModel
-			.findOne({ _id: jobId, deletedAt: null })
-			.populate('companyId', 'name slug logoUrl verified')
-			.populate('postedBy', 'firstName lastName email profilePicture')
-			.lean();
+	async getJobById(jobId: string, userId: string | null): Promise<JobOutput> {
+		const objUserId = userId ? shapeIntoMongoObjectId(userId) : null;
+		const objJobId = shapeIntoMongoObjectId(jobId);
+		const pipeline: PipelineStage[] = [];
+		pipeline.push(
+			{
+				$match: { _id: objJobId, deletedAt: null },
+			},
+			{
+				$lookup: {
+					from: 'companies',
+					localField: 'companyId',
+					foreignField: '_id',
+					as: 'companyData',
+					pipeline: [
+						{
+							$unwind: {
+								path: '$companyData',
+								preserveNullAndEmptyArrays: true,
+							},
+						},
+					],
+				},
+			},
+			{
+				$lookup: {
+					from: 'users',
+					localField: 'postedBy',
+					foreignField: '_id',
+					as: 'postedByData',
+				},
+			},
+			{
+				$lookup: {
+					from: 'applications',
+					localField: '_id',
+					foreignField: 'jobId',
+					as: 'applicationsData',
+				},
+			},
+			{
+				$addFields: {
+					metrics: {
+						applicationsCount: '$applicationsCount',
+						viewsCount: '$viewsCount',
+						applicationRate: {
+							$cond: [
+								{ $eq: ['$viewsCount', 0] },
+								0,
+								{
+									$round: [
+										{
+											$multiply: [{ $divide: ['$applicationsCount', '$viewsCount'] }, 100],
+										},
+										2,
+									],
+								},
+							],
+						},
+					},
+					engagementScore: {
+						$add: ['$viewsCount', { $multiply: ['$applicationsCount', 10] }],
+					},
+					timeInfo: {
+						daysSincePosted: {
+							$round: [
+								{
+									$divide: [{ $subtract: [new Date(), '$createdAt'] }, 1000 * 60 * 60 * 24],
+								},
+								0,
+							],
+						},
+						daysUntilDeadline: {
+							$cond: [
+								{ $ne: ['$applicationDeadline', null] },
+								{
+									$round: [
+										{
+											$divide: [{ $subtract: ['$applicationDeadline', new Date()] }, 1000 * 60 * 60 * 24],
+										},
+										0,
+									],
+								},
+								null,
+							],
+						},
+						isExpiringSoon: {
+							$cond: [
+								{
+									$and: [
+										{ $ne: ['$applicationDeadline', null] },
+										{ $lte: [{ $subtract: ['$applicationDeadline', new Date()] }, 7 * 24 * 60 * 60 * 1000] },
+									],
+								},
+								true,
+								false,
+							],
+						},
+					},
+					flags: {
+						isPopular: { $gte: ['$viewsCount', 1000] },
+						isHot: { $gte: ['$applicationsCount', 50] },
+						needsPromotion: {
+							$and: [
+								{ $lt: ['$viewsCount', 100] },
+								{ $gte: [{ $subtract: [new Date(), '$createdAt'] }, 7 * 24 * 60 * 60 * 1000] },
+							],
+						},
+						hasSalary: {
+							$and: [{ $ne: ['$salaryRange', null] }, { $gt: ['$salaryRange.min', 0] }],
+						},
+					},
+				},
+			},
+		);
+		pipeline.push({
+			$addFields: {
+				companyData: { $arrayElemAt: ['$companyData', 0] },
+				postedByData: { $arrayElemAt: ['$postedByData', 0] },
+			},
+		})
+		const [job] = await this.jobModel.aggregate(pipeline).exec();
 
 		if (!job) {
 			throw new JobNotFoundException(`Job with ID "${jobId}" not found`);
 		}
-
-		// Increment view count if requested
-		if (incrementView) {
-			await this.jobModel.findByIdAndUpdate(jobId, {
-				$inc: { viewsCount: 1 },
+		console.log('------------------- USER LOG INCREMENT VIEWS -------------------');
+		console.log('User', userId);
+		console.log('-------------------- USER LOG INCREMENT VIEWS ---------------------');
+		if (userId) {
+			const $resultIncrement = await this.viewService.incremenetViewCount({
+				userId: objUserId,
+				viewRefId: objJobId,
+				viewGroup: ViewGroup.JOB,
 			});
-			(job as any).viewsCount = ((job as any).viewsCount || 0) + 1;
+			if ($resultIncrement) {
+				await this.jobStatsModifier({
+					id: objJobId,
+					targetKey: 'viewsCount',
+					modifier: 1,
+				});
+				[job.viewsCount] = [job.viewsCount + 1];
+			}
 		}
-
+		
 		return this.mapToJobOutput(job);
-	}
-
-	/**
-	 * Get a single job by slug
-	 */
-	async getJobBySlug(slug: string, incrementView = false): Promise<JobOutput> {
-		const job = await this.jobModel
-			.findOne({ slug, deletedAt: null })
-			.populate('companyId', 'name slug logoUrl verified')
-			.populate('postedBy', 'firstName lastName email profilePicture')
-			.lean();
-
-		if (!job) {
-			throw new JobNotFoundException(`Job with slug "${slug}" not found`);
-		}
-
-		// Increment view count if requested
-		if (incrementView) {
-			await this.jobModel.findOneAndUpdate(
-				{ slug },
-				{
-					$inc: { viewsCount: 1 },
-				},
-			);
-			(job as any).viewsCount = ((job as any).viewsCount || 0) + 1;
-		}
-
-		return this.mapToJobOutput(job);
-	}
-
-	/**
-	 * Get a single job by ID or slug (combined method)
-	 * Automatically detects if the input is a valid ObjectId or a slug
-	 */
-	async getJobByIdOrSlug(idOrSlug: string, incrementView = false): Promise<JobOutput> {
-		// Check if the input looks like a MongoDB ObjectId (24 hex characters)
-		const isObjectId = /^[0-9a-fA-F]{24}$/.test(idOrSlug);
-
-		if (isObjectId) {
-			// Try to get by ID first
-			return this.getJobById(idOrSlug, incrementView);
-		} else {
-			// Otherwise, treat it as a slug
-			return this.getJobBySlug(idOrSlug, incrementView);
-		}
 	}
 
 	/**
@@ -344,25 +462,9 @@ export class JobService {
 			});
 		}
 
-		// Check if slug is being updated and if it's unique
-		if (updateData.slug && updateData.slug !== existingJob.slug) {
-			const slugExists = await this.jobModel.findOne({
-				slug: updateData.slug,
-				_id: { $ne: jobId },
-				deletedAt: null,
-			});
-
-			if (slugExists) {
-				throw new BadRequestException({
-					code: ErrorCode.BAD_REQUEST,
-					message: 'Job with this slug already exists',
-				});
-			}
-		}
-
 		const updatedJob = await this.jobModel
 			.findByIdAndUpdate(jobId, updateData, { new: true })
-			.populate('companyId', 'name slug logoUrl verified')
+			.populate('companyId', 'name logoUrl verified')
 			.populate('postedBy', 'firstName lastName email profilePicture')
 			.lean();
 
@@ -402,7 +504,7 @@ export class JobService {
 				},
 				{ new: true },
 			)
-			.populate('companyId', 'name slug logoUrl verified')
+			.populate('companyId', 'name logoUrl verified')
 			.populate('postedBy', 'firstName lastName email profilePicture')
 			.lean();
 
@@ -411,15 +513,6 @@ export class JobService {
 		}
 
 		return this.mapToJobOutput(job);
-	}
-
-	/**
-	 * Increment application count for a job
-	 */
-	async incrementApplicationCount(jobId: string): Promise<void> {
-		await this.jobModel.findByIdAndUpdate(jobId, {
-			$inc: { applicationsCount: 1 },
-		});
 	}
 
 	/**
@@ -434,11 +527,12 @@ export class JobService {
 	/**
 	 * Get job statistics
 	 */
-	async getJobStats(companyId?: string): Promise<JobStatsOutput> {
+	async getJobStats(companyId?: string, user?: User): Promise<JobStatsOutput> {
 		const query: any = { deletedAt: null };
 		if (companyId) {
 			query.companyId = companyId;
 		}
+		user?.role === UserRole.RECRUITER ? (query.postedBy = user._id) : null;
 
 		const [stats] = await this.jobModel.aggregate([
 			{ $match: query },
@@ -457,6 +551,34 @@ export class JobService {
 					},
 					totalApplications: { $sum: '$applicationsCount' },
 					totalViews: { $sum: '$viewsCount' },
+					last30DaysApplications: {
+						$sum: {
+							$cond: [
+								{
+									$and: [
+										{ $gte: ['$createdAt', new Date(new Date().setDate(new Date().getDate() - 30))] },
+										{ $ne: ['$applicationsCount', null] },
+									],
+								},
+								'$applicationsCount',
+								0,
+							],
+						},
+					},
+					last30DaysViews: {
+						$sum: {
+							$cond: [
+								{
+									$and: [
+										{ $gte: ['$createdAt', new Date(new Date().setDate(new Date().getDate() - 30))] },
+										{ $ne: ['$viewsCount', null] },
+									],
+								},
+								'$viewsCount',
+								0,
+							],
+						},
+					},
 				},
 			},
 		]);
@@ -469,6 +591,8 @@ export class JobService {
 				closedJobs: 0,
 				totalApplications: 0,
 				totalViews: 0,
+				last30DaysApplications: 0,
+				last30DaysViews: 0,
 			}
 		);
 	}
@@ -480,11 +604,10 @@ export class JobService {
 		return {
 			_id: job._id.toString(),
 			companyId: job.companyId?._id?.toString() || job.companyId?.toString(),
-			companyData: job.companyId?._id ? job.companyId : undefined,
+			companyData: job.companyId?._id && job.companyData ? job.companyData : undefined,
 			postedBy: job.postedBy?._id?.toString() || job.postedBy?.toString(),
-			postedByData: job.postedBy?._id ? job.postedBy : undefined,
+			postedByData: job.postedBy?._id && job.postedByData ? job.postedByData : undefined,
 			title: job.title,
-			slug: job.slug,
 			description: job.description,
 			shortDescription: job.shortDescription,
 			employmentType: job.employmentType,
@@ -496,14 +619,48 @@ export class JobService {
 			requirements: job.requirements || [],
 			benefits: job.benefits || [],
 			applicationDeadline: job.applicationDeadline,
+			// metrics
+			metrics: {
+				applicationsCount: job.applicationsCount,
+				viewsCount: job.viewsCount,
+			},
+			// engagement score
+			engagementScore: job.engagementScore,
+			// time info
+			timeInfo: {
+				daysSincePosted: job.timeInfo?.daysSincePosted,
+				daysUntilDeadline: job.timeInfo?.daysUntilDeadline,
+				isExpiringSoon: job.timeInfo?.isExpiringSoon,
+			},
+			// flags
+			flags: {
+				isPopular: job.flags?.isPopular,
+				isHot: job.flags?.isHot,
+				needsPromotion: job.flags?.needsPromotion,
+				hasSalary: job.flags?.hasSalary,
+			},
 			isPublished: job.isPublished,
 			visibility: job.visibility,
-			viewsCount: job.viewsCount || 0,
-			applicationsCount: job.applicationsCount || 0,
 			createdAt: job.createdAt,
 			updatedAt: job.updatedAt,
 			closedAt: job.closedAt,
 			deletedAt: job.deletedAt,
 		};
+	}
+	/**
+	 * Increment application count for a job
+	 */
+	public async jobStatsModifier(input: StatsModifier): Promise<void> {
+		try {
+			await this.jobModel.findByIdAndUpdate(input.id, {
+				$inc: { [input.targetKey]: input.modifier },
+			});
+		} catch (error) {
+			console.log(`---------Error: ${error} ---------`);
+			throw new BadRequestException('Failed to modify job stats', {
+				message: 'Failed to modify job stats',
+				details: error.message,
+			});
+		}
 	}
 }

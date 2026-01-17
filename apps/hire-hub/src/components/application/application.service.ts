@@ -14,10 +14,16 @@ import {
 	JobNotFoundException,
 	UserNotFoundException,
 	BadRequestException,
+	User,
+	UserRole,
 } from '../../libs';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { ApplicationStatus } from '../../libs/enums/applications';
 import { JobService } from '../job/job.service';
+
+import type { ObjectId } from 'mongoose';
+import { CompanyService } from '../company/company.service';
+import { StatsModifier } from '../../libs/interfaces/common';
 
 /**
  * ApplicationService - Business logic for application management
@@ -34,6 +40,7 @@ export class ApplicationService {
 		@InjectModel('Application')
 		private readonly applicationModel: Model<ApplicationOutput>,
 		private readonly jobService: JobService,
+		private readonly companyService: CompanyService,
 	) {}
 
 	/**
@@ -44,7 +51,7 @@ export class ApplicationService {
 			const jobObjectId = shapeIntoMongoObjectId(input.jobId);
 
 			// Check if job exists
-			const job = await this.jobService.getJobByIdOrSlug(input.jobId);
+			const job = await this.jobService.getJobById(input.jobId, null);
 
 			if (!job) {
 				throw new JobNotFoundException({ jobId: input.jobId });
@@ -74,7 +81,11 @@ export class ApplicationService {
 			});
 
 			// Increment application count on the job
-			await this.jobService.incrementApplicationCount(jobObjectId);
+			await this.jobService.jobStatsModifier({
+				id: shapeIntoMongoObjectId(input.jobId),
+				targetKey: 'applicationsCount',
+				modifier: 1,
+			});
 
 			return this.mapToApplicationOutput(application);
 		} catch (error) {
@@ -91,13 +102,17 @@ export class ApplicationService {
 	/**
 	 * Get applications with filtering, sorting, and pagination
 	 */
-	async getApplications(input: GetApplicationsInput = {}): Promise<PaginatedApplicationsOutput> {
+	async getApplications(input: GetApplicationsInput = {}, user: User): Promise<PaginatedApplicationsOutput> {
 		const { filter = {}, sort = {}, pagination = {} } = input;
 		const { page = 1, limit = 20 } = pagination;
 		const skip = (page - 1) * limit;
 
 		const pipeline: PipelineStage[] = [];
 
+		user.role === UserRole.CANDIDATE && (filter.candidateId = user._id.toString());
+		user.role === UserRole.RECRUITER &&
+			(filter.companyId = (await this.companyService.getRecruiterCompanyId(user._id.toString())) || undefined);
+		user.role === UserRole.ADMIN && null;
 		// ==================== STAGE 1: MATCH (Filtering) ====================
 		const matchStage: any = {};
 
@@ -237,14 +252,16 @@ export class ApplicationService {
 	/**
 	 * Get a single application by ID
 	 */
-	async getApplicationById(applicationId: string): Promise<ApplicationOutput> {
+	async getApplicationById(applicationId: string, candidateId?: string | ObjectId): Promise<ApplicationOutput> {
 		try {
 			const objectId = shapeIntoMongoObjectId(applicationId);
+			const shapedCandidateId = shapeIntoMongoObjectId(candidateId);
 
 			const pipeline: PipelineStage[] = [
 				{
 					$match: {
 						_id: objectId,
+						candidateId: shapedCandidateId,
 						deletedAt: null,
 					},
 				},
@@ -313,13 +330,15 @@ export class ApplicationService {
 	/**
 	 * Update an application
 	 */
-	async updateApplication(input: UpdateApplicationInput): Promise<ApplicationOutput> {
+	async updateApplication(input: UpdateApplicationInput, candidateId?: string | ObjectId): Promise<ApplicationOutput> {
 		try {
 			const objectId = shapeIntoMongoObjectId(input.applicationId);
+			const shapedCandidateId = shapeIntoMongoObjectId(candidateId);
 
 			// Check if application exists
 			const existingApplication = await this.applicationModel.findOne({
 				_id: objectId,
+				candidateId: shapedCandidateId,
 				deletedAt: null,
 			});
 
@@ -351,7 +370,7 @@ export class ApplicationService {
 				{ new: true },
 			);
 
-			return this.getApplicationById(updatedApplication?._id.toString() || input.applicationId);
+			return this.getApplicationById(updatedApplication?._id.toString() || input.applicationId, candidateId);
 		} catch (error) {
 			if (error instanceof ApplicationNotFoundException) {
 				throw error;
@@ -544,5 +563,19 @@ export class ApplicationService {
 			createdAt: application.createdAt,
 			deletedAt: application.deletedAt,
 		};
+	}
+
+	public async applicationStatsModifier(input: StatsModifier): Promise<void> {
+		try {
+			await this.applicationModel.findByIdAndUpdate(input.id, {
+				$inc: { [input.targetKey]: input.modifier },
+			});
+		} catch (error) {
+			console.log(`---------Error: ${error} ---------`);
+			throw new BadRequestException('Failed to modify application stats', {
+				message: 'Failed to modify application stats',
+				details: error.message,
+			});
+		}
 	}
 }

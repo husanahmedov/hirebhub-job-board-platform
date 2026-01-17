@@ -39,12 +39,9 @@ export class CompanyOutput {
 	@Field(() => ID, { description: 'Unique company identifier' })
 	_id: string;
 
-	@Field({ description: 'Company title' })
-	title: string;
-
-	@Field({ description: 'URL-friendly slug for the company' })
-	slug: string;
-
+	@Field({ description: 'Company name' })
+	name: string;
+	
 	@Field(() => CompanyIndustry, {
 		nullable: true,
 		description: 'Industry classification',
@@ -85,8 +82,9 @@ export class CompanyOutput {
 
 	@Field(() => [ID], {
 		description: 'Array of recruiter user IDs associated with this company',
+		nullable: true,
 	})
-	recruiterIds: string[];
+	recruiterIds?: string[];
 
 	@Field({ description: 'Company verification status' })
 	verified: boolean;

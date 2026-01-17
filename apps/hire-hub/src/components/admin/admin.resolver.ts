@@ -22,38 +22,13 @@ import { AuthUser } from '../auth/decorators/authUser.decorator';
 import { UserRole } from '../../libs';
 
 /**
- * AdminResolver - GraphQL resolver for admin operations
- *
- * This resolver handles all admin-specific GraphQL queries and mutations,
- * including system settings management, user moderation, and analytics.
- *
- * All endpoints require ADMIN role authentication.
+ * AdminResolver - Handles admin system settings and operations
  */
 @Resolver()
 export class AdminResolver {
 	constructor(private readonly adminService: AdminService) {}
 
-	/**
-	 * Update content settings
-	 *
-	 * Allows admins to configure content-related settings,
-	 * including auto-moderation rules, quotas, and expiration policies.
-	 *
-	 * @param input - Partial update for content settings
-	 * @param user - Authenticated admin user (from AuthGuard)
-	 * @returns Updated content settings
-	 *
-	 * @example
-	 * mutation {
-	 *   updateContentSettings(input: {
-	 *     autoModerateJobPosts: true
-	 *     maxJobPostsPerCompany: 100
-	 *   }) {
-	 *     autoModerateJobPosts
-	 *     maxJobPostsPerCompany
-	 *   }
-	 * }
-	 */
+	/** Update content settings (Admin only) */
 	@Roles(UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -67,27 +42,7 @@ export class AdminResolver {
 		return this.adminService.updateContentSettings(input, user._id);
 	}
 
-	/**
-	 * Get current content settings
-	 *
-	 * Retrieves all current content configuration including auto-moderation
-	 * rules, content limits, and expiration policies.
-	 *
-	 * @param user - Authenticated admin user (from AuthGuard)
-	 * @returns Current content settings
-	 *
-	 * @example
-	 * query {
-	 *   getContentSettings {
-	 *     autoModerateJobPosts
-	 *     autoModerateCompanyReviews
-	 *     profanityFilterEnabled
-	 *     maxJobPostsPerCompany
-	 *     jobPostExpirationDays
-	 *     reviewModerationRequired
-	 *   }
-	 * }
-	 */
+	/** Get current content settings (Admin only) */
 	@Roles(UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)

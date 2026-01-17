@@ -70,12 +70,6 @@ export class CreateCompanyInput {
 	@MaxLength(200, { message: 'Company name cannot exceed 200 characters' })
 	name: string;
 
-	@Field({ description: 'URL-friendly slug for the company' })
-	@IsString()
-	@MinLength(2)
-	@MaxLength(250)
-	slug: string;
-
 	@Field({ description: 'Owner user ID - The user who owns this company' })
 	@IsString()
 	ownerId: string;
@@ -141,13 +135,6 @@ export class UpdateCompanyInput {
 	@MinLength(2)
 	@MaxLength(200)
 	name?: string;
-
-	@Field({ nullable: true, description: 'URL-friendly slug' })
-	@IsOptional()
-	@IsString()
-	@MinLength(2)
-	@MaxLength(250)
-	slug?: string;
 
 	@Field(() => CompanyIndustry, {
 		nullable: true,
