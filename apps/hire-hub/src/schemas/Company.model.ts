@@ -209,10 +209,11 @@ const CompanySchema = new Schema(
 		},
 
 		/**
-	 * Array of recruiter user IDs associated with this company
-	 * @type ObjectId[] - References to User documents
-	 * @indexed For finding companies by recruiter
-	 * @note The owner is typically included in this array
+		 * Array of recruiter user IDs associated with this company
+		 * @type ObjectId[] - References to User documents
+		 * @indexed For finding companies by recruiter
+		 * @note The owner is typically included in this array
+		 */
 		recruiterIds: {
 			type: [Schema.Types.ObjectId],
 			ref: 'User',
@@ -224,7 +225,6 @@ const CompanySchema = new Schema(
 				message: 'A company cannot have more than 100 recruiters',
 			},
 		},
-
 		/**
 		 * Company verification status
 		 * Verified companies get special badges and priority in search results

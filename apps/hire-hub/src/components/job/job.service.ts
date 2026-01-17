@@ -13,11 +13,14 @@ import {
 	ViewGroup,
 	User,
 	UserRole,
+	UnauthorizedException,
+	CompanyNotFoundException,
 } from '../../libs';
 import { ErrorCode, ErrorMessage, BadRequestException } from '../../libs';
 import { ViewService } from '../view/view.service';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { StatsModifier } from '../../libs/interfaces/common';
+import { CompanyService } from '../company/company.service';
 
 /**
  * JobService - Business logic for job management
@@ -34,29 +37,60 @@ export class JobService {
 		@InjectModel('Job')
 		private readonly jobModel: Model<JobOutput>,
 		private readonly viewService: ViewService,
+		private readonly companyService: CompanyService,
 	) {}
 
 	/**
 	 * Create a new job posting
 	 */
 	async createJob(input: CreateJobInput, userId: string): Promise<JobOutput> {
+		const objUserId = shapeIntoMongoObjectId(userId);
 		try {
-			const job = await this.jobModel.create({
-				...input,
-				postedBy: userId,
-				viewsCount: 0,
-				applicationsCount: 0,
-			});
-
-			return this.mapToJobOutput(job);
+			let job;
+			const isOwnerOfCompany = await this.companyService.checkOwnerOfCompany(input.companyId, userId.toString());
+			switch (isOwnerOfCompany) {
+				case false:
+					const isRecruiterOfCompany = await this.companyService.checkRecruiterOfCompany(
+						input.companyId,
+						userId.toString(),
+					);
+					switch (isRecruiterOfCompany) {
+						case true:
+							job = await this.jobModel.create({
+								...input,
+								postedBy: objUserId,
+								viewsCount: 0,
+								applicationsCount: 0,
+							});
+							return this.mapToJobOutput(job);
+						case false:
+							throw new CompanyNotFoundException({
+								message: `Company with ID "${input.companyId}" not found or you are not recruiter of this company`,
+							});
+					}
+				case true:
+					job = await this.jobModel.create({
+						...input,
+						postedBy: objUserId,
+						viewsCount: 0,
+						applicationsCount: 0,
+					});
+					return this.mapToJobOutput(job);
+				default:
+					throw new CompanyNotFoundException({
+						message: `Company with ID "${input.companyId}" not found or you are not owner of this company`,
+					});
+			}
 		} catch (error) {
-			if (error instanceof BadRequestException) {
+			if (error instanceof CompanyNotFoundException) {
 				throw error;
 			}
+			console.log(error);
+
 			throw new BadRequestException('Failed', {
 				code: ErrorCode.BAD_REQUEST,
 				message: 'Failed to create job',
-				details: error.message,
+				details: error.details,
 			});
 		}
 	}
@@ -376,6 +410,12 @@ export class JobService {
 				},
 			},
 		);
+		pipeline.push({
+			$addFields: {
+				companyData: { $arrayElemAt: ['$companyData', 0] },
+				postedByData: { $arrayElemAt: ['$postedByData', 0] },
+			},
+		})
 		const [job] = await this.jobModel.aggregate(pipeline).exec();
 
 		if (!job) {
@@ -399,7 +439,7 @@ export class JobService {
 				[job.viewsCount] = [job.viewsCount + 1];
 			}
 		}
-
+		
 		return this.mapToJobOutput(job);
 	}
 
@@ -564,9 +604,9 @@ export class JobService {
 		return {
 			_id: job._id.toString(),
 			companyId: job.companyId?._id?.toString() || job.companyId?.toString(),
-			companyData: job.companyId?._id ? job.companyData[0] : undefined,
+			companyData: job.companyId?._id && job.companyData ? job.companyData : undefined,
 			postedBy: job.postedBy?._id?.toString() || job.postedBy?.toString(),
-			postedByData: job.postedBy?._id ? job.postedByData[0] : undefined,
+			postedByData: job.postedBy?._id && job.postedByData ? job.postedByData : undefined,
 			title: job.title,
 			description: job.description,
 			shortDescription: job.shortDescription,

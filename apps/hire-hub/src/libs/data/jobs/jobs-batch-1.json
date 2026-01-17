@@ -1,0 +1,1090 @@
+[
+	{
+		"companyId": "507f1f77bcf86cd799439011",
+		"postedBy": "507f1f77bcf86cd799439012",
+		"title": "Senior Full Stack Engineer",
+		"description": "We're seeking an exceptional Senior Full Stack Engineer to join our rapidly growing engineering team. You'll be instrumental in designing and building scalable web applications that serve millions of users worldwide.\n\nAs a key member of our team, you'll work on challenging problems including real-time data processing, microservices architecture, and building intuitive user interfaces. You'll collaborate closely with product managers, designers, and fellow engineers to deliver features that delight our customers.\n\nYou'll have the opportunity to mentor junior developers, participate in architectural decisions, and contribute to our engineering culture. We value innovation, code quality, and continuous learning.",
+		"shortDescription": "Join our team to build scalable web applications using React, Node.js, and cutting-edge technologies.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "SENIOR",
+		"location": {
+			"city": "San Francisco",
+			"region": "California",
+			"country": "United States",
+			"remote": true
+		},
+		"salaryRange": {
+			"min": 150000,
+			"max": 200000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["JavaScript", "React", "Node.js", "TypeScript", "AWS"],
+		"skills": [
+			"React",
+			"Node.js",
+			"TypeScript",
+			"PostgreSQL",
+			"MongoDB",
+			"Docker",
+			"Kubernetes",
+			"GraphQL",
+			"REST APIs",
+			"AWS"
+		],
+		"requirements": [
+			"6+ years of professional software development experience",
+			"Expert-level proficiency in JavaScript/TypeScript",
+			"Strong experience with React and modern frontend frameworks",
+			"Extensive backend development experience with Node.js",
+			"Deep understanding of database design and optimization",
+			"Experience with cloud platforms (AWS, GCP, or Azure)",
+			"Strong problem-solving and analytical skills",
+			"Excellent communication and teamwork abilities",
+			"Bachelor's degree in Computer Science or equivalent experience"
+		],
+		"benefits": [
+			"Competitive salary ($150k-$200k)",
+			"Comprehensive health, dental, and vision insurance",
+			"401(k) with 6% company match",
+			"Unlimited PTO policy",
+			"Flexible remote work arrangement",
+			"$3,000 annual learning and development budget",
+			"Latest MacBook Pro and equipment stipend",
+			"Stock options with early exercise",
+			"Catered lunches and premium snacks",
+			"Gym membership reimbursement",
+			"16 weeks paid parental leave",
+			"Annual company retreat to exotic locations"
+		],
+		"applicationDeadline": "2026-03-30T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	},
+	{
+		"companyId": "507f1f77bcf86cd799439013",
+		"postedBy": "507f1f77bcf86cd799439014",
+		"title": "Machine Learning Engineer",
+		"description": "Are you passionate about artificial intelligence and machine learning? We're looking for a talented ML Engineer to help us build the next generation of intelligent systems.\n\nYou'll work on exciting projects including natural language processing, computer vision, recommendation systems, and predictive analytics. Our team is at the forefront of AI innovation, developing models that power features used by millions of users daily.\n\nThe ideal candidate has a strong foundation in machine learning theory, practical experience deploying models to production, and a passion for staying current with the latest research. You'll have access to significant computational resources and work alongside world-class researchers and engineers.",
+		"shortDescription": "Build cutting-edge ML models and deploy them at scale using TensorFlow, PyTorch, and modern MLOps practices.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "MIDDLE",
+		"location": {
+			"city": "Seattle",
+			"region": "Washington",
+			"country": "United States",
+			"remote": false
+		},
+		"salaryRange": {
+			"min": 140000,
+			"max": 180000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["Machine Learning", "Python", "TensorFlow", "PyTorch", "AI"],
+		"skills": [
+			"Python",
+			"TensorFlow",
+			"PyTorch",
+			"Scikit-learn",
+			"NumPy",
+			"Pandas",
+			"Docker",
+			"Kubernetes",
+			"SQL",
+			"AWS SageMaker"
+		],
+		"requirements": [
+			"Master's degree in Computer Science, Statistics, or related field",
+			"4+ years of experience in machine learning engineering",
+			"Strong programming skills in Python",
+			"Experience with deep learning frameworks (TensorFlow/PyTorch)",
+			"Proven track record of deploying ML models to production",
+			"Understanding of MLOps best practices",
+			"Experience with cloud ML platforms",
+			"Strong mathematical and statistical background",
+			"Excellent problem-solving abilities"
+		],
+		"benefits": [
+			"Competitive salary and equity package",
+			"Premium health insurance with zero employee cost",
+			"401(k) matching up to 8%",
+			"25 days PTO plus company holidays",
+			"Hybrid work model (3 days office, 2 days remote)",
+			"Professional development budget",
+			"Conference attendance sponsorship",
+			"State-of-the-art GPU workstations",
+			"Relocation assistance available",
+			"Pet-friendly office",
+			"Daily catered meals"
+		],
+		"applicationDeadline": "2026-04-15T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	},
+	{
+		"companyId": "507f1f77bcf86cd799439015",
+		"postedBy": "507f1f77bcf86cd799439016",
+		"title": "DevOps Engineer - Cloud Infrastructure",
+		"description": "We're seeking a skilled DevOps Engineer to join our infrastructure team and help us scale our cloud platform. You'll be responsible for designing, implementing, and maintaining our cloud infrastructure across multiple environments.\n\nIn this role, you'll work with cutting-edge technologies including Kubernetes, Terraform, and CI/CD pipelines. You'll collaborate with development teams to improve deployment processes, ensure high availability, and optimize infrastructure costs.\n\nThe ideal candidate is passionate about automation, has strong Linux skills, and thrives in a fast-paced environment. You'll have the opportunity to work on challenging problems at scale and make a significant impact on our engineering productivity.",
+		"shortDescription": "Architect and maintain cloud infrastructure using Kubernetes, Terraform, and modern DevOps tools.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "SENIOR",
+		"location": {
+			"city": "Austin",
+			"region": "Texas",
+			"country": "United States",
+			"remote": true
+		},
+		"salaryRange": {
+			"min": 130000,
+			"max": 170000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["DevOps", "Kubernetes", "AWS", "Terraform", "CI/CD"],
+		"skills": [
+			"Kubernetes",
+			"Docker",
+			"Terraform",
+			"AWS",
+			"Jenkins",
+			"GitLab CI",
+			"Ansible",
+			"Python",
+			"Bash",
+			"Monitoring"
+		],
+		"requirements": [
+			"5+ years of DevOps/SRE experience",
+			"Expert knowledge of Kubernetes and container orchestration",
+			"Strong experience with Infrastructure as Code (Terraform/CloudFormation)",
+			"Proficiency with AWS or other major cloud platforms",
+			"Experience building and maintaining CI/CD pipelines",
+			"Strong Linux system administration skills",
+			"Scripting experience (Python, Bash, Go)",
+			"Understanding of networking and security best practices",
+			"Bachelor's degree in Computer Science or equivalent"
+		],
+		"benefits": [
+			"Competitive compensation package",
+			"Comprehensive health benefits",
+			"401(k) with employer matching",
+			"Unlimited vacation policy",
+			"100% remote work flexibility",
+			"Home office setup budget ($2,000)",
+			"Professional certification reimbursement",
+			"Latest equipment and tools",
+			"Annual tech conference attendance",
+			"Team offsites and events",
+			"Wellness stipend"
+		],
+		"applicationDeadline": "2026-04-20T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	},
+	{
+		"companyId": "507f1f77bcf86cd799439017",
+		"postedBy": "507f1f77bcf86cd799439018",
+		"title": "Mobile Developer - iOS/Android",
+		"description": "Join our mobile team to create beautiful, performant mobile applications that millions of users love. We're looking for an experienced mobile developer who can work across both iOS and Android platforms.\n\nYou'll be responsible for building new features, improving app performance, and ensuring a seamless user experience. Our mobile apps are critical to our business, and you'll have the opportunity to work on high-impact projects that directly affect user engagement and satisfaction.\n\nWe value clean code, thorough testing, and attention to detail. You'll collaborate with designers, backend engineers, and product managers to deliver polished mobile experiences.",
+		"shortDescription": "Develop cross-platform mobile applications using React Native or native iOS/Android technologies.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "MIDDLE",
+		"location": {
+			"city": "New York",
+			"region": "New York",
+			"country": "United States",
+			"remote": false
+		},
+		"salaryRange": {
+			"min": 120000,
+			"max": 160000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["Mobile", "iOS", "Android", "React Native", "Swift"],
+		"skills": ["Swift", "Kotlin", "React Native", "iOS SDK", "Android SDK", "RESTful APIs", "Git", "UI/UX", "Testing"],
+		"requirements": [
+			"4+ years of mobile development experience",
+			"Strong proficiency in Swift and/or Kotlin",
+			"Experience with React Native or Flutter",
+			"Deep understanding of mobile UI/UX best practices",
+			"Experience with RESTful APIs and mobile networking",
+			"Familiarity with mobile CI/CD pipelines",
+			"Strong debugging and optimization skills",
+			"Published apps on App Store and/or Google Play",
+			"Excellent communication skills"
+		],
+		"benefits": [
+			"Competitive salary and equity",
+			"Premium healthcare coverage",
+			"401(k) retirement plan",
+			"20 days vacation plus holidays",
+			"Commuter benefits",
+			"Professional development allowance",
+			"Latest iPhone and Android devices for testing",
+			"Team lunch budget",
+			"Office in prime Manhattan location",
+			"Fitness center access",
+			"Paid parental leave"
+		],
+		"applicationDeadline": "2026-04-10T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	},
+	{
+		"companyId": "507f1f77bcf86cd799439019",
+		"postedBy": "507f1f77bcf86cd799439020",
+		"title": "Frontend Developer - React Specialist",
+		"description": "We're looking for a passionate Frontend Developer with deep React expertise to join our UI engineering team. You'll build responsive, accessible, and performant web applications that provide exceptional user experiences.\n\nIn this role, you'll work closely with designers to implement pixel-perfect interfaces, collaborate with backend engineers to integrate APIs, and optimize application performance. You'll have the opportunity to influence our component library, establish best practices, and mentor other developers.\n\nThe ideal candidate has a strong eye for design, deep understanding of modern JavaScript, and experience building complex single-page applications. You should be comfortable working in a fast-paced environment and excited about staying current with the latest frontend technologies.",
+		"shortDescription": "Build modern, responsive web applications using React, TypeScript, and cutting-edge frontend tools.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "MIDDLE",
+		"location": {
+			"city": "Boston",
+			"region": "Massachusetts",
+			"country": "United States",
+			"remote": true
+		},
+		"salaryRange": {
+			"min": 110000,
+			"max": 145000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["React", "JavaScript", "TypeScript", "CSS", "Frontend"],
+		"skills": ["React", "TypeScript", "JavaScript", "HTML5", "CSS3", "Redux", "Next.js", "Webpack", "Jest", "Cypress"],
+		"requirements": [
+			"3+ years of frontend development experience",
+			"Expert-level React knowledge",
+			"Strong TypeScript skills",
+			"Experience with state management (Redux, MobX, etc.)",
+			"Proficiency in modern CSS and responsive design",
+			"Understanding of web performance optimization",
+			"Experience with testing frameworks",
+			"Familiarity with accessibility standards (WCAG)",
+			"Strong attention to detail"
+		],
+		"benefits": [
+			"Competitive salary package",
+			"Health, dental, vision insurance",
+			"401(k) with 4% match",
+			"Flexible work schedule",
+			"Remote-first culture",
+			"Learning budget for courses and books",
+			"Conference attendance opportunities",
+			"Modern development tools and equipment",
+			"Monthly team activities",
+			"Wellness program",
+			"Paid sabbatical after 5 years"
+		],
+		"applicationDeadline": "2026-04-25T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	},
+	{
+		"companyId": "507f1f77bcf86cd799439021",
+		"postedBy": "507f1f77bcf86cd799439022",
+		"title": "Data Engineer - Big Data Platform",
+		"description": "Join our data engineering team to build and maintain large-scale data infrastructure. We're looking for an experienced Data Engineer who can design robust data pipelines, optimize query performance, and ensure data quality across our platform.\n\nYou'll work with petabytes of data, building systems that power analytics, machine learning, and business intelligence applications. You'll use technologies like Spark, Kafka, Airflow, and modern data warehousing solutions.\n\nThe ideal candidate has strong programming skills, deep understanding of distributed systems, and experience with both batch and streaming data processing. You'll collaborate with data scientists, analysts, and engineers to enable data-driven decision making across the organization.",
+		"shortDescription": "Design and build scalable data pipelines using Spark, Kafka, and modern data engineering tools.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "SENIOR",
+		"location": {
+			"city": "Chicago",
+			"region": "Illinois",
+			"country": "United States",
+			"remote": false
+		},
+		"salaryRange": {
+			"min": 140000,
+			"max": 180000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["Data Engineering", "Spark", "Kafka", "Python", "SQL"],
+		"skills": [
+			"Apache Spark",
+			"Kafka",
+			"Python",
+			"SQL",
+			"Airflow",
+			"Hadoop",
+			"AWS",
+			"Snowflake",
+			"ETL",
+			"Data Modeling"
+		],
+		"requirements": [
+			"5+ years of data engineering experience",
+			"Strong programming skills in Python and/or Scala",
+			"Expert SQL knowledge and database optimization skills",
+			"Experience with distributed data processing (Spark, Hadoop)",
+			"Proficiency with streaming platforms (Kafka, Kinesis)",
+			"Experience with workflow orchestration tools (Airflow)",
+			"Understanding of data warehousing concepts",
+			"Strong problem-solving abilities",
+			"Master's degree in Computer Science or related field preferred"
+		],
+		"benefits": [
+			"Competitive compensation and bonuses",
+			"Comprehensive healthcare benefits",
+			"Generous 401(k) matching",
+			"25 days PTO annually",
+			"Hybrid work arrangement",
+			"Professional development budget",
+			"Tuition reimbursement program",
+			"Downtown Chicago office with great amenities",
+			"Commuter benefits",
+			"Gym membership",
+			"Regular team events",
+			"Parental leave"
+		],
+		"applicationDeadline": "2026-05-01T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	},
+	{
+		"companyId": "507f1f77bcf86cd799439023",
+		"postedBy": "507f1f77bcf86cd799439024",
+		"title": "Product Manager - Technical",
+		"description": "We're seeking an exceptional Technical Product Manager to drive the vision and execution of our core products. You'll work at the intersection of technology, business, and user experience to deliver products that customers love.\n\nIn this role, you'll define product strategy, prioritize features, and collaborate with engineering, design, and business stakeholders. You'll use data and customer feedback to make informed decisions and ensure we're building the right things at the right time.\n\nThe ideal candidate has a technical background, strong analytical skills, and excellent communication abilities. You should be comfortable diving into technical details while also thinking strategically about business impact and user needs.",
+		"shortDescription": "Lead product strategy and execution for our core platform, working closely with engineering and design teams.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "MANAGER",
+		"location": {
+			"city": "Los Angeles",
+			"region": "California",
+			"country": "United States",
+			"remote": true
+		},
+		"salaryRange": {
+			"min": 150000,
+			"max": 190000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["Product Management", "Technical", "Strategy", "Leadership"],
+		"skills": [
+			"Product Strategy",
+			"Agile",
+			"SQL",
+			"Analytics",
+			"User Research",
+			"Roadmapping",
+			"Stakeholder Management",
+			"Technical Writing"
+		],
+		"requirements": [
+			"5+ years of product management experience",
+			"Technical background (CS degree or engineering experience)",
+			"Strong analytical and data-driven decision making skills",
+			"Experience with Agile development methodologies",
+			"Excellent written and verbal communication skills",
+			"Proven track record of shipping successful products",
+			"Experience with analytics tools and SQL",
+			"Strong leadership and collaboration abilities",
+			"MBA or equivalent experience preferred"
+		],
+		"benefits": [
+			"Competitive salary and equity package",
+			"Premium health insurance",
+			"401(k) with generous matching",
+			"Unlimited PTO",
+			"Fully remote or hybrid options",
+			"Home office stipend",
+			"Executive coaching opportunities",
+			"Conference and training budget",
+			"Company offsites",
+			"Parental leave",
+			"Mental health support"
+		],
+		"applicationDeadline": "2026-04-30T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	},
+	{
+		"companyId": "507f1f77bcf86cd799439025",
+		"postedBy": "507f1f77bcf86cd799439026",
+		"title": "Backend Engineer - Golang",
+		"description": "We're looking for a talented Backend Engineer with strong Go (Golang) experience to join our platform team. You'll build high-performance, scalable backend services that power our application.\n\nYou'll work on microservices architecture, API design, database optimization, and distributed systems. Our backend handles millions of requests per day, and you'll have the opportunity to work on performance-critical systems that require careful design and optimization.\n\nThe ideal candidate is passionate about writing clean, efficient code and has experience building production systems at scale. You should be comfortable working independently, making technical decisions, and collaborating with cross-functional teams.",
+		"shortDescription": "Build high-performance backend services and APIs using Golang, PostgreSQL, and microservices architecture.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "MIDDLE",
+		"location": {
+			"city": "Denver",
+			"region": "Colorado",
+			"country": "United States",
+			"remote": true
+		},
+		"salaryRange": {
+			"min": 125000,
+			"max": 160000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["Golang", "Backend", "Microservices", "API", "PostgreSQL"],
+		"skills": ["Go", "PostgreSQL", "Redis", "Docker", "Kubernetes", "gRPC", "REST APIs", "Git", "Linux"],
+		"requirements": [
+			"4+ years of backend development experience",
+			"Strong proficiency in Go (Golang)",
+			"Experience with relational databases (PostgreSQL, MySQL)",
+			"Understanding of microservices architecture",
+			"Experience with RESTful and/or gRPC APIs",
+			"Knowledge of containerization and orchestration",
+			"Strong understanding of data structures and algorithms",
+			"Experience with version control (Git)",
+			"Bachelor's degree in Computer Science or related field"
+		],
+		"benefits": [
+			"Competitive salary",
+			"Comprehensive health benefits",
+			"401(k) matching",
+			"Flexible PTO policy",
+			"Remote-first company",
+			"Annual retreat to mountain destinations",
+			"Learning and development budget",
+			"Latest tech equipment",
+			"Stock options",
+			"Wellness allowance",
+			"Parental leave"
+		],
+		"applicationDeadline": "2026-05-05T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	},
+	{
+		"companyId": "507f1f77bcf86cd799439027",
+		"postedBy": "507f1f77bcf86cd799439028",
+		"title": "Security Engineer - Application Security",
+		"description": "Join our security team to protect our applications and infrastructure from evolving threats. We're seeking a Security Engineer specializing in application security to help us build secure systems from the ground up.\n\nYou'll conduct security assessments, perform code reviews, develop security tooling, and work with engineering teams to remediate vulnerabilities. You'll also contribute to our security training program and help establish security best practices across the organization.\n\nThe ideal candidate has both offensive and defensive security skills, strong programming abilities, and a passion for staying ahead of emerging threats. You'll have the opportunity to work on challenging security problems and make a significant impact on our security posture.",
+		"shortDescription": "Ensure application security through code reviews, penetration testing, and security tool development.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "SENIOR",
+		"location": {
+			"city": "Washington",
+			"region": "District of Columbia",
+			"country": "United States",
+			"remote": false
+		},
+		"salaryRange": {
+			"min": 155000,
+			"max": 195000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["Security", "AppSec", "Penetration Testing", "Python", "OWASP"],
+		"skills": [
+			"Application Security",
+			"Penetration Testing",
+			"Python",
+			"OWASP",
+			"Security Tools",
+			"Code Review",
+			"Threat Modeling",
+			"Cryptography"
+		],
+		"requirements": [
+			"5+ years of information security experience",
+			"Strong application security expertise",
+			"Experience with secure code review",
+			"Proficiency in at least one programming language (Python, Go, Java)",
+			"Knowledge of common vulnerabilities (OWASP Top 10)",
+			"Experience with security testing tools (Burp Suite, OWASP ZAP)",
+			"Understanding of cryptography and secure communication",
+			"Security certifications (CISSP, CEH, OSCP) preferred",
+			"Excellent communication skills"
+		],
+		"benefits": [
+			"Competitive salary and performance bonuses",
+			"Premium healthcare coverage",
+			"401(k) with 7% match",
+			"30 days PTO",
+			"Security conference attendance",
+			"Certification and training support",
+			"Research time for security projects",
+			"Bug bounty participation",
+			"Relocation assistance",
+			"Transit benefits",
+			"Paid sabbatical"
+		],
+		"applicationDeadline": "2026-05-10T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	},
+	{
+		"companyId": "507f1f77bcf86cd799439029",
+		"postedBy": "507f1f77bcf86cd799439030",
+		"title": "UX/UI Designer - Product Design",
+		"description": "We're looking for a creative and user-focused Product Designer to join our design team. You'll be responsible for designing intuitive, beautiful interfaces that solve real user problems and delight our customers.\n\nYou'll work on the entire design process from user research and wireframing to high-fidelity mockups and prototypes. You'll collaborate closely with product managers, engineers, and other designers to bring ideas to life.\n\nThe ideal candidate has a strong portfolio demonstrating excellent visual design skills, deep understanding of user-centered design principles, and experience designing for web and mobile platforms. You should be comfortable presenting your work, receiving feedback, and iterating based on user insights.",
+		"shortDescription": "Design exceptional user experiences for our web and mobile products using Figma and user-centered design principles.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "MIDDLE",
+		"location": {
+			"city": "Portland",
+			"region": "Oregon",
+			"country": "United States",
+			"remote": true
+		},
+		"salaryRange": {
+			"min": 105000,
+			"max": 140000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["UX", "UI", "Design", "Figma", "User Research"],
+		"skills": [
+			"Figma",
+			"Sketch",
+			"Adobe XD",
+			"Prototyping",
+			"User Research",
+			"Wireframing",
+			"Visual Design",
+			"Interaction Design",
+			"Design Systems"
+		],
+		"requirements": [
+			"4+ years of product design experience",
+			"Strong portfolio showcasing UX/UI work",
+			"Expert proficiency in Figma or similar design tools",
+			"Experience with user research methodologies",
+			"Understanding of responsive and adaptive design",
+			"Knowledge of accessibility standards",
+			"Strong communication and presentation skills",
+			"Experience working in Agile environments",
+			"Bachelor's degree in Design, HCI, or related field"
+		],
+		"benefits": [
+			"Competitive salary",
+			"Health, dental, and vision insurance",
+			"401(k) retirement plan",
+			"Unlimited PTO",
+			"Remote work flexibility",
+			"Design tool subscriptions",
+			"Conference attendance",
+			"Professional development budget",
+			"Team design sprints",
+			"Creative workspace",
+			"Wellness stipend"
+		],
+		"applicationDeadline": "2026-05-15T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	},
+	{
+		"companyId": "507f1f77bcf86cd799439031",
+		"postedBy": "507f1f77bcf86cd799439032",
+		"title": "Site Reliability Engineer (SRE)",
+		"description": "We're seeking an experienced Site Reliability Engineer to ensure the reliability, scalability, and performance of our production systems. You'll be responsible for maintaining high availability, monitoring system health, and responding to incidents.\n\nYou'll work on capacity planning, performance optimization, and building automation to reduce toil. You'll collaborate with development teams to improve system reliability and help them adopt SRE best practices.\n\nThe ideal candidate has strong software engineering skills, deep system administration knowledge, and experience running large-scale production systems. You should be comfortable being on-call and thrive under pressure when responding to incidents.",
+		"shortDescription": "Ensure system reliability and performance through monitoring, automation, and incident response.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "SENIOR",
+		"location": {
+			"city": "Atlanta",
+			"region": "Georgia",
+			"country": "United States",
+			"remote": false
+		},
+		"salaryRange": {
+			"min": 145000,
+			"max": 185000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["SRE", "DevOps", "Monitoring", "Kubernetes", "Python"],
+		"skills": [
+			"Kubernetes",
+			"Docker",
+			"Python",
+			"Prometheus",
+			"Grafana",
+			"Linux",
+			"Terraform",
+			"Ansible",
+			"AWS",
+			"Incident Management"
+		],
+		"requirements": [
+			"5+ years of SRE or similar experience",
+			"Strong programming skills (Python, Go, or similar)",
+			"Deep Linux system administration expertise",
+			"Experience with container orchestration (Kubernetes)",
+			"Proficiency with monitoring and alerting systems",
+			"Strong incident response and troubleshooting skills",
+			"Experience with infrastructure as code",
+			"Understanding of distributed systems",
+			"On-call experience required"
+		],
+		"benefits": [
+			"Competitive salary and equity",
+			"Premium healthcare benefits",
+			"401(k) with matching",
+			"25 days PTO",
+			"On-call compensation",
+			"Professional certification support",
+			"Conference budget",
+			"Latest equipment and tools",
+			"Hybrid work schedule",
+			"Gym membership",
+			"Commuter benefits",
+			"Parental leave"
+		],
+		"applicationDeadline": "2026-05-20T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	},
+	{
+		"companyId": "507f1f77bcf86cd799439033",
+		"postedBy": "507f1f77bcf86cd799439034",
+		"title": "QA Engineer - Automation",
+		"description": "Join our quality engineering team to ensure we deliver high-quality software to our users. We're looking for a QA Engineer with strong automation skills to build and maintain our test infrastructure.\n\nYou'll design and implement automated tests, develop testing frameworks, and work closely with developers to catch bugs early in the development cycle. You'll also help establish quality standards and best practices across the organization.\n\nThe ideal candidate has a strong technical background, experience with modern testing frameworks, and a passion for software quality. You should be detail-oriented, have excellent problem-solving skills, and be comfortable working in a fast-paced agile environment.",
+		"shortDescription": "Build automated test frameworks and ensure software quality using Selenium, Cypress, and modern testing tools.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "MIDDLE",
+		"location": {
+			"city": "Phoenix",
+			"region": "Arizona",
+			"country": "United States",
+			"remote": true
+		},
+		"salaryRange": {
+			"min": 95000,
+			"max": 130000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["QA", "Automation", "Testing", "Selenium", "Cypress"],
+		"skills": ["Selenium", "Cypress", "Jest", "Python", "JavaScript", "API Testing", "CI/CD", "Test Planning", "Agile"],
+		"requirements": [
+			"3+ years of QA engineering experience",
+			"Strong test automation skills",
+			"Experience with Selenium and/or Cypress",
+			"Proficiency in at least one programming language",
+			"Understanding of API testing",
+			"Experience with CI/CD pipelines",
+			"Knowledge of Agile methodologies",
+			"Strong analytical and debugging skills",
+			"Excellent attention to detail"
+		],
+		"benefits": [
+			"Competitive salary",
+			"Health and wellness benefits",
+			"401(k) plan",
+			"Flexible work hours",
+			"Remote work options",
+			"Professional development opportunities",
+			"Testing tool subscriptions",
+			"Team building events",
+			"PTO and holidays",
+			"Equipment allowance",
+			"Mental health resources"
+		],
+		"applicationDeadline": "2026-06-01T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	},
+	{
+		"companyId": "507f1f77bcf86cd799439035",
+		"postedBy": "507f1f77bcf86cd799439036",
+		"title": "Engineering Manager - Platform Team",
+		"description": "We're seeking an experienced Engineering Manager to lead our platform engineering team. You'll be responsible for building and mentoring a high-performing team while contributing to technical strategy and architecture decisions.\n\nYou'll manage 6-8 engineers, conduct 1-on-1s, facilitate career development, and ensure the team delivers high-quality work on time. You'll also collaborate with product management and other engineering leaders to define roadmaps and priorities.\n\nThe ideal candidate has a strong technical background, proven people management experience, and excellent communication skills. You should be passionate about helping engineers grow their careers while maintaining technical excellence.",
+		"shortDescription": "Lead and mentor a platform engineering team while contributing to technical strategy and architecture.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "MANAGER",
+		"location": {
+			"city": "San Diego",
+			"region": "California",
+			"country": "United States",
+			"remote": false
+		},
+		"salaryRange": {
+			"min": 170000,
+			"max": 210000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["Management", "Leadership", "Platform", "Engineering"],
+		"skills": [
+			"People Management",
+			"Technical Leadership",
+			"Agile",
+			"Architecture",
+			"Mentoring",
+			"Strategic Planning",
+			"Communication"
+		],
+		"requirements": [
+			"7+ years of software engineering experience",
+			"3+ years of people management experience",
+			"Strong technical background in backend/platform engineering",
+			"Experience managing teams of 5+ engineers",
+			"Proven track record of delivering complex projects",
+			"Excellent communication and interpersonal skills",
+			"Experience with Agile methodologies",
+			"Strong decision-making abilities",
+			"Bachelor's degree in Computer Science or equivalent"
+		],
+		"benefits": [
+			"Competitive salary and equity package",
+			"Executive health insurance",
+			"401(k) with generous matching",
+			"30 days PTO",
+			"Leadership development programs",
+			"Executive coaching",
+			"Conference attendance",
+			"Relocation assistance",
+			"Flexible schedule",
+			"Team offsite budget",
+			"Parental leave",
+			"Sabbatical program"
+		],
+		"applicationDeadline": "2026-06-10T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	},
+	{
+		"companyId": "507f1f77bcf86cd799439037",
+		"postedBy": "507f1f77bcf86cd799439038",
+		"title": "Data Scientist - Analytics",
+		"description": "We're looking for a talented Data Scientist to join our analytics team and help us make data-driven decisions. You'll analyze complex datasets, build predictive models, and communicate insights to stakeholders across the organization.\n\nYou'll work on a variety of projects including customer behavior analysis, churn prediction, recommendation systems, and A/B testing. You'll use statistical methods, machine learning techniques, and data visualization to uncover actionable insights.\n\nThe ideal candidate has strong statistical knowledge, programming skills, and the ability to translate complex analyses into clear business recommendations. You should be curious, analytical, and passionate about using data to solve problems.",
+		"shortDescription": "Analyze data and build models to drive business decisions using Python, SQL, and statistical methods.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "MIDDLE",
+		"location": {
+			"city": "Minneapolis",
+			"region": "Minnesota",
+			"country": "United States",
+			"remote": true
+		},
+		"salaryRange": {
+			"min": 115000,
+			"max": 150000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["Data Science", "Analytics", "Python", "Statistics", "ML"],
+		"skills": [
+			"Python",
+			"R",
+			"SQL",
+			"Pandas",
+			"NumPy",
+			"Scikit-learn",
+			"Statistics",
+			"Data Visualization",
+			"Tableau",
+			"A/B Testing"
+		],
+		"requirements": [
+			"Master's degree in Statistics, Mathematics, or related field",
+			"3+ years of data science experience",
+			"Strong programming skills in Python or R",
+			"Expert SQL knowledge",
+			"Solid understanding of statistical methods",
+			"Experience with machine learning algorithms",
+			"Strong data visualization skills",
+			"Excellent communication abilities",
+			"Experience with A/B testing preferred"
+		],
+		"benefits": [
+			"Competitive salary and bonuses",
+			"Comprehensive health benefits",
+			"401(k) matching",
+			"Flexible PTO",
+			"Remote work flexibility",
+			"Learning budget for courses",
+			"Conference attendance",
+			"Latest data science tools",
+			"Collaborative workspace",
+			"Wellness program",
+			"Parental leave"
+		],
+		"applicationDeadline": "2026-06-15T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	},
+	{
+		"companyId": "507f1f77bcf86cd799439039",
+		"postedBy": "507f1f77bcf86cd799439040",
+		"title": "Technical Writer - Developer Documentation",
+		"description": "We're seeking a talented Technical Writer to create comprehensive documentation for our developer platform. You'll work closely with engineers to document APIs, SDKs, and technical concepts in a clear, accessible manner.\n\nYou'll be responsible for writing tutorials, API references, guides, and code samples. You'll also improve our documentation processes and tools, ensuring our docs stay up-to-date and useful for developers.\n\nThe ideal candidate has technical writing experience, understanding of software development concepts, and the ability to explain complex topics simply. You should be detail-oriented, organized, and passionate about helping developers succeed.",
+		"shortDescription": "Create clear, comprehensive developer documentation for APIs, SDKs, and technical platforms.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "MIDDLE",
+		"location": {
+			"city": "Raleigh",
+			"region": "North Carolina",
+			"country": "United States",
+			"remote": true
+		},
+		"salaryRange": {
+			"min": 85000,
+			"max": 115000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["Technical Writing", "Documentation", "Developer Experience", "API"],
+		"skills": [
+			"Technical Writing",
+			"API Documentation",
+			"Markdown",
+			"Git",
+			"REST APIs",
+			"Code Samples",
+			"Information Architecture"
+		],
+		"requirements": [
+			"3+ years of technical writing experience",
+			"Strong understanding of software development concepts",
+			"Experience documenting APIs and SDKs",
+			"Proficiency with documentation tools (Markdown, Git)",
+			"Ability to write clear, concise technical content",
+			"Basic programming knowledge (any language)",
+			"Strong editing and proofreading skills",
+			"Excellent organizational abilities",
+			"Bachelor's degree in Technical Communication or related field"
+		],
+		"benefits": [
+			"Competitive salary",
+			"Health insurance",
+			"401(k) plan",
+			"Generous PTO",
+			"100% remote work",
+			"Home office setup budget",
+			"Professional development",
+			"Writing tools and resources",
+			"Flexible schedule",
+			"Team meetups",
+			"Wellness stipend"
+		],
+		"applicationDeadline": "2026-06-20T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	},
+	{
+		"companyId": "507f1f77bcf86cd799439041",
+		"postedBy": "507f1f77bcf86cd799439042",
+		"title": "Solutions Architect - Enterprise",
+		"description": "We're looking for an experienced Solutions Architect to work with our enterprise customers, helping them design and implement solutions using our platform. You'll be the technical expert guiding customers through complex architectural decisions.\n\nYou'll conduct technical discovery sessions, create solution designs, provide best practices guidance, and work with our engineering team to address customer needs. You'll also contribute to reference architectures and technical content.\n\nThe ideal candidate has deep technical expertise, excellent communication skills, and experience working with enterprise customers. You should be comfortable presenting to technical and non-technical audiences and building trusted relationships with customers.",
+		"shortDescription": "Guide enterprise customers through technical implementations and architectural decisions for our platform.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "SENIOR",
+		"location": {
+			"city": "Dallas",
+			"region": "Texas",
+			"country": "United States",
+			"remote": false
+		},
+		"salaryRange": {
+			"min": 160000,
+			"max": 200000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["Solutions Architecture", "Enterprise", "Cloud", "Consulting"],
+		"skills": [
+			"Solution Architecture",
+			"Cloud Platforms",
+			"System Design",
+			"Enterprise Architecture",
+			"Presentation Skills",
+			"Technical Consulting"
+		],
+		"requirements": [
+			"8+ years of software architecture experience",
+			"Strong knowledge of cloud platforms (AWS, Azure, GCP)",
+			"Experience with enterprise integration patterns",
+			"Excellent presentation and communication skills",
+			"Experience in pre-sales or customer-facing roles",
+			"Understanding of security and compliance requirements",
+			"Architecture certifications preferred",
+			"Willingness to travel (30-40%)",
+			"Bachelor's degree in Computer Science or related field"
+		],
+		"benefits": [
+			"Competitive salary and commission",
+			"Premium healthcare coverage",
+			"401(k) with matching",
+			"Flexible PTO",
+			"Travel perks and rewards",
+			"Professional certification support",
+			"Home office stipend",
+			"Company car allowance",
+			"Conference attendance",
+			"Executive benefits",
+			"Stock options"
+		],
+		"applicationDeadline": "2026-07-01T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	},
+	{
+		"companyId": "507f1f77bcf86cd799439043",
+		"postedBy": "507f1f77bcf86cd799439044",
+		"title": "Blockchain Developer - Web3",
+		"description": "Join our Web3 team to build decentralized applications and smart contracts on blockchain platforms. We're looking for a talented Blockchain Developer with experience in Solidity and Ethereum development.\n\nYou'll design and implement smart contracts, build dApps, and integrate blockchain technology into our platform. You'll work on exciting projects in DeFi, NFTs, and decentralized identity.\n\nThe ideal candidate has strong programming skills, understanding of blockchain fundamentals, and experience deploying smart contracts to mainnet. You should be passionate about decentralization and the future of Web3.",
+		"shortDescription": "Develop smart contracts and dApps using Solidity, Ethereum, and Web3 technologies.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "MIDDLE",
+		"location": {
+			"city": "Miami",
+			"region": "Florida",
+			"country": "United States",
+			"remote": true
+		},
+		"salaryRange": {
+			"min": 130000,
+			"max": 170000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["Blockchain", "Web3", "Solidity", "Ethereum", "Smart Contracts"],
+		"skills": [
+			"Solidity",
+			"Ethereum",
+			"Web3.js",
+			"Hardhat",
+			"Truffle",
+			"JavaScript",
+			"React",
+			"IPFS",
+			"Security Auditing"
+		],
+		"requirements": [
+			"3+ years of software development experience",
+			"2+ years of blockchain development experience",
+			"Strong Solidity programming skills",
+			"Experience deploying smart contracts to mainnet",
+			"Understanding of gas optimization",
+			"Knowledge of security best practices",
+			"Experience with Web3 libraries and tools",
+			"Familiarity with DeFi protocols",
+			"Strong problem-solving abilities"
+		],
+		"benefits": [
+			"Competitive salary and crypto token allocation",
+			"Health insurance",
+			"401(k) plan",
+			"Unlimited PTO",
+			"Remote work flexibility",
+			"Blockchain conference attendance",
+			"Learning budget for Web3 courses",
+			"Latest development equipment",
+			"Token rewards program",
+			"Annual company retreat",
+			"Wellness benefits"
+		],
+		"applicationDeadline": "2026-07-10T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	},
+	{
+		"companyId": "507f1f77bcf86cd799439045",
+		"postedBy": "507f1f77bcf86cd799439046",
+		"title": "Junior Software Engineer - Full Stack",
+		"description": "We're looking for passionate Junior Software Engineers to join our growing engineering team. This is an excellent opportunity for early-career developers to learn from experienced engineers and work on real-world projects.\n\nYou'll work on both frontend and backend tasks, participate in code reviews, and gradually take on more responsibility as you grow. You'll receive mentorship from senior engineers and have opportunities to work with modern technologies and best practices.\n\nThe ideal candidate has a strong foundation in computer science fundamentals, some practical experience (through internships, bootcamps, or personal projects), and eagerness to learn. We value curiosity, problem-solving abilities, and good communication skills.",
+		"shortDescription": "Start your career building web applications with mentorship from experienced engineers.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "ENTRY",
+		"location": {
+			"city": "Salt Lake City",
+			"region": "Utah",
+			"country": "United States",
+			"remote": false
+		},
+		"salaryRange": {
+			"min": 75000,
+			"max": 95000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["Junior", "Full Stack", "JavaScript", "React", "Node.js"],
+		"skills": ["JavaScript", "HTML", "CSS", "React", "Node.js", "SQL", "Git", "REST APIs"],
+		"requirements": [
+			"Bachelor's degree in Computer Science or related field, or equivalent bootcamp/self-taught experience",
+			"0-2 years of professional experience",
+			"Understanding of JavaScript and web fundamentals",
+			"Basic knowledge of React or similar framework",
+			"Familiarity with Git and version control",
+			"Strong problem-solving skills",
+			"Good communication abilities",
+			"Eagerness to learn and grow",
+			"Portfolio or GitHub profile showcasing personal projects"
+		],
+		"benefits": [
+			"Competitive entry-level salary",
+			"Health and dental insurance",
+			"401(k) plan",
+			"15 days PTO",
+			"Mentorship program",
+			"Learning budget for courses and books",
+			"Latest development equipment",
+			"Casual work environment",
+			"Team lunches and activities",
+			"Career growth opportunities",
+			"Gym membership"
+		],
+		"applicationDeadline": "2026-07-15T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	},
+	{
+		"companyId": "507f1f77bcf86cd799439047",
+		"postedBy": "507f1f77bcf86cd799439048",
+		"title": "Staff Engineer - Distinguished Technical Leader",
+		"description": "We're seeking an exceptional Staff Engineer to provide technical leadership across our engineering organization. You'll work on the most complex technical challenges, drive architectural decisions, and mentor engineers at all levels.\n\nYou'll influence technical strategy, establish best practices, and serve as a technical authority across multiple teams. You'll tackle problems that require deep technical expertise and have significant business impact.\n\nThe ideal candidate has extensive experience building large-scale systems, proven technical leadership abilities, and a track record of delivering high-impact projects. You should excel at both hands-on technical work and strategic thinking.",
+		"shortDescription": "Provide technical leadership and drive architectural decisions across the entire engineering organization.",
+		"employmentType": "FULL_TIME",
+		"seniorityLevel": "LEAD",
+		"location": {
+			"city": "San Francisco",
+			"region": "California",
+			"country": "United States",
+			"remote": false
+		},
+		"salaryRange": {
+			"min": 220000,
+			"max": 280000,
+			"currency": "USD",
+			"visibility": "PUBLIC"
+		},
+		"tags": ["Staff Engineer", "Leadership", "Architecture", "Technical Strategy"],
+		"skills": [
+			"System Architecture",
+			"Technical Leadership",
+			"Multiple Programming Languages",
+			"Distributed Systems",
+			"Scalability",
+			"Mentoring"
+		],
+		"requirements": [
+			"12+ years of software engineering experience",
+			"Proven track record of technical leadership",
+			"Expert-level knowledge in multiple technical domains",
+			"Experience architecting large-scale distributed systems",
+			"Strong communication and influence skills",
+			"History of mentoring senior engineers",
+			"Experience driving technical strategy",
+			"Advanced degree preferred",
+			"Open source contributions a plus"
+		],
+		"benefits": [
+			"Top-tier compensation and equity",
+			"Executive health benefits",
+			"Generous 401(k) matching",
+			"Unlimited PTO",
+			"Significant influence on technical direction",
+			"Conference speaking opportunities",
+			"Research and innovation time",
+			"Latest equipment and tools",
+			"Executive perks",
+			"Relocation package",
+			"Sabbatical program"
+		],
+		"applicationDeadline": "2026-08-01T23:59:59.000Z",
+		"isPublished": true,
+		"visibility": "PUBLIC"
+	}
+]

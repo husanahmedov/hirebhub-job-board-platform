@@ -5,9 +5,10 @@ import { JobService } from './job.service';
 import { JobResolver } from './job.resolver';
 import { AuthModule } from '../auth/auth.module';
 import { ViewModule } from '../view/view.module';
+import { CompanyModule } from '../company/company.module';
 
 @Module({
-	imports: [MongooseModule.forFeature([{ name: 'Job', schema: JobSchema }]), AuthModule, ViewModule],
+	imports: [MongooseModule.forFeature([{ name: 'Job', schema: JobSchema }]), AuthModule, ViewModule, CompanyModule],
 	providers: [JobService, JobResolver],
 	exports: [JobService],
 })
