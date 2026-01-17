@@ -453,17 +453,9 @@ export class CompanyService {
 			{
 				$lookup: {
 					from: 'jobs',
-					let: { companyId: '$_id' },
-					pipeline: [
-						{
-							$match: {
-								$expr: {
-									$and: [{ $eq: ['$companyId', '$$companyId'] }, { $eq: ['$deletedAt', null] }],
-								},
-							},
-						},
-						{ $count: 'count' },
-					],
+					localField: '_id',
+					foreignField: 'companyId',
+					pipeline: [{ $match: { deletedAt: null } }, { $count: 'count' }],
 					as: 'jobData',
 				},
 			},
@@ -515,7 +507,6 @@ export class CompanyService {
 			},
 			{
 				$project: {
-					jobData: 0,
 					reviewData: 0,
 				},
 			},
@@ -748,7 +739,7 @@ export class CompanyService {
 		const company = await this.companyModel
 			.findOne({ _id: companyId, recruiterIds: { $in: [shapedUserId] }, deletedAt: null })
 			.exec();
-		
+
 		return company ? true : false;
 	}
 }
