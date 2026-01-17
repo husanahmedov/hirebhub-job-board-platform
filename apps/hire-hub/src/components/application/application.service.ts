@@ -23,6 +23,7 @@ import { JobService } from '../job/job.service';
 
 import type { ObjectId } from 'mongoose';
 import { CompanyService } from '../company/company.service';
+import { StatsModifier } from '../../libs/interfaces/common';
 
 /**
  * ApplicationService - Business logic for application management
@@ -50,7 +51,7 @@ export class ApplicationService {
 			const jobObjectId = shapeIntoMongoObjectId(input.jobId);
 
 			// Check if job exists
-			const job = await this.jobService.getJobById(input.jobId, false);
+			const job = await this.jobService.getJobById(input.jobId, null);
 
 			if (!job) {
 				throw new JobNotFoundException({ jobId: input.jobId });
@@ -80,7 +81,11 @@ export class ApplicationService {
 			});
 
 			// Increment application count on the job
-			await this.jobService.incrementApplicationCount(jobObjectId);
+			await this.jobService.jobStatsModifier({
+				id: shapeIntoMongoObjectId(input.jobId),
+				targetKey: 'applicationsCount',
+				modifier: 1,
+			});
 
 			return this.mapToApplicationOutput(application);
 		} catch (error) {
@@ -558,5 +563,19 @@ export class ApplicationService {
 			createdAt: application.createdAt,
 			deletedAt: application.deletedAt,
 		};
+	}
+
+	public async applicationStatsModifier(input: StatsModifier): Promise<void> {
+		try {
+			await this.applicationModel.findByIdAndUpdate(input.id, {
+				$inc: { [input.targetKey]: input.modifier },
+			});
+		} catch (error) {
+			console.log(`---------Error: ${error} ---------`);
+			throw new BadRequestException('Failed to modify application stats', {
+				message: 'Failed to modify application stats',
+				details: error.message,
+			});
+		}
 	}
 }

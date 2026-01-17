@@ -41,9 +41,11 @@ export class JobResolver {
 	async getJobById(
 		@Args('jobId', { type: () => ID }) jobId: string,
 		@Args('incrementView', { type: () => Boolean, nullable: true, defaultValue: false })
+		@AuthUser('_id')
+		userId: string,
 		incrementView: boolean,
 	): Promise<JobOutput> {
-		return this.jobService.getJobById(jobId, incrementView);
+		return this.jobService.getJobById(jobId, userId);
 	}
 
 	/** Get job statistics */

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage } from 'mongoose';
 import {
@@ -12,8 +12,10 @@ import {
 	ViewInput,
 	ViewGroup,
 } from '../../libs';
-import { ErrorCode, ErrorMessage } from '../../libs';
+import { ErrorCode, ErrorMessage, BadRequestException } from '../../libs';
 import { ViewService } from '../view/view.service';
+import { shapeIntoMongoObjectId } from '../../libs/config';
+import { StatsModifier } from '../../libs/interfaces/common';
 
 /**
  * JobService - Business logic for job management
@@ -49,7 +51,7 @@ export class JobService {
 			if (error instanceof BadRequestException) {
 				throw error;
 			}
-			throw new BadRequestException({
+			throw new BadRequestException('Failed', {
 				code: ErrorCode.BAD_REQUEST,
 				message: 'Failed to create job',
 				details: error.message,
@@ -172,6 +174,15 @@ export class JobService {
 			},
 		});
 
+		pipeline.push({
+			$lookup: {
+				from: 'applications',
+				localField: '_id',
+				foreignField: 'jobId',
+				as: 'applicationsData',
+			},
+		});
+
 		// Join with User collection
 		pipeline.push({
 			$lookup: {
@@ -248,23 +259,59 @@ export class JobService {
 	/**
 	 * Get a single job by ID
 	 */
-	async getJobById(jobId: string, incrementView = false): Promise<JobOutput> {
-		const job = await this.jobModel
-			.findOne({ _id: jobId, deletedAt: null })
-			.populate('companyId', 'name logoUrl verified')
-			.populate('postedBy', 'firstName lastName email profilePicture')
-			.lean();
+	async getJobById(jobId: string, userId: string | null): Promise<JobOutput> {
+		const objUserId = userId ? shapeIntoMongoObjectId(userId) : null;
+		const objJobId = shapeIntoMongoObjectId(jobId);
+		const pipeline: PipelineStage[] = [];
+		pipeline.push(
+			{
+				$match: { _id: objJobId, deletedAt: null },
+			},
+			{
+				$lookup: {
+					from: 'companies',
+					localField: 'companyId',
+					foreignField: '_id',
+					as: 'companyData',
+					pipeline: [
+						{
+							$unwind: {
+								path: '$companyData',
+								preserveNullAndEmptyArrays: true,
+							},
+						},
+					],
+				},
+			},
+			{
+				$lookup: {
+					from: 'users',
+					localField: 'postedBy',
+					foreignField: '_id',
+					as: 'postedByData',
+				},
+			},
+			{
+				$lookup: {
+					from: 'applications',
+					localField: '_id',
+					foreignField: 'jobId',
+					as: 'applicationsData',
+				},
+			},
+		);
+		const [job] = await this.jobModel.aggregate(pipeline);
+		console.log(job);
 
 		if (!job) {
 			throw new JobNotFoundException(`Job with ID "${jobId}" not found`);
 		}
-
-		// Increment view count if requested
-		if (incrementView) {
-			await this.jobModel.findByIdAndUpdate(jobId, {
-				$inc: { viewsCount: 1 },
+		if (userId) {
+			await this.viewService.incremenetViewCount({
+				userId: objUserId,
+				viewRefId: objJobId,
+				viewGroup: ViewGroup.JOB,
 			});
-			(job as any).viewsCount = ((job as any).viewsCount || 0) + 1;
 		}
 
 		return this.mapToJobOutput(job);
@@ -343,15 +390,6 @@ export class JobService {
 	}
 
 	/**
-	 * Increment application count for a job
-	 */
-	async incrementApplicationCount(jobId: string): Promise<void> {
-		await this.jobModel.findByIdAndUpdate(jobId, {
-			$inc: { applicationsCount: 1 },
-		});
-	}
-
-	/**
 	 * Decrement application count for a job
 	 */
 	async decrementApplicationCount(jobId: string): Promise<void> {
@@ -409,9 +447,9 @@ export class JobService {
 		return {
 			_id: job._id.toString(),
 			companyId: job.companyId?._id?.toString() || job.companyId?.toString(),
-			companyData: job.companyId?._id ? job.companyId : undefined,
+			companyData: job.companyId?._id ? job.companyData[0] : undefined,
 			postedBy: job.postedBy?._id?.toString() || job.postedBy?.toString(),
-			postedByData: job.postedBy?._id ? job.postedBy : undefined,
+			postedByData: job.postedBy?._id ? job.postedByData[0] : undefined,
 			title: job.title,
 			description: job.description,
 			shortDescription: job.shortDescription,
@@ -433,5 +471,21 @@ export class JobService {
 			closedAt: job.closedAt,
 			deletedAt: job.deletedAt,
 		};
+	}
+	/**
+	 * Increment application count for a job
+	 */
+	public async jobStatsModifier(input: StatsModifier): Promise<void> {
+		try {
+			await this.jobModel.findByIdAndUpdate(input.id, {
+				$inc: { [input.targetKey]: input.modifier },
+			});
+		} catch (error) {
+			console.log(`---------Error: ${error} ---------`);
+			throw new BadRequestException('Failed to modify job stats', {
+				message: 'Failed to modify job stats',
+				details: error.message,
+			});
+		}
 	}
 }

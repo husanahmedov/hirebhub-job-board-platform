@@ -1,7 +1,7 @@
 import { ObjectType, Field, ID, Int } from '@nestjs/graphql';
 import { JobType, JobLevel, SalaryCurrency, Visibility } from '../../enums/job';
 import { CompanyOutput } from '../company/output';
-import { PublicUser } from '../../';
+import { ApplicationOutput, PublicUser } from '../../';
 
 /**
  * JobLocationOutput - GraphQL output type for job location
@@ -113,8 +113,14 @@ export class JobOutput {
 	@Field(() => Int, { description: 'Number of views' })
 	viewsCount: number;
 
-	@Field(() => Int, { description: 'Number of applications' })
-	applicationsCount: number;
+	@Field(() => Int, { description: 'Number of applications', nullable: true })
+	applicationsCount?: number;
+
+	@Field(() => ApplicationOutput, {
+		nullable: true,
+		description: 'Application details if the current user has applied',
+	})
+	applicationsData?: ApplicationOutput;
 
 	@Field({ description: 'Date when the job was created' })
 	createdAt: Date;
