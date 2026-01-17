@@ -299,8 +299,82 @@ export class JobService {
 					as: 'applicationsData',
 				},
 			},
+			{
+				$addFields: {
+					metrics: {
+						applicationsCount: '$applicationsCount',
+						viewsCount: '$viewsCount',
+						applicationRate: {
+							$cond: [
+								{ $eq: ['$viewsCount', 0] },
+								0,
+								{
+									$round: [
+										{
+											$multiply: [{ $divide: ['$applicationsCount', '$viewsCount'] }, 100],
+										},
+										2,
+									],
+								},
+							],
+						},
+					},
+					engagementScore: {
+						$add: ['$viewsCount', { $multiply: ['$applicationsCount', 10] }],
+					},
+					timeInfo: {
+						daysSincePosted: {
+							$round: [
+								{
+									$divide: [{ $subtract: [new Date(), '$createdAt'] }, 1000 * 60 * 60 * 24],
+								},
+								0,
+							],
+						},
+						daysUntilDeadline: {
+							$cond: [
+								{ $ne: ['$applicationDeadline', null] },
+								{
+									$round: [
+										{
+											$divide: [{ $subtract: ['$applicationDeadline', new Date()] }, 1000 * 60 * 60 * 24],
+										},
+										0,
+									],
+								},
+								null,
+							],
+						},
+						isExpiringSoon: {
+							$cond: [
+								{
+									$and: [
+										{ $ne: ['$applicationDeadline', null] },
+										{ $lte: [{ $subtract: ['$applicationDeadline', new Date()] }, 7 * 24 * 60 * 60 * 1000] },
+									],
+								},
+								true,
+								false,
+							],
+						},
+					},
+					flags: {
+						isPopular: { $gte: ['$viewsCount', 1000] },
+						isHot: { $gte: ['$applicationsCount', 50] },
+						needsPromotion: {
+							$and: [
+								{ $lt: ['$viewsCount', 100] },
+								{ $gte: [{ $subtract: [new Date(), '$createdAt'] }, 7 * 24 * 60 * 60 * 1000] },
+							],
+						},
+						hasSalary: {
+							$and: [{ $ne: ['$salaryRange', null] }, { $gt: ['$salaryRange.min', 0] }],
+						},
+					},
+				},
+			},
 		);
-		const [job] = await this.jobModel.aggregate(pipeline);
+		const [job] = await this.jobModel.aggregate(pipeline).exec();
 		console.log(job);
 
 		if (!job) {
@@ -462,10 +536,28 @@ export class JobService {
 			requirements: job.requirements || [],
 			benefits: job.benefits || [],
 			applicationDeadline: job.applicationDeadline,
+			// metrics
+			metrics: {
+				applicationsCount: job.applicationsCount ? job.applicationsCount : 0,
+				viewsCount: job.viewsCount ? job.viewsCount : 0,
+			},
+			// engagement score
+			engagementScore: job.engagementScore,
+			// time info
+			timeInfo: {
+				daysSincePosted: job.timeInfo?.daysSincePosted,
+				daysUntilDeadline: job.timeInfo?.daysUntilDeadline,
+				isExpiringSoon: job.timeInfo?.isExpiringSoon,
+			},
+			// flags
+			flags: {
+				isPopular: job.flags?.isPopular,
+				isHot: job.flags?.isHot,
+				needsPromotion: job.flags?.needsPromotion,
+				hasSalary: job.flags?.hasSalary,
+			},
 			isPublished: job.isPublished,
 			visibility: job.visibility,
-			viewsCount: job.viewsCount || 0,
-			applicationsCount: job.applicationsCount || 0,
 			createdAt: job.createdAt,
 			updatedAt: job.updatedAt,
 			closedAt: job.closedAt,

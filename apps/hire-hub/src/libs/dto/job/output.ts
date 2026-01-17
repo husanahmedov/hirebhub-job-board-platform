@@ -39,6 +39,42 @@ export class SalaryRangeOutput {
 	visibility: Visibility;
 }
 
+@ObjectType({ description: 'Job metrics information' })
+export class JobMetrics {
+	@Field(() => Int, { description: 'Number of views' })
+	viewsCount: number;
+
+	@Field(() => Int, { description: 'Number of applications' })
+	applicationsCount: number;
+}
+
+@ObjectType({ description: 'Job time information' })
+export class JobTimeInfo {
+	@Field(() => Int, { nullable: true, description: 'Days since the job was posted' })
+	daysSincePosted?: number;
+
+	@Field(() => Int, { nullable: true, description: 'Days until the application deadline' })
+	daysUntilDeadline?: number;
+
+	@Field(() => Boolean, { nullable: true, description: 'Whether the job is expiring soon' })
+	isExpiringSoon?: boolean;
+}
+
+@ObjectType({ description: 'Job flags information' })
+export class JobFlags {
+	@Field(() => Boolean, { description: 'Whether the job is popular' })
+	isPopular?: boolean;
+
+	@Field(() => Boolean, { description: 'Whether the job is hot' })
+	isHot?: boolean;
+
+	@Field(() => Boolean, { description: 'Whether the job needs promotion' })
+	needsPromotion?: boolean;
+
+	@Field(() => Boolean, { description: 'Whether the job has salary information' })
+	hasSalary?: boolean;
+}
+
 /**
  * JobOutput - Main GraphQL output type for job data
  */
@@ -110,11 +146,17 @@ export class JobOutput {
 	@Field(() => Visibility, { description: 'Visibility level' })
 	visibility: Visibility;
 
-	@Field(() => Int, { description: 'Number of views' })
-	viewsCount: number;
+	@Field(() => JobMetrics, { description: 'Job metrics data', nullable: true })
+	metrics?: JobMetrics;
 
-	@Field(() => Int, { description: 'Number of applications', nullable: true })
-	applicationsCount?: number;
+	@Field(() => Int, { nullable: true, description: 'Engagement score for the job' })
+	engagementScore?: number;
+
+	@Field(() => JobTimeInfo, { nullable: true, description: 'Job time related information' })
+	timeInfo?: JobTimeInfo;
+
+	@Field(() => JobFlags, { nullable: true, description: 'Job flags information' })
+	flags?: JobFlags;
 
 	@Field(() => ApplicationOutput, {
 		nullable: true,
