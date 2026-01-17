@@ -46,37 +46,6 @@ export class JobResolver {
 		return this.jobService.getJobById(jobId, incrementView);
 	}
 
-	/** Get a single job by slug */
-	@UseGuards(WithoutGuard)
-	@Query(() => JobOutput, {
-		name: 'getJobBySlug',
-		description: 'Get a single job by slug',
-	})
-	async getJobBySlug(
-		@Args('slug') slug: string,
-		@Args('incrementView', { type: () => Boolean, nullable: true, defaultValue: false })
-		incrementView: boolean,
-		@AuthUser('_id') userId: string,
-	): Promise<JobOutput> {
-		return this.jobService.getJobBySlug(slug, incrementView, userId);
-	}
-
-	/** Get a single job by ID or slug (automatically detects which one) */
-	@UseGuards(WithoutGuard)
-	@Query(() => JobOutput, {
-		name: 'getJobByIdOrSlug',
-		description: 'Get a single job by ID or slug (automatically detects which one)',
-	})
-	async getJobByIdOrSlug(
-		@Args('idOrSlug') idOrSlug: string,
-		@Args('incrementView', { type: () => Boolean, nullable: true, defaultValue: false })
-		@AuthUser('_id')
-		userId: string,
-		incrementView: boolean,
-	): Promise<JobOutput> {
-		return this.jobService.getJobByIdOrSlug(idOrSlug, incrementView, userId);
-	}
-
 	/** Get job statistics */
 	@Roles(UserRole.RECRUITER, UserRole.ADMIN)
 	@UseGuards(RolesGuard)

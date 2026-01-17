@@ -13,6 +13,8 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../../libs';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { AuthUser } from '../auth/decorators/authUser.decorator';
+import type { ObjectId } from 'mongoose';
 
 /**
  * CompanyResolver - Handles company queries and mutations
@@ -53,15 +55,6 @@ export class CompanyResolver {
 		return this.companyService.getCompanyById(id);
 	}
 
-	/** Get a company by slug (SEO-friendly URL) */
-	@Query(() => CompanyOutput, {
-		name: 'getCompanyBySlug',
-		description: 'Get a company by slug',
-	})
-	async getCompanyBySlug(@Args('slug') slug: string): Promise<CompanyOutput> {
-		return this.companyService.getCompanyBySlug(slug);
-	}
-
 	/** Get aggregated company statistics */
 	@Query(() => String, {
 		name: 'getCompanyStats',
@@ -87,13 +80,14 @@ export class CompanyResolver {
 		name: 'updateCompany',
 		description: 'Update an existing company',
 	})
-	// @UseGuards(JwtAuthGuard, RolesGuard) // Uncomment when auth is ready
-	// @Roles(UserRole.ADMIN, UserRole.RECRUITER) // Uncomment when auth is ready
+	@Roles(UserRole.ADMIN, UserRole.RECRUITER) // Uncomment when auth is ready
+	@UseGuards(RolesGuard) // Uncomment when auth is ready
 	async updateCompany(
 		@Args('id', { type: () => ID }) id: string,
 		@Args('input') input: UpdateCompanyInput,
+		@AuthUser('_id') userId: ObjectId,
 	): Promise<CompanyOutput> {
-		return this.companyService.updateCompany(id, input);
+		return this.companyService.updateCompany(id, userId, input);
 	}
 
 	/** Delete a company (soft delete) */

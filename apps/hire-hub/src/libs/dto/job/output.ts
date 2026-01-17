@@ -68,9 +68,6 @@ export class JobOutput {
 	@Field({ description: 'Job title' })
 	title: string;
 
-	@Field({ description: 'URL-friendly slug' })
-	slug: string;
-
 	@Field({ nullable: true, description: 'Full job description' })
 	description?: string;
 

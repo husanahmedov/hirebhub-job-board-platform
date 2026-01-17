@@ -94,12 +94,6 @@ export class CreateJobInput {
 	@MaxLength(200, { message: 'Job title cannot exceed 200 characters' })
 	title: string;
 
-	@Field({ description: 'URL-friendly slug for the job' })
-	@IsString()
-	@MinLength(3)
-	@MaxLength(250)
-	slug: string;
-
 	@Field({ nullable: true, description: 'Full job description' })
 	@IsOptional()
 	@IsString()
@@ -205,13 +199,6 @@ export class UpdateJobInput {
 	@MinLength(3)
 	@MaxLength(200)
 	title?: string;
-
-	@Field({ nullable: true, description: 'URL-friendly slug' })
-	@IsOptional()
-	@IsString()
-	@MinLength(3)
-	@MaxLength(250)
-	slug?: string;
 
 	@Field({ nullable: true, description: 'Full job description' })
 	@IsOptional()

@@ -96,18 +96,6 @@ const JobSchema = new Schema(
 		},
 
 		/**
-		 * URL-friendly slug for the job
-		 */
-		slug: {
-			type: String,
-			required: [true, 'Job slug is required'],
-			unique: true,
-			trim: true,
-			lowercase: true,
-			index: true,
-		},
-
-		/**
 		 * Full job description (HTML or markdown)
 		 */
 		description: {

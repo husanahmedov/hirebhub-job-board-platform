@@ -50,7 +50,7 @@ export class ApplicationService {
 			const jobObjectId = shapeIntoMongoObjectId(input.jobId);
 
 			// Check if job exists
-			const job = await this.jobService.getJobByIdOrSlug(input.jobId, false, userId);
+			const job = await this.jobService.getJobById(input.jobId, false);
 
 			if (!job) {
 				throw new JobNotFoundException({ jobId: input.jobId });

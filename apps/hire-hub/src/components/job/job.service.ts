@@ -37,19 +37,6 @@ export class JobService {
 	 */
 	async createJob(input: CreateJobInput, userId: string): Promise<JobOutput> {
 		try {
-			// Check if slug already exists
-			const existingJob = await this.jobModel.findOne({
-				slug: input.slug,
-				deletedAt: null,
-			});
-
-			if (existingJob) {
-				throw new BadRequestException({
-					code: ErrorCode.BAD_REQUEST,
-					message: 'Job with this slug already exists',
-				});
-			}
-
 			const job = await this.jobModel.create({
 				...input,
 				postedBy: userId,
@@ -177,7 +164,6 @@ export class JobService {
 						$project: {
 							_id: 1,
 							name: 1,
-							slug: 1,
 							logoUrl: 1,
 							verified: 1,
 						},
@@ -265,7 +251,7 @@ export class JobService {
 	async getJobById(jobId: string, incrementView = false): Promise<JobOutput> {
 		const job = await this.jobModel
 			.findOne({ _id: jobId, deletedAt: null })
-			.populate('companyId', 'name slug logoUrl verified')
+			.populate('companyId', 'name logoUrl verified')
 			.populate('postedBy', 'firstName lastName email profilePicture')
 			.lean();
 
@@ -282,58 +268,6 @@ export class JobService {
 		}
 
 		return this.mapToJobOutput(job);
-	}
-
-	/**
-	 * Get a single job by slug
-	 */
-	async getJobBySlug(slug: string, incrementView = false, userId: string): Promise<JobOutput> {
-		const job = await this.jobModel
-			.findOne({ slug, deletedAt: null })
-			.populate('companyId', 'name slug logoUrl verified')
-			.populate('postedBy', 'firstName lastName email profilePicture')
-			.lean();
-
-		if (!job) {
-			throw new JobNotFoundException(`Job with slug "${slug}" not found`);
-		}
-		if (userId) {
-			const viewInputData: ViewInput = {
-				userId: userId,
-				viewRefId: job._id,
-				viewGroup: ViewGroup.JOB,
-			};
-
-			const incrementViewCount = await this.viewService.incremenetViewCount(viewInputData);
-			if (incrementViewCount) {
-				await this.jobModel.findOneAndUpdate(
-					{ slug },
-					{
-						$inc: { viewsCount: 1 },
-					},
-				);
-				(job as any).viewsCount = ((job as any).viewsCount || 0) + 1;
-			}
-		}
-
-		return this.mapToJobOutput(job);
-	}
-
-	/**
-	 * Get a single job by ID or slug (combined method)
-	 * Automatically detects if the input is a valid ObjectId or a slug
-	 */
-	async getJobByIdOrSlug(idOrSlug: string, incrementView = false, userId: string): Promise<JobOutput> {
-		// Check if the input looks like a MongoDB ObjectId (24 hex characters)
-		const isObjectId = /^[0-9a-fA-F]{24}$/.test(idOrSlug);
-
-		if (isObjectId) {
-			// Try to get by ID first
-			return this.getJobById(idOrSlug, incrementView);
-		} else {
-			// Otherwise, treat it as a slug
-			return this.getJobBySlug(idOrSlug, incrementView, userId);
-		}
 	}
 
 	/**
@@ -355,25 +289,9 @@ export class JobService {
 			});
 		}
 
-		// Check if slug is being updated and if it's unique
-		if (updateData.slug && updateData.slug !== existingJob.slug) {
-			const slugExists = await this.jobModel.findOne({
-				slug: updateData.slug,
-				_id: { $ne: jobId },
-				deletedAt: null,
-			});
-
-			if (slugExists) {
-				throw new BadRequestException({
-					code: ErrorCode.BAD_REQUEST,
-					message: 'Job with this slug already exists',
-				});
-			}
-		}
-
 		const updatedJob = await this.jobModel
 			.findByIdAndUpdate(jobId, updateData, { new: true })
-			.populate('companyId', 'name slug logoUrl verified')
+			.populate('companyId', 'name logoUrl verified')
 			.populate('postedBy', 'firstName lastName email profilePicture')
 			.lean();
 
@@ -413,7 +331,7 @@ export class JobService {
 				},
 				{ new: true },
 			)
-			.populate('companyId', 'name slug logoUrl verified')
+			.populate('companyId', 'name logoUrl verified')
 			.populate('postedBy', 'firstName lastName email profilePicture')
 			.lean();
 
@@ -495,7 +413,6 @@ export class JobService {
 			postedBy: job.postedBy?._id?.toString() || job.postedBy?.toString(),
 			postedByData: job.postedBy?._id ? job.postedBy : undefined,
 			title: job.title,
-			slug: job.slug,
 			description: job.description,
 			shortDescription: job.shortDescription,
 			employmentType: job.employmentType,

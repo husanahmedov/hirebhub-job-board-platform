@@ -31,6 +31,7 @@ export enum ErrorCode {
 	COMPANY_CREATION_FAILED = 'COMPANY_3003',
 	COMPANY_UPDATE_FAILED = 'COMPANY_3004',
 	COMPANY_DELETION_FAILED = 'COMPANY_3005',
+	COMPANY_OWNER_DUPLICATED = 'COMPANY_3006',
 
 	// Job Related Errors (4xxx)
 	JOB_NOT_FOUND = 'JOB_4001',
@@ -125,6 +126,7 @@ export const ErrorMessage: Record<ErrorCode, string> = {
 	[ErrorCode.COMPANY_CREATION_FAILED]: 'Failed to create company',
 	[ErrorCode.COMPANY_UPDATE_FAILED]: 'Failed to update company',
 	[ErrorCode.COMPANY_DELETION_FAILED]: 'Failed to delete company',
+	[ErrorCode.COMPANY_OWNER_DUPLICATED]: 'Chosen user is already registered for another company',
 
 	// Job Related
 	[ErrorCode.JOB_NOT_FOUND]: 'Job not found',

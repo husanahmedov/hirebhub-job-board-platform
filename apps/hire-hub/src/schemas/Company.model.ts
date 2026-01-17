@@ -132,23 +132,6 @@ const CompanySchema = new Schema(
 		},
 
 		/**
-		 * URL-friendly slug for the company
-		 * @unique Must be unique across all companies
-		 * @required
-		 * @indexed Automatically indexed via unique constraint
-		 * @example "google-inc"
-		 */
-		slug: {
-			type: String,
-			required: [true, 'Company slug is required'],
-			unique: true,
-			lowercase: true,
-			trim: true,
-			maxlength: 250,
-			match: [/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be lowercase alphanumeric with hyphens'],
-		},
-
-		/**
 		 * Industry classification
 		 * @enum CompanyIndustry
 		 * @indexed Part of compound index (industry + size)

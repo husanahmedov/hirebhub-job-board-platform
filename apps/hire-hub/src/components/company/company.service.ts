@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, PipelineStage } from 'mongoose';
+import { Model, ObjectId, PipelineStage } from 'mongoose';
 import {
 	GetCompaniesInput,
 	NearbyCompaniesInput,
@@ -11,6 +11,7 @@ import {
 	BadRequestException,
 	User,
 	UserNotFoundException,
+	DuplicatedOnwerCompanyException,
 } from '../../libs';
 import { PaginatedCompaniesOutput, CompanyOutput } from '../../libs';
 import { shapeIntoMongoObjectId } from '../../libs/config';
@@ -529,24 +530,6 @@ export class CompanyService {
 	}
 
 	/**
-	 * Get a company by slug
-	 *
-	 * @param slug - URL-friendly company identifier
-	 * @returns Company data
-	 * @throws NotFoundException if company not found
-	 */
-	async getCompanyBySlug(slug: string): Promise<CompanyOutput> {
-		const company = await this.companyModel.findOne({ slug, deletedAt: null }).exec();
-
-		if (!company) {
-			throw new NotFoundException(`Company with slug "${slug}" not found`);
-		}
-
-		// Use getCompanyById to get full data with aggregations
-		return await this.getCompanyById(company._id.toString());
-	}
-
-	/**
 	 * Create a new company
 	 *
 	 * @param input - Company data
@@ -568,6 +551,12 @@ export class CompanyService {
 		if (!ownerIdCheck) {
 			throw new UserNotFoundException(`Owner with ID ${input.ownerId} not found`);
 		}
+		const checkDuplicatedOwner = await this.companyModel.findOne({
+			ownerId: ownerIdObj,
+		});
+		if (checkDuplicatedOwner) {
+			throw new DuplicatedOnwerCompanyException('Not Succesfull');
+		}
 
 		const company = new this.companyModel({
 			...input,
@@ -586,10 +575,16 @@ export class CompanyService {
 	 * @returns Updated company
 	 * @throws NotFoundException if company not found
 	 */
-	async updateCompany(id: string, input: UpdateCompanyInput): Promise<CompanyOutput> {
-		const company = await this.companyModel.findByIdAndUpdate(id, input, { new: true }).exec();
-
+	async updateCompany(id: string, userId: ObjectId, input: UpdateCompanyInput): Promise<CompanyOutput> {
+		const objId = shapeIntoMongoObjectId(id);
+		const objUserId = shapeIntoMongoObjectId(userId);
+		const company = await this.companyModel.findOneAndUpdate({
+			_id: objId,
+			ownerId: objUserId
+		}, input, { new: true }).exec();
+		
 		if (!company) {
+			console.log(objUserId);
 			throw new NotFoundException(`Company with ID ${id} not found`);
 		}
 
