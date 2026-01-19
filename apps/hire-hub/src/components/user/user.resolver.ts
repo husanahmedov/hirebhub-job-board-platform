@@ -1,7 +1,15 @@
 import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { RegisterUserInput, User, RefreshTokenInput, AuthResponse } from '../../libs/dto/user';
-import { LoginUserInput, PublicUser, UpdateProfileInput, UpdateUserInput, UserRole } from '../../libs';
+import {
+	LoginUserInput,
+	PublicUser,
+	ResendVerificationInput,
+	UpdateProfileInput,
+	UpdateUserInput,
+	UserRole,
+	VerifyEmailInput,
+} from '../../libs';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthUser } from '../auth/decorators/authUser.decorator';
@@ -102,6 +110,34 @@ export class UserResolver {
 	): Promise<PublicUser> {
 		console.log(`--- @mutation() Step 5 Registration Process is called: ${userId}  ---`);
 		return await this.userService.step5RegistrationProcess(userId, input);
+	}
+
+	// Add these mutations to the resolver class
+	/**
+	 * Verify user's email with verification code
+	 */
+	@Mutation(() => User, {
+		description: 'Verify email address with verification code',
+	})
+	public async verifyEmail(
+		@Args('input', { type: () => VerifyEmailInput, description: 'Email and verification code' })
+		input: VerifyEmailInput,
+	): Promise<User> {
+		return await this.userService.verifyEmail(input);
+	}
+
+	/**
+	 * Resend verification code to user's email
+	 */
+	@Mutation(() => String, {
+		description: 'Resend verification code to email',
+	})
+	public async resendVerificationCode(
+		@Args('input', { type: () => ResendVerificationInput, description: 'User email' })
+		input: ResendVerificationInput,
+	): Promise<string> {
+		const result = await this.userService.resendVerificationCode(input);
+		return result.message;
 	}
 
 	/**

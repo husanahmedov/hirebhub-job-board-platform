@@ -17,16 +17,20 @@ import {
 	PublicUser,
 	UpdateProfileInput,
 	Step5RegisterInput,
+	ResendVerificationInput,
+	VerifyEmailInput,
 } from '../../libs';
 import { AuthService } from '../auth/auth.service';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { Step3RegisterInput, Step4RegisterInput } from '../../libs';
+import { EmailService } from '../notification/email.service';
 
 @Injectable()
 export class UserService {
 	constructor(
 		@InjectModel('User') private userModel: Model<User>,
 		private readonly authService: AuthService,
+		private readonly emailService: EmailService,
 	) {}
 
 	/** Register a new user and generate auth tokens */
@@ -43,6 +47,10 @@ export class UserService {
 					existingUserId: existingUser._id,
 				});
 			}
+
+			// Generate verification code
+			const verificationCode = this.generateVerificationCode();
+			const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000);
 
 			const userData = {
 				...input,
@@ -67,6 +75,12 @@ export class UserService {
 					originalError: 'User document was not created',
 					input: { email: normalizedEmail },
 				});
+			}
+
+			try {
+				await this.emailService.sendVerificationEmail(normalizedEmail, verificationCode, input.firstName);
+			} catch (error) {
+				console.error('Failed to send verification email:', error);
 			}
 
 			const userObject = newUser.toObject() as User;
@@ -918,5 +932,125 @@ export class UserService {
 
 			throw new InternalServerErrorException('Failed to refresh access token. Please try again later.');
 		}
+	}
+
+	/**
+	 * Verify user's email with verification code
+	 * @param input - Email and verification code
+	 * @returns Updated user object
+	 */
+	public async verifyEmail(input: VerifyEmailInput): Promise<User> {
+		const normalizedEmail = input.email.toLowerCase().trim();
+
+		try {
+			const user = await this.userModel
+				.findOne({ email: normalizedEmail })
+				.select('+verificationCode +verificationCodeExpires')
+				.exec();
+
+			if (!user) {
+				throw new UserNotFoundException({
+					email: normalizedEmail,
+					message: 'User not found',
+				});
+			}
+
+			if (user.emailVerified) {
+				throw new DatabaseException(ErrorCode.VALIDATION_ERROR, {
+					message: 'Email is already verified',
+				});
+			}
+
+			if (!user.verificationCode || !user.verificationCodeExpires) {
+				throw new DatabaseException(ErrorCode.VALIDATION_ERROR, {
+					message: 'No verification code found. Please request a new code.',
+				});
+			}
+
+			if (new Date() > user.verificationCodeExpires) {
+				throw new DatabaseException(ErrorCode.VALIDATION_ERROR, {
+					message: 'Verification code has expired. Please request a new code.',
+				});
+			}
+
+			if (user.verificationCode !== input.code) {
+				throw new DatabaseException(ErrorCode.VALIDATION_ERROR, {
+					message: 'Invalid verification code',
+				});
+			}
+
+			// Mark email as verified and clear verification fields
+			user.emailVerified = true;
+			user.verificationCode = undefined;
+			user.verificationCodeExpires = undefined;
+			await user.save();
+
+			return user.toObject() as User;
+		} catch (error: any) {
+			if (error instanceof UserNotFoundException || error instanceof DatabaseException) {
+				throw error;
+			}
+
+			throw new InternalServerErrorException({
+				message: 'Failed to verify email',
+				error: error.message,
+			});
+		}
+	}
+
+	/**
+	 * Resend verification code
+	 * @param input - User email
+	 * @returns Success message
+	 */
+	public async resendVerificationCode(input: ResendVerificationInput): Promise<{ message: string }> {
+		const normalizedEmail = input.email.toLowerCase().trim();
+
+		try {
+			const user = await this.userModel.findOne({ email: normalizedEmail }).exec();
+
+			if (!user) {
+				throw new UserNotFoundException({
+					email: normalizedEmail,
+					message: 'User not found',
+				});
+			}
+
+			if (user.emailVerified) {
+				throw new DatabaseException(ErrorCode.VALIDATION_ERROR, {
+					message: 'Email is already verified',
+				});
+			}
+
+			// Generate new verification code
+			const verificationCode = this.generateVerificationCode();
+			const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+			user.verificationCode = verificationCode;
+			user.verificationCodeExpires = verificationCodeExpires;
+			await user.save();
+
+			// Send verification email
+			await this.emailService.sendVerificationEmail(normalizedEmail, verificationCode, user.firstName);
+
+			return { message: 'Verification code sent successfully' };
+		} catch (error: any) {
+			if (error instanceof UserNotFoundException || error instanceof DatabaseException) {
+				throw error;
+			}
+
+			throw new InternalServerErrorException({
+				message: 'Failed to resend verification code',
+				error: error.message,
+			});
+		}
+	}
+
+	/**
+	 * Generate a 6-digit verification code
+	 * @returns 6-digit numeric string
+	 */
+	private generateVerificationCode(): string {
+		return Math.floor(100000 + Math.random() * 900000).toString();
 	}
 }

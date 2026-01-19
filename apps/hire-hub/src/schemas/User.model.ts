@@ -370,6 +370,27 @@ const UserSchema = new Schema(
 		},
 
 		/**
+		 * Email verification code
+		 * @optional Only present when email verification is pending
+		 * @select false to exclude from queries by default
+		 */
+		verificationCode: {
+			type: String,
+			required: false,
+			select: false,
+		},
+
+		/**
+		 * Verification code expiration time
+		 * @optional Only present when verification code is set
+		 */
+		verificationCodeExpires: {
+			type: Date,
+			required: false,
+			select: false,
+		},
+
+		/**
 		 * OAuth/Social authentication providers
 		 * @indexed Compound index on provider + providerId for OAuth lookups
 		 * @example [{ provider: "google", providerId: "1234567890", profileUrl: "https://profiles.google.com/user" }]

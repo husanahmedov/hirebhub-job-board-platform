@@ -352,6 +352,52 @@ export class EnvUtil {
 	}
 
 	/**
+	 * Get SMTP host for email sending
+	 * @returns The SMTP host
+	 */
+	public static getSmtpHost(): string {
+		return process.env.SMTP_HOST ?? 'smtp.gmail.com';
+	}
+
+	/**
+	 * Get SMTP port for email sending
+	 * @returns The SMTP port
+	 */
+	public static getSmtpPort(): number {
+		return parseInt(process.env.SMTP_PORT ?? '587', 10);
+	}
+
+	/**
+	 * Get SMTP user for email authentication
+	 * @returns The SMTP user
+	 */
+	public static getSmtpUser(): string {
+		if (this.isProduction() && !process.env.SMTP_USER) {
+			throw new Error('SMTP_USER is required in production');
+		}
+		return process.env.SMTP_USER ?? '';
+	}
+
+	/**
+	 * Get SMTP password for email authentication
+	 * @returns The SMTP password
+	 */
+	public static getSmtpPassword(): string {
+		if (this.isProduction() && !process.env.SMTP_PASSWORD) {
+			throw new Error('SMTP_PASSWORD is required in production');
+		}
+		return process.env.SMTP_PASSWORD ?? '';
+	}
+
+	/**
+	 * Get email sender address
+	 * @returns The sender email address
+	 */
+	public static getEmailFrom(): string {
+		return process.env.EMAIL_FROM ?? 'noreply@hirehub.com';
+	}
+
+	/**
 	 * Get all environment variables as a typed config object
 	 * @returns Typed environment configuration
 	 */

@@ -159,16 +159,7 @@ export class ChangePasswordInput {
 	newPassword: string;
 }
 
-/**
- * Email verification input
- */
-@InputType()
-export class VerifyEmailInput {
-	@IsNotEmpty()
-	@IsString()
-	@Field(() => String)
-	token: string;
-}
+
 
 /**
  * Password reset request input

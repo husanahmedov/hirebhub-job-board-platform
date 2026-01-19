@@ -20,3 +20,4 @@ export * from './user.output';
 
 // Query DTOs (for filtering, pagination, and sorting)
 export * from './user.query';
+export * from './verify-email.input';

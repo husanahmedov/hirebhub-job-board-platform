@@ -241,6 +241,14 @@ export class User {
 	@IsOptional()
 	@Field(() => [QualificationsOutput], { nullable: true })
 	qualifications?: QualificationsOutput[];
+
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	verificationCode?: string;
+
+	@IsOptional()
+	@Field(() => GraphQLISODateTime, { nullable: true })
+	verificationCodeExpires?: Date;
 }
 
 /**
