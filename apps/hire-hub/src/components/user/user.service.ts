@@ -58,6 +58,8 @@ export class UserService {
 				passwordHash: hashedPassword,
 				status: UserStatus.ACTIVE,
 				emailVerified: false,
+				verificationCode,
+				verificationCodeExpires,
 				settings: {
 					language: 'en',
 					timezone: 'UTC',
