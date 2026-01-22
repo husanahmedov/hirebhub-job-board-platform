@@ -9,6 +9,9 @@ import {
 	UpdateUserInput,
 	UserRole,
 	VerifyEmailInput,
+	SwitchCompanyInput,
+	CompanyListItem,
+	ActiveCompanyOutput,
 } from '../../libs';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -239,5 +242,60 @@ export class UserResolver {
 			accessTokenExpiresAt: this.authService.getAccessTokenExpiration(),
 			refreshTokenExpiresAt: this.authService.getRefreshTokenExpiration(),
 		};
+	}
+
+	/**
+	 * Get all companies where the authenticated user is owner or recruiter
+	 */
+	@UseGuards(AuthGuard)
+	@Query(() => [CompanyListItem], {
+		description: 'Get all companies where user is owner or recruiter',
+	})
+	public async getMyCompanies(@AuthUser('_id') userId: ObjectId): Promise<CompanyListItem[]> {
+		console.log('--- @query() Get My Companies is called ---');
+		return await this.userService.getMyCompanies(userId.toString());
+	}
+
+	/**
+	 * Switch active company for recruiter operations
+	 */
+	@Roles(UserRole.RECRUITER)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Mutation(() => PublicUser, {
+		description: 'Switch active company for recruiter operations',
+	})
+	public async switchActiveCompany(
+		@Args('input', { type: () => SwitchCompanyInput, description: 'Company ID to switch to' })
+		input: SwitchCompanyInput,
+		@AuthUser('_id') userId: ObjectId,
+	): Promise<PublicUser> {
+		console.log('--- @mutation() Switch Active Company is called ---');
+		const result = await this.userService.switchActiveCompany(userId.toString(), input.companyId);
+		return {
+			...result,
+			activeCompanyId: result?.activeCompanyId?.toString(),
+			firstName: result.firstName ? result.firstName : 'no firstName',
+			lastName: result.lastName ? result.lastName : 'no lastName',
+			_id: result._id ? result._id : 'no _id',
+			email: result.email ? result.email : 'no email',
+			role: result.role ? result.role : UserRole.RECRUITER,
+			message: 'Active company switched successfully',
+		};
+	}
+
+	/**
+	 * Get current active company details
+	 */
+	@Roles(UserRole.RECRUITER)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Query(() => ActiveCompanyOutput, {
+		nullable: true,
+		description: 'Get current active company details',
+	})
+	public async getActiveCompany(@AuthUser('_id') userId: ObjectId): Promise<ActiveCompanyOutput | null> {
+		console.log('--- @query() Get Active Company is called ---');
+		return await this.userService.getActiveCompany(userId.toString());
 	}
 }

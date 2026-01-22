@@ -16,6 +16,7 @@ import {
 } from '../../libs';
 import { PaginatedCompaniesOutput, CompanyOutput } from '../../libs';
 import { shapeIntoMongoObjectId } from '../../libs/config';
+import { UserService } from '../user/user.service';
 
 /**
  * CompanyService - Business logic for company operations
@@ -35,6 +36,7 @@ export class CompanyService {
 		private readonly companyModel: Model<CompanyOutput>,
 		@InjectModel('User')
 		private readonly userModel: Model<User>,
+		private readonly userService: UserService,
 	) {}
 
 	/**
@@ -586,6 +588,12 @@ export class CompanyService {
 				{ new: true },
 			)
 			.exec();
+
+		// const promisedList = recruiterIds?.map(async (recruiterId) => {
+		// 	await this.userService.switchActiveCompany(recruiterId.toString(), id);
+		// 	return 'done';
+		// });
+		// await Promise.all(promisedList || []);
 
 		if (!company) {
 			console.log(objUserId);

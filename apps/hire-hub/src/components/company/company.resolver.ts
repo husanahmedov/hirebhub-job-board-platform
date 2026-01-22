@@ -80,7 +80,7 @@ export class CompanyResolver {
 		name: 'updateCompany',
 		description: 'Update an existing company',
 	})
-	@Roles(UserRole.ADMIN, UserRole.RECRUITER) // Uncomment when auth is ready
+	@Roles(UserRole.ADMIN, UserRole.COMPANY_OWNER) // Uncomment when auth is ready
 	@UseGuards(RolesGuard) // Uncomment when auth is ready
 	async updateCompany(
 		@Args('id', { type: () => ID }) id: string,

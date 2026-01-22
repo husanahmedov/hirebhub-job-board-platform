@@ -427,6 +427,19 @@ const UserSchema = new Schema(
 		],
 
 		/**
+		 * Active company ID for recruiters
+		 * Tracks which company the recruiter is currently working with
+		 * @optional Only relevant for RECRUITER role
+		 * @ref Company
+		 */
+		activeCompanyId: {
+			type: Schema.Types.ObjectId,
+			ref: 'Company',
+			required: false,
+			index: true,
+		},
+
+		/**
 		 * User preferences and settings
 		 */
 		settings: {

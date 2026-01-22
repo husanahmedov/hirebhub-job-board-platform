@@ -14,6 +14,7 @@ export * from './[step-4].register.input';
 export * from './[step-5].register.input';
 export * from './refresh-token.input';
 export * from './global.register.input';
+export * from './company-switch.dto';
 
 // Output DTOs (for queries and responses)
 export * from './user.output';

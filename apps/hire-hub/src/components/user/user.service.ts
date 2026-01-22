@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { RegisterUserInput, User } from '../../libs/dto/user';
-import { Model, ObjectId } from 'mongoose';
+import { GetLeanResultType, Model, ObjectId } from 'mongoose';
 import {
 	UserCreationFailedException,
 	UserAlreadyExistsException,
@@ -24,6 +24,8 @@ import { AuthService } from '../auth/auth.service';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { Step3RegisterInput, Step4RegisterInput } from '../../libs';
 import { EmailService } from '../notification/email.service';
+
+import { LeanOptions } from 'mongoose';
 
 @Injectable()
 export class UserService {
@@ -1054,5 +1056,169 @@ export class UserService {
 	 */
 	private generateVerificationCode(): string {
 		return Math.floor(100000 + Math.random() * 900000).toString();
+	}
+
+	/**
+	 * Get all companies where the user is owner or recruiter
+	 * @param userId - User ID
+	 * @returns Array of companies with user's role
+	 */
+	async getMyCompanies(userId: string) {
+		const objUserId = shapeIntoMongoObjectId(userId);
+
+		const companies = await this.userModel
+			.aggregate([
+				{ $match: { _id: objUserId } },
+				{
+					$lookup: {
+						from: 'companies',
+						let: { userId: '$_id' },
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$or: [{ $eq: ['$ownerId', '$$userId'] }, { $in: ['$$userId', '$recruiterIds'] }],
+									},
+									deletedAt: null,
+								},
+							},
+							{
+								$addFields: {
+									role: {
+										$cond: [{ $eq: ['$ownerId', '$$userId'] }, 'owner', 'recruiter'],
+									},
+								},
+							},
+							{
+								$project: {
+									_id: 1,
+									name: 1,
+									logoUrl: 1,
+									verified: 1,
+									role: 1,
+									industry: 1,
+									size: 1,
+								},
+							},
+						],
+						as: 'companies',
+					},
+				},
+				{ $unwind: '$companies' },
+				{ $replaceRoot: { newRoot: '$companies' } },
+			])
+			.exec();
+
+		return companies;
+	}
+
+	/**
+	 * Switch active company for a recruiter
+	 * @param userId - User ID
+	 * @param companyId - Company ID to switch to
+	 * @returns Updated user with new active company
+	 */
+	async switchActiveCompany(userId: string, companyId: string): Promise<PublicUser> {
+		const objUserId = shapeIntoMongoObjectId(userId);
+		const objCompanyId = shapeIntoMongoObjectId(companyId);
+
+		// Verify user has access to this company
+		const hasAccess = await this.userModel
+			.aggregate([
+				{ $match: { _id: objUserId } },
+				{
+					$lookup: {
+						from: 'companies',
+						let: { userId: '$_id', targetCompanyId: objCompanyId },
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{ $eq: ['$_id', '$$targetCompanyId'] },
+											{
+												$or: [{ $eq: ['$ownerId', '$$userId'] }, { $in: ['$$userId', '$recruiterIds'] }],
+											},
+										],
+									},
+									deletedAt: null,
+								},
+							},
+						],
+						as: 'company',
+					},
+				},
+				{
+					$project: {
+						hasAccess: { $gt: [{ $size: '$company' }, 0] },
+					},
+				},
+			])
+			.exec();
+
+		if (!hasAccess[0]?.hasAccess) {
+			throw new UserNotFoundException({
+				message: `You don't have access to company with ID "${companyId}"`,
+			});
+		}
+		console.log(`-------- User has access to company with ID "${hasAccess[0]}" --------`);
+		
+
+		// Update active company
+		const updatedUser = await this.userModel
+			.findByIdAndUpdate(objUserId, { activeCompanyId: objCompanyId }, { new: true })
+			.select('_id firstName lastName email role activeCompanyId')
+			.lean()
+			.exec();
+
+		return updatedUser as PublicUser;
+	}
+
+	/**
+	 * Get user's active company details
+	 * @param userId - User ID
+	 * @returns Active company details or null
+	 */
+	async getActiveCompany(userId: string) {
+		const objUserId = shapeIntoMongoObjectId(userId);
+
+		const result = await this.userModel
+			.aggregate([
+				{ $match: { _id: objUserId } },
+				{
+					$lookup: {
+						from: 'companies',
+						localField: 'activeCompanyId',
+						foreignField: '_id',
+						as: 'activeCompany',
+						pipeline: [
+							{
+								$match: {
+									deletedAt: null,
+								},
+							},
+							{
+								$project: {
+									_id: 1,
+									name: 1,
+									logoUrl: 1,
+									verified: 1,
+									industry: 1,
+									size: 1,
+									location: 1,
+								},
+							},
+						],
+					},
+				},
+				{
+					$project: {
+						activeCompany: { $arrayElemAt: ['$activeCompany', 0] },
+					},
+				},
+			])
+			.exec();
+
+		return result[0]?.activeCompany || null;
 	}
 }

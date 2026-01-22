@@ -284,6 +284,10 @@ export class PublicUser {
 
 	@IsOptional()
 	@Field(() => String, { nullable: true })
+	activeCompanyId?: string;
+
+	@IsOptional()
+	@Field(() => String, { nullable: true })
 	message?: string;
 
 	@IsOptional()
