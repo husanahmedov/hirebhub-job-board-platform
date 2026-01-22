@@ -15,20 +15,15 @@ export class UploaderController {
 	@UseInterceptors(
 		FileInterceptor('file', {
 			limits: { fileSize: 5 * 1024 * 1024 },
-			fileFilter: (request, file, cb) => {
-				if (!file.mimetype.match(/^image\/(jpg|jpeg|png|gif|webp)$/)) {
-					return cb(new InvalidFileFormatException('Only image files are allowed'), false);
-				}
-				cb(null, true);
-			},
 		}),
 	)
 	async uploadAvatar(@UploadedFile() file: Express.Multer.File, @AuthUser() user: User) {
-        console.log(`--- file upload request received (${user}) ---`);
+		console.log(`--- file upload request received (${user}) ---`);
 		if (!file) {
-			throw new InvalidFileFormatException(
-				'You have chosen invalid file type. Please double check you file type anb retry to upload proces',
-			);
+			throw new InvalidFileFormatException('No file uploaded');
+		}
+		if (!file.mimetype.match(/^image\/(jpg|jpeg|png|gif|webp)$/)) {
+			throw new InvalidFileFormatException('Only image files (JPG, JPEG, PNG, GIF, WEBP) are allowed');
 		}
 		const url = await this.uploadService.uploadFile(file, `avatars/${user._id}`, 'image');
 		return {
@@ -43,19 +38,19 @@ export class UploaderController {
 	@UseInterceptors(
 		FileInterceptor('file', {
 			limits: { fileSize: 10 * 1024 * 1024 }, // 10MB for resumes
-			fileFilter: (request, file, cb) => {
-				if (
-					!file.mimetype.match(
-						/^(application\/pdf|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document)$/,
-					)
-				) {
-					return cb(new InvalidFileFormatException('Only PDF and DOCX files are allowed'), false);
-				}
-				cb(null, true);
-			},
 		}),
 	)
 	public async uploadResume(@UploadedFile() file: Express.Multer.File, @AuthUser() user: User) {
+		if (!file) {
+			throw new InvalidFileFormatException('No file uploaded');
+		}
+		if (
+			!file.mimetype.match(
+				/^(application\/pdf|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document)$/,
+			)
+		) {
+			throw new InvalidFileFormatException('Only PDF and DOCX files are allowed');
+		}
 		const url = await this.uploadService.uploadFile(file, `resumes/${user._id}`, 'document');
 
 		return {
@@ -72,6 +67,12 @@ export class UploaderController {
 		}),
 	)
 	async uploadCompanyLogo(@UploadedFile() file: Express.Multer.File, @AuthUser() user: User) {
+		if (!file) {
+			throw new InvalidFileFormatException('No file uploaded');
+		}
+		if (!file.mimetype.match(/^image\/(jpg|jpeg|png|gif|webp)$/)) {
+			throw new InvalidFileFormatException('Only image files (JPG, JPEG, PNG, GIF, WEBP) are allowed');
+		}
 		// Verify user has company permissions
 		const url = await this.uploadService.uploadFile(file, `companies/${user._id}`, 'image');
 		return { url };

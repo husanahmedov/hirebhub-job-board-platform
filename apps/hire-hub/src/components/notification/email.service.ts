@@ -27,7 +27,7 @@ export class EmailService {
 	private async initializeTransporter() {
 		const smtpHost = EnvUtil.getSmtpHost();
 
-		// Option 1: Use Resend (recommended - simple and reliable)
+		// Option 1: Resend SMTP
 		if (smtpHost === 'smtp.resend.com') {
 			this.transporter = nodemailer.createTransport({
 				host: 'smtp.resend.com',
@@ -40,7 +40,7 @@ export class EmailService {
 			});
 			this.logger.log('Using Resend for email delivery');
 		}
-		// Option 2: Use Ethereal for development (fake emails)
+		// Option 2: Ethereal for development (fake emails)
 		else if (EnvUtil.isDevelopment() && smtpHost === 'ethereal') {
 			try {
 				const testAccount = await nodemailer.createTestAccount();
