@@ -182,6 +182,15 @@ export class CreateJobInput {
 	@IsOptional()
 	@IsEnum(Visibility)
 	visibility?: Visibility;
+
+	@Field(() => [String], {
+		nullable: true,
+		description: 'Images or media associated with the job posting',
+	})
+	@IsOptional()
+	@IsArray()
+	@IsString({ each: true })
+	images?: string[];
 }
 
 /**

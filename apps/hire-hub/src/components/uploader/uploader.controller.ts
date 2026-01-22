@@ -1,6 +1,14 @@
-import { Controller, Post, UseInterceptors, UploadedFile, UseGuards, BadRequestException } from '@nestjs/common';
+import {
+	Controller,
+	Post,
+	UseInterceptors,
+	UploadedFile,
+	UploadedFiles,
+	UseGuards,
+	BadRequestException,
+} from '@nestjs/common';
 
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthUser } from '../auth/decorators/authUser.decorator';
 import { UploaderService } from './uploader.service';
@@ -75,6 +83,26 @@ export class UploaderController {
 		}
 		// Verify user has company permissions
 		const url = await this.uploadService.uploadFile(file, `companies/${user._id}`, 'image');
+		return { url };
+	}
+
+	@Post('job-images')
+	@UseInterceptors(
+		FilesInterceptor('files', 10, {
+			limits: { fileSize: 5 * 1024 * 1024 }, // 5MB per file
+		}),
+	)
+	async uploadJobImages(@UploadedFiles() files: Express.Multer.File[], @AuthUser() user: User) {
+		if (!files || files.length === 0) {
+			throw new InvalidFileFormatException('No files uploaded');
+		}
+		for (const file of files) {
+			if (!file.mimetype.match(/^image\/(jpg|jpeg|png|gif|webp)$/)) {
+				throw new InvalidFileFormatException('Only image files (JPG, JPEG, PNG, GIF, WEBP) are allowed');
+			}
+		}
+		// Verify user has company/recruiter permissions
+		const url = await this.uploadService.uploadFiles(files, `jobs/${user._id}`, 'image');
 		return { url };
 	}
 }

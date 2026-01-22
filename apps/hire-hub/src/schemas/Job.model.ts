@@ -218,6 +218,15 @@ const JobSchema = new Schema(
 		},
 
 		/**
+		 * Images or media associated with the job posting
+		 */
+		images: {
+			type: [String],
+			default: [],
+			required: false,
+		},
+
+		/**
 		 * Number of applications received for this job
 		 */
 		applicationsCount: {

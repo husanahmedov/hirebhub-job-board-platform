@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, HttpException, Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { UnAuthenticatedException, User } from '../../../libs';
 import chalk from 'chalk';
@@ -128,7 +128,7 @@ export class AuthGuard implements CanActivate {
 		if (!bearerToken) {
 			throw context.contextType === 'graphql'
 				? new UnAuthenticatedException('You are not authenticated. Please go to the login page.')
-				: new Error('Authorization header missing. Please log in again.');
+				: new HttpException('You are not authenticated. Please go to the login page.', 401);
 		}
 
 		const token = bearerToken.split(' ')[1];

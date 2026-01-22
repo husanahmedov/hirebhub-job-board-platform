@@ -31,6 +31,11 @@ export class UploaderService {
 		return `/uploads/${folder}/${fileName}`;
 	}
 
+	async uploadFiles(files: Express.Multer.File[], folder: string, type: 'image' | 'document'): Promise<string[]> {
+		const uploadPromises = files.map((file) => this.uploadFile(file, folder, type));
+		return Promise.all(uploadPromises);
+	}
+
 	/**
 	 * Delete file from local storage
 	 * @param fileUrl - The URL path of the file to delete
