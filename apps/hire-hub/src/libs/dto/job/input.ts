@@ -100,11 +100,11 @@ export class CreateJobInput {
 	@MaxLength(10000)
 	description?: string;
 
-	@Field({ nullable: true, description: 'Short description or summary' })
+	@Field(() => [String], { nullable: true, description: 'Short description or summary' })
 	@IsOptional()
-	@IsString()
-	@MaxLength(500)
-	shortDescription?: string;
+	@IsString({ each: true })
+	@MaxLength(150, { each: true })
+	shortDescriptions?: string[];
 
 	@Field(() => JobType, { description: 'Employment type' })
 	@IsEnum(JobType)
@@ -215,11 +215,11 @@ export class UpdateJobInput {
 	@MaxLength(10000)
 	description?: string;
 
-	@Field({ nullable: true, description: 'Short description' })
+	@Field(() => [String], { nullable: true, description: 'Short descriptions or summaries' })
 	@IsOptional()
-	@IsString()
-	@MaxLength(500)
-	shortDescription?: string;
+	@IsString({ each: true })
+	@MaxLength(150, { each: true })
+	shortDescriptions?: string[];
 
 	@Field(() => JobType, { nullable: true, description: 'Employment type' })
 	@IsOptional()

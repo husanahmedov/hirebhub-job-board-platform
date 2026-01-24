@@ -105,13 +105,15 @@ const JobSchema = new Schema(
 		},
 
 		/**
-		 * Short description or summary
+	 * Short description or summary
 		 */
-		shortDescription: {
-			type: String,
-			trim: true,
-			maxlength: [500, 'Short description cannot exceed 500 characters'],
-		},
+		shortDescriptions: [
+			{
+				type: String,
+				trim: true,
+				maxlength: [150, 'Short description cannot exceed 150 characters'],
+			},
+		],
 
 		/**
 		 * Employment type (full-time, part-time, contract, etc.)
@@ -247,6 +249,16 @@ const JobSchema = new Schema(
 		 */
 		deletedAt: {
 			type: Date,
+			index: true,
+		},
+		featured: {
+			type: Boolean,
+			default: false,
+			index: true,
+		},
+		urgent: {
+			type: Boolean,
+			default: false,
 			index: true,
 		},
 	},

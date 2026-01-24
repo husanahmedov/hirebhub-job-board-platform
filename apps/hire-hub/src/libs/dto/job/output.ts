@@ -46,6 +46,9 @@ export class JobMetrics {
 
 	@Field(() => Int, { description: 'Number of applications' })
 	applicationsCount: number;
+
+	@Field(() => Int, { nullable: true, description: 'Application rate percentage' })
+	applicationRate?: number;
 }
 
 @ObjectType({ description: 'Job time information' })
@@ -107,8 +110,8 @@ export class JobOutput {
 	@Field({ nullable: true, description: 'Full job description' })
 	description?: string;
 
-	@Field({ nullable: true, description: 'Short description or summary' })
-	shortDescription?: string;
+	@Field(() => [String], { nullable: true, description: 'Short descriptions or summaries' })
+	shortDescriptions?: string[];
 
 	@Field(() => JobType, { description: 'Employment type' })
 	employmentType: JobType;
@@ -157,6 +160,15 @@ export class JobOutput {
 
 	@Field(() => JobFlags, { nullable: true, description: 'Job flags information' })
 	flags?: JobFlags;
+
+	@Field(() => Boolean, { nullable: true, description: 'Whether the job is trending' })
+	trending?: boolean;
+
+	@Field(() => Boolean, { nullable: true, description: 'Whether the job is featured' })
+	featured?: boolean;
+
+	@Field(() => Boolean, { nullable: true, description: 'Whether the job is urgent' })
+	urgent?: boolean;
 
 	@Field(() => ApplicationOutput, {
 		nullable: true,

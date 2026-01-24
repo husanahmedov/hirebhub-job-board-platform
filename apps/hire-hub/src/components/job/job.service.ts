@@ -18,7 +18,7 @@ import {
 } from '../../libs';
 import { ErrorCode, ErrorMessage, BadRequestException } from '../../libs';
 import { ViewService } from '../view/view.service';
-import { shapeIntoMongoObjectId } from '../../libs/config';
+import { JOBS_AGGREGATION_PIPELINES, shapeIntoMongoObjectId } from '../../libs/config';
 import { StatsModifier } from '../../libs/interfaces/common';
 import { CompanyService } from '../company/company.service';
 
@@ -191,60 +191,20 @@ export class JobService {
 
 		// ==================== STAGE 3: LOOKUP (Joins) ====================
 		// Join with Company collection
-		pipeline.push({
-			$lookup: {
-				from: 'companies',
-				localField: 'companyId',
-				foreignField: '_id',
-				as: 'companyData',
-				pipeline: [
-					{
-						$project: {
-							_id: 1,
-							name: 1,
-							logoUrl: 1,
-							verified: 1,
-						},
-					},
-				],
-			},
-		});
+		pipeline.push(JOBS_AGGREGATION_PIPELINES.COMPANY_LOOKUP);
 
-		pipeline.push({
-			$lookup: {
-				from: 'applications',
-				localField: '_id',
-				foreignField: 'jobId',
-				as: 'applicationsData',
-			},
-		});
+		// Join with Applications collection
+		pipeline.push(JOBS_AGGREGATION_PIPELINES.APPLICATIONS_DATA_LOOKUP);
 
 		// Join with User collection
-		pipeline.push({
-			$lookup: {
-				from: 'users',
-				localField: 'postedBy',
-				foreignField: '_id',
-				as: 'postedByData',
-				pipeline: [
-					{
-						$project: {
-							_id: 1,
-							firstName: 1,
-							lastName: 1,
-							email: 1,
-							profilePicture: 1,
-						},
-					},
-				],
-			},
-		});
+		pipeline.push(JOBS_AGGREGATION_PIPELINES.POSTED_BY_LOOKUP);
 
 		// ==================== STAGE 4: PROJECT (Shape the output) ====================
 		pipeline.push({
 			$addFields: {
 				companyData: { $arrayElemAt: ['$companyData', 0] },
 				postedByData: { $arrayElemAt: ['$postedByData', 0] },
+				...JOBS_AGGREGATION_PIPELINES.JOB_METRICS,
 			},
 		});
 
@@ -337,76 +297,7 @@ export class JobService {
 			},
 			{
 				$addFields: {
-					metrics: {
-						applicationsCount: '$applicationsCount',
-						viewsCount: '$viewsCount',
-						applicationRate: {
-							$cond: [
-								{ $eq: ['$viewsCount', 0] },
-								0,
-								{
-									$round: [
-										{
-											$multiply: [{ $divide: ['$applicationsCount', '$viewsCount'] }, 100],
-										},
-										2,
-									],
-								},
-							],
-						},
-					},
-					engagementScore: {
-						$add: ['$viewsCount', { $multiply: ['$applicationsCount', 10] }],
-					},
-					timeInfo: {
-						daysSincePosted: {
-							$round: [
-								{
-									$divide: [{ $subtract: [new Date(), '$createdAt'] }, 1000 * 60 * 60 * 24],
-								},
-								0,
-							],
-						},
-						daysUntilDeadline: {
-							$cond: [
-								{ $ne: ['$applicationDeadline', null] },
-								{
-									$round: [
-										{
-											$divide: [{ $subtract: ['$applicationDeadline', new Date()] }, 1000 * 60 * 60 * 24],
-										},
-										0,
-									],
-								},
-								null,
-							],
-						},
-						isExpiringSoon: {
-							$cond: [
-								{
-									$and: [
-										{ $ne: ['$applicationDeadline', null] },
-										{ $lte: [{ $subtract: ['$applicationDeadline', new Date()] }, 7 * 24 * 60 * 60 * 1000] },
-									],
-								},
-								true,
-								false,
-							],
-						},
-					},
-					flags: {
-						isPopular: { $gte: ['$viewsCount', 1000] },
-						isHot: { $gte: ['$applicationsCount', 50] },
-						needsPromotion: {
-							$and: [
-								{ $lt: ['$viewsCount', 100] },
-								{ $gte: [{ $subtract: [new Date(), '$createdAt'] }, 7 * 24 * 60 * 60 * 1000] },
-							],
-						},
-						hasSalary: {
-							$and: [{ $ne: ['$salaryRange', null] }, { $gt: ['$salaryRange.min', 0] }],
-						},
-					},
+					...JOBS_AGGREGATION_PIPELINES.JOB_METRICS,
 				},
 			},
 		);
@@ -415,9 +306,8 @@ export class JobService {
 				companyData: { $arrayElemAt: ['$companyData', 0] },
 				postedByData: { $arrayElemAt: ['$postedByData', 0] },
 			},
-		})
+		});
 		const [job] = await this.jobModel.aggregate(pipeline).exec();
-
 		if (!job) {
 			throw new JobNotFoundException(`Job with ID "${jobId}" not found`);
 		}
@@ -439,7 +329,7 @@ export class JobService {
 				[job.viewsCount] = [job.viewsCount + 1];
 			}
 		}
-		
+
 		return this.mapToJobOutput(job);
 	}
 
@@ -603,13 +493,13 @@ export class JobService {
 	private mapToJobOutput(job: any): JobOutput {
 		return {
 			_id: job._id.toString(),
-			companyId: job.companyId?._id?.toString() || job.companyId?.toString(),
-			companyData: job.companyId?._id && job.companyData ? job.companyData : undefined,
-			postedBy: job.postedBy?._id?.toString() || job.postedBy?.toString(),
-			postedByData: job.postedBy?._id && job.postedByData ? job.postedByData : undefined,
+			companyId: job.companyId?.toString(),
+			companyData: job.companyData || undefined,
+			postedBy: job.postedBy?.toString(),
+			postedByData: job.postedByData || undefined,
 			title: job.title,
 			description: job.description,
-			shortDescription: job.shortDescription,
+			shortDescriptions: job.shortDescriptions || [],
 			employmentType: job.employmentType,
 			seniorityLevel: job.seniorityLevel,
 			location: job.location,
@@ -621,8 +511,9 @@ export class JobService {
 			applicationDeadline: job.applicationDeadline,
 			// metrics
 			metrics: {
-				applicationsCount: job.applicationsCount,
 				viewsCount: job.viewsCount,
+				applicationsCount: job.applicationsCount,
+				applicationRate: job.metrics?.applicationRate,
 			},
 			// engagement score
 			engagementScore: job.engagementScore,
@@ -639,6 +530,7 @@ export class JobService {
 				needsPromotion: job.flags?.needsPromotion,
 				hasSalary: job.flags?.hasSalary,
 			},
+			trending: job.trending,
 			isPublished: job.isPublished,
 			visibility: job.visibility,
 			createdAt: job.createdAt,
