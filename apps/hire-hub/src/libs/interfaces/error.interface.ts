@@ -25,6 +25,7 @@ export interface IErrorResponse {
 export interface IGraphQLErrorExtension {
 	code: string;
 	details?: any;
+	statusCode?: number;
 	timestamp?: string;
 	stacktrace?: string[];
 	originalError?: {

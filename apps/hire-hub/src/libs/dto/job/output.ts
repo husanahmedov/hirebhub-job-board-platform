@@ -110,6 +110,9 @@ export class JobOutput {
 	@Field({ nullable: true, description: 'Full job description' })
 	description?: string;
 
+	@Field({ nullable: true, description: 'Rich text job description with HTML formatting' })
+	richDescription?: string;
+
 	@Field(() => [String], { nullable: true, description: 'Short descriptions or summaries' })
 	shortDescriptions?: string[];
 

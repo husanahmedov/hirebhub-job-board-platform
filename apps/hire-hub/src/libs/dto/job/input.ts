@@ -100,6 +100,12 @@ export class CreateJobInput {
 	@MaxLength(10000)
 	description?: string;
 
+	@Field({ nullable: true, description: 'Rich text job description with HTML formatting' })
+	@IsOptional()
+	@IsString()
+	@MaxLength(50000)
+	richDescription?: string;
+
 	@Field(() => [String], { nullable: true, description: 'Short description or summary' })
 	@IsOptional()
 	@IsString({ each: true })
@@ -214,6 +220,12 @@ export class UpdateJobInput {
 	@IsString()
 	@MaxLength(10000)
 	description?: string;
+
+	@Field({ nullable: true, description: 'Rich text job description with HTML formatting' })
+	@IsOptional()
+	@IsString()
+	@MaxLength(50000)
+	richDescription?: string;
 
 	@Field(() => [String], { nullable: true, description: 'Short descriptions or summaries' })
 	@IsOptional()

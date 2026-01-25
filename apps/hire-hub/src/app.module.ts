@@ -37,7 +37,7 @@ import { ViewModule } from './components/view/view.module';
 				const code = error?.extensions?.code || 'INTERNAL_SERVER_ERROR';
 				const timestamp = error?.extensions?.timestamp || new Date().toISOString();
 				let message = error?.extensions?.originalError?.message || error?.message || 'An unexpected error occurred';
-				const statusCode = error?.extensions?.originalError?.statusCode || 500;
+				const statusCode = error?.extensions?.statusCode || 500;
 				let details = error?.extensions?.details;
 
 				// Handle GraphQL schema validation errors (BAD_USER_INPUT)

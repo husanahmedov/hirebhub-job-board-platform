@@ -232,7 +232,7 @@ export class EnvUtil {
 	 * @returns The Google OAuth Client ID
 	 */
 	public static getGoogleClientId(): string {
-		const clientId = process.env.GOOGLE_CLIENT_ID;
+		const clientId = process.env.GOOGLE_CLIENT_ID_2;
 		if (!clientId && this.isProduction()) {
 			throw new Error('GOOGLE_CLIENT_ID is not configured');
 		}
@@ -244,7 +244,7 @@ export class EnvUtil {
 	 * @returns The Google OAuth Client Secret
 	 */
 	public static getGoogleClientSecret(): string {
-		const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+		const clientSecret = process.env.GOOGLE_CLIENT_SECRET_2;
 		if (!clientSecret && this.isProduction()) {
 			throw new Error('GOOGLE_CLIENT_SECRET is not configured');
 		}
@@ -256,7 +256,7 @@ export class EnvUtil {
 	 * @returns The Google OAuth Callback URL
 	 */
 	public static getGoogleCallbackUrl(): string {
-		return process.env.GOOGLE_CALLBACK_URL ?? `http://localhost:${this.getPort()}/auth/google/callback`;
+		return process.env.GOOGLE_CALLBACK_URL ?? `http://localhost:8080/auth/google/callback`;
 	}
 
 	/**

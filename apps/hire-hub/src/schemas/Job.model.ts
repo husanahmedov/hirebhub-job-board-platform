@@ -105,7 +105,17 @@ const JobSchema = new Schema(
 		},
 
 		/**
-	 * Short description or summary
+		 * Rich text job description with formatting (HTML)
+		 * This allows recruiters to freely format job details including requirements and benefits
+		 */
+		richDescription: {
+			type: String,
+			trim: true,
+			maxlength: [50000, 'Rich description cannot exceed 50000 characters'],
+		},
+
+		/**
+		 * Short description or summary
 		 */
 		shortDescriptions: [
 			{
@@ -168,19 +178,23 @@ const JobSchema = new Schema(
 		},
 
 		/**
-		 * Job requirements/qualifications
+		 * Job requirements/qualifications (optional - for structured search/filtering)
+		 * Can be auto-extracted from richDescription using AI
 		 */
 		requirements: {
 			type: [String],
 			default: [],
+			required: false,
 		},
 
 		/**
-		 * Benefits offered with this position
+		 * Benefits offered with this position (optional - for structured search/filtering)
+		 * Can be auto-extracted from richDescription using AI
 		 */
 		benefits: {
 			type: [String],
 			default: [],
+			required: false,
 		},
 
 		/**
@@ -278,7 +292,7 @@ JobSchema.index({ createdAt: -1, isPublished: 1 });
 JobSchema.index({ applicationDeadline: 1, isPublished: 1 });
 
 // Text index for full-text search
-JobSchema.index({ title: 'text', description: 'text' });
+JobSchema.index({ title: 'text', description: 'text', richDescription: 'text' });
 
 export { JobSchema };
 export type JobDocument = any;

@@ -499,6 +499,7 @@ export class JobService {
 			postedByData: job.postedByData || undefined,
 			title: job.title,
 			description: job.description,
+			richDescription: job.richDescription,
 			shortDescriptions: job.shortDescriptions || [],
 			employmentType: job.employmentType,
 			seniorityLevel: job.seniorityLevel,

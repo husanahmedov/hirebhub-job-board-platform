@@ -22,6 +22,7 @@ import { shapeIntoMongoObjectId } from '../../libs/config';
 import { AuthService } from '../auth/auth.service';
 import type { ObjectId } from 'mongoose';
 import { Step3RegisterInput, Step4RegisterInput, Step5RegisterInput } from '../../libs/';
+import { WithoutGuard } from '../auth/guards/without.guard';
 
 @Resolver()
 export class UserResolver {
@@ -219,6 +220,7 @@ export class UserResolver {
 	/**
 	 * Refresh access token using a valid refresh token
 	 */
+	@UseGuards(WithoutGuard)
 	@Mutation(() => AuthResponse, {
 		description: 'Refresh access token using a valid refresh token',
 	})

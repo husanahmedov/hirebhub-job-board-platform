@@ -11,14 +11,16 @@ export class BaseGraphQLException extends GraphQLError {
 	public readonly errorCode: ErrorCode;
 	public readonly timestamp: string;
 	public readonly details?: any;
+	public readonly statusCode?: number;
 
-	constructor(errorCode: ErrorCode, message?: string, details?: any) {
+	constructor(errorCode: ErrorCode, message?: string, details?: any, statusCode?: number) {
 		const errorMessage = message || ErrorMessage[errorCode];
 
 		super(errorMessage, {
 			extensions: {
 				code: errorCode,
 				timestamp: new Date().toISOString(),
+				statusCode: statusCode || 400,
 				details,
 			},
 		});

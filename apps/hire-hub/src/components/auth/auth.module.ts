@@ -8,6 +8,7 @@ import { LinkedInStrategy } from './strategies/linkedin.strategy';
 import { GitHubStrategy } from './strategies/github.strategy';
 import { EnvUtil } from '../../libs/';
 import { UserModule } from '../user/user.module';
+import { CheckUserStatus } from '../../libs/check-user-status';
 
 /**
  * Authentication Module
@@ -29,7 +30,7 @@ import { UserModule } from '../user/user.module';
 		// Note: Refresh tokens use a separate secret configured in AuthService
 		JwtModule.register({
 			secret: `${EnvUtil.getJwtSecret()}`,
-			signOptions: { expiresIn: '1d' }, // Short-lived access tokens
+			signOptions: { expiresIn: '1m' }, // Short-lived access tokens 1 minute
 		}),
 
 		// UserModule for UserService (needed by OAuth strategies)

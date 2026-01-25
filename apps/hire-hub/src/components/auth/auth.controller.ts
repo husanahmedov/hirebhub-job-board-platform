@@ -142,13 +142,10 @@ export class AuthController {
 	private async handleOAuthCallback(req: Request & { user: User }, res: Response, provider: string) {
 		try {
 			const user = req.user;
-
 			if (!user) {
 				// User not found - OAuth validation failed
 				console.error(`OAuth callback failed: No user object from ${provider}`);
-				return res.redirect(
-					`${EnvUtil.getFrontendUrl()}/auth/error?message=Authentication failed&provider=${provider}`,
-				);
+				return res.redirect(`http://localhost:8080/auth/error?message=Authentication failed&provider=${provider}`);
 			}
 
 			// Generate JWT access token (short-lived)
@@ -177,11 +174,25 @@ export class AuthController {
 			// 2. Store them securely (httpOnly cookies or secure storage)
 			// 3. Remove tokens from URL (for security)
 			// 4. Redirect to dashboard/home page
-			const redirectUrl = new URL(`${EnvUtil.getFrontendUrl()}/auth/callback`);
-			redirectUrl.searchParams.set('accessToken', accessToken);
-			redirectUrl.searchParams.set('refreshToken', refreshToken);
-			redirectUrl.searchParams.set('accessTokenExpiresAt', accessTokenExpiresAt.toISOString());
-			redirectUrl.searchParams.set('refreshTokenExpiresAt', refreshTokenExpiresAt.toISOString());
+			const redirectUrl = new URL(`http://localhost:3000/auth/google/callback`);
+			const userData = {
+				firstName: user.firstName || '',
+				lastName: user.lastName || '',
+				email: user.email || '',
+				avatarUrl: user.profile?.avatarUrl || '',
+				fullName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+				createdAt: user.createdAt ? user.createdAt.toISOString() : '',
+				updatedAt: user.updatedAt ? user.updatedAt.toISOString() : '',
+				oauthProviders: user.oauthProviders || [],
+				status: user.status || 'active',
+				emailVerified: user.emailVerified || false,
+				accessToken: accessToken,
+				refreshToken: refreshToken,
+				accessTokenExpiresAt: accessTokenExpiresAt.toISOString(),
+				refreshTokenExpiresAt: refreshTokenExpiresAt.toISOString(),
+			};
+			redirectUrl.searchParams.set('user', encodeURIComponent(JSON.stringify(userData)));
+
 			redirectUrl.searchParams.set('provider', provider);
 
 			return res.redirect(redirectUrl.toString());
@@ -193,9 +204,7 @@ export class AuthController {
 				user: req.user?.email || 'unknown',
 			});
 
-			return res.redirect(
-				`${EnvUtil.getFrontendUrl()}/auth/error?message=Token generation failed&provider=${provider}`,
-			);
+			return res.redirect(`http://localhost:8080/auth/error?message=Token generation failed&provider=${provider}`);
 		}
 	}
 

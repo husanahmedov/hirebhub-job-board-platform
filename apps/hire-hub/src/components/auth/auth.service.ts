@@ -9,7 +9,7 @@ import * as bcrypt from 'bcryptjs';
 /**
  * Token expiration times
  */
-const ACCESS_TOKEN_EXPIRATION = '1d'; // 1 day
+const ACCESS_TOKEN_EXPIRATION = '1m'; // 1 day for tesing now 1minute
 const REFRESH_TOKEN_EXPIRATION = '7d'; // 7 days
 
 @Injectable()
@@ -101,7 +101,7 @@ export class AuthService {
 
 			return user;
 		} catch (error) {
-			throw new TokenExpiredException('Invalid or expired access token');
+			throw new TokenExpiredException('Invalid or expired access token', 401);
 		}
 	}
 

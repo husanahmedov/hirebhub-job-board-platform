@@ -5,8 +5,8 @@ import { ErrorCode } from '../enums';
  * UserNotFoundException - Thrown when a user is not found
  */
 export class UserNotFoundException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.USER_NOT_FOUND, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.USER_NOT_FOUND, undefined, details, statusCode);
 	}
 }
 
@@ -14,8 +14,8 @@ export class UserNotFoundException extends BaseGraphQLException {
  * UserAlreadyExistsException - Thrown when attempting to create a user that already exists
  */
 export class UserAlreadyExistsException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.USER_ALREADY_EXISTS, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.USER_ALREADY_EXISTS, undefined, details, statusCode);
 	}
 }
 
@@ -23,8 +23,8 @@ export class UserAlreadyExistsException extends BaseGraphQLException {
  * UserCreationFailedException - Thrown when user creation fails
  */
 export class UserCreationFailedException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.USER_CREATION_FAILED, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.USER_CREATION_FAILED, undefined, details, statusCode);
 	}
 }
 
@@ -32,8 +32,8 @@ export class UserCreationFailedException extends BaseGraphQLException {
  * InvalidCredentialsException - Thrown when authentication credentials are invalid
  */
 export class InvalidCredentialsException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.INVALID_CREDENTIALS, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.INVALID_CREDENTIALS, undefined, details, statusCode);
 	}
 }
 
@@ -41,8 +41,8 @@ export class InvalidCredentialsException extends BaseGraphQLException {
  * UnauthorizedException - Thrown when user is not authorized
  */
 export class UnauthorizedException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.UNAUTHORIZED, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.UNAUTHORIZED, undefined, details, statusCode);
 	}
 }
 
@@ -50,8 +50,8 @@ export class UnauthorizedException extends BaseGraphQLException {
  * UnAuthenticatedException - Thrown when user is not authenticated
  */
 export class UnAuthenticatedException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.USER_NOT_AUTHENTICATED, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.USER_NOT_AUTHENTICATED, undefined, details, statusCode);
 	}
 }
 
@@ -59,8 +59,8 @@ export class UnAuthenticatedException extends BaseGraphQLException {
  * UserDeactivatedException - Thrown when user is deactivated
  */
 export class UserDeactivatedException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.USER_STATUS_DEACTIVATED, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.USER_STATUS_DEACTIVATED, undefined, details, statusCode);
 	}
 }
 
@@ -68,8 +68,8 @@ export class UserDeactivatedException extends BaseGraphQLException {
  * UserSuspendedException - Thrown when user is deactivated
  */
 export class UserSuspendedException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.USER_STATUS_SUSPENDED, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.USER_STATUS_SUSPENDED, undefined, details, statusCode);
 	}
 }
 
@@ -78,8 +78,8 @@ export class UserSuspendedException extends BaseGraphQLException {
  */
 
 export class TokenExpiredException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.TOKEN_EXPIRED, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.TOKEN_EXPIRED, undefined, details, statusCode);
 	}
 }
 
@@ -87,8 +87,8 @@ export class TokenExpiredException extends BaseGraphQLException {
  * ForbiddenException - Thrown when user doesn't have permission
  */
 export class ForbiddenException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.FORBIDDEN, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.FORBIDDEN, undefined, details, statusCode);
 	}
 }
 
@@ -96,8 +96,8 @@ export class ForbiddenException extends BaseGraphQLException {
  * CompanyNotFoundException - Thrown when a company is not found
  */
 export class CompanyNotFoundException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.COMPANY_NOT_FOUND, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.COMPANY_NOT_FOUND, undefined, details, statusCode);
 	}
 }
 
@@ -105,8 +105,8 @@ export class CompanyNotFoundException extends BaseGraphQLException {
  * DuplicatedOnwerCompanyException - Thrown when a company owner is already registered for another company
  */
 export class DuplicatedOnwerCompanyException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.COMPANY_OWNER_DUPLICATED, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.COMPANY_OWNER_DUPLICATED, undefined, details, statusCode);
 	}
 }
 
@@ -114,8 +114,8 @@ export class DuplicatedOnwerCompanyException extends BaseGraphQLException {
  * JobNotFoundException - Thrown when a job is not found
  */
 export class JobNotFoundException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.JOB_NOT_FOUND, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.JOB_NOT_FOUND, undefined, details, statusCode);
 	}
 }
 
@@ -123,8 +123,8 @@ export class JobNotFoundException extends BaseGraphQLException {
  * ApplicationNotFoundException - Thrown when an application is not found
  */
 export class ApplicationNotFoundException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.APPLICATION_NOT_FOUND, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.APPLICATION_NOT_FOUND, undefined, details, statusCode);
 	}
 }
 
@@ -132,8 +132,8 @@ export class ApplicationNotFoundException extends BaseGraphQLException {
  * ApplicationAlreadyExistsException - Thrown when user has already applied
  */
 export class ApplicationAlreadyExistsException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.APPLICATION_ALREADY_EXISTS, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.APPLICATION_ALREADY_EXISTS, undefined, details, statusCode);
 	}
 }
 
@@ -141,8 +141,8 @@ export class ApplicationAlreadyExistsException extends BaseGraphQLException {
  * ResumeNotFoundException - Thrown when a resume is not found
  */
 export class ResumeNotFoundException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.RESUME_NOT_FOUND, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.RESUME_NOT_FOUND, undefined, details, statusCode);
 	}
 }
 
@@ -150,8 +150,8 @@ export class ResumeNotFoundException extends BaseGraphQLException {
  * ResumeUploadFailedException - Thrown when resume upload fails
  */
 export class ResumeUploadFailedException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.RESUME_UPLOAD_FAILED, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.RESUME_UPLOAD_FAILED, undefined, details, statusCode);
 	}
 }
 
@@ -159,8 +159,8 @@ export class ResumeUploadFailedException extends BaseGraphQLException {
  * InvalidFileFormatException - Thrown when file format is invalid
  */
 export class InvalidFileFormatException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.INVALID_FILE_TYPE, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.INVALID_FILE_TYPE, undefined, details, statusCode);
 	}
 }
 
@@ -168,8 +168,8 @@ export class InvalidFileFormatException extends BaseGraphQLException {
  * FileSizeExceededException - Thrown when file size exceeds limit
  */
 export class FileSizeExceededException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.FILE_TOO_LARGE, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.FILE_TOO_LARGE, undefined, details, statusCode);
 	}
 }
 
@@ -177,8 +177,8 @@ export class FileSizeExceededException extends BaseGraphQLException {
  * BookmarkNotFoundException - Thrown when a bookmark is not found
  */
 export class BookmarkNotFoundException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.BOOKMARK_NOT_FOUND, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.BOOKMARK_NOT_FOUND, undefined, details, statusCode);
 	}
 }
 
@@ -186,8 +186,8 @@ export class BookmarkNotFoundException extends BaseGraphQLException {
  * BookmarkAlreadyExistsException - Thrown when bookmark already exists
  */
 export class BookmarkAlreadyExistsException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.BOOKMARK_ALREADY_EXISTS, undefined, details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.BOOKMARK_ALREADY_EXISTS, undefined, details, statusCode);
 	}
 }
 
@@ -195,8 +195,8 @@ export class BookmarkAlreadyExistsException extends BaseGraphQLException {
  * DatabaseException - Thrown when database operation fails
  */
 export class DatabaseException extends BaseGraphQLException {
-	constructor(errorCode: ErrorCode = ErrorCode.DATABASE_QUERY_FAILED, details?: any) {
-		super(errorCode, undefined, details);
+	constructor(errorCode: ErrorCode = ErrorCode.DATABASE_QUERY_FAILED, details?: any, statusCode?: number) {
+		super(errorCode, undefined, details, statusCode);
 	}
 }
 
@@ -204,8 +204,8 @@ export class DatabaseException extends BaseGraphQLException {
  * ValidationException - Thrown when validation fails
  */
 export class ValidationException extends BaseGraphQLException {
-	constructor(message?: string, details?: any) {
-		super(ErrorCode.INVALID_INPUT, message, details);
+	constructor(message?: string, details?: any, statusCode?: number) {
+		super(ErrorCode.INVALID_INPUT, message, details, statusCode);
 	}
 }
 
@@ -213,8 +213,8 @@ export class ValidationException extends BaseGraphQLException {
  * NotFoundException - Generic not found exception
  */
 export class NotFoundException extends BaseGraphQLException {
-	constructor(resource: string, details?: any) {
-		super(ErrorCode.NOT_FOUND, `${resource} not found`, details);
+	constructor(resource: string, details?: any, statusCode?: number) {
+		super(ErrorCode.NOT_FOUND, `${resource} not found`, details, statusCode);
 	}
 }
 
@@ -222,8 +222,8 @@ export class NotFoundException extends BaseGraphQLException {
  * BadRequestException - Generic bad request exception
  */
 export class BadRequestException extends BaseGraphQLException {
-	constructor(message?: string, details?: any) {
-		super(ErrorCode.BAD_REQUEST, message, details);
+	constructor(message?: string, details?: any, statusCode?: number) {
+		super(ErrorCode.BAD_REQUEST, message, details, statusCode);
 	}
 }
 
@@ -231,8 +231,8 @@ export class BadRequestException extends BaseGraphQLException {
  * DuplicateEducationException - Thrown when trying to add duplicate education entry
  */
 export class DuplicateEducationException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.DUPLICATE_KEY_ERROR, 'Education entry already exists for this school', details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.DUPLICATE_KEY_ERROR, 'Education entry already exists for this school', details, statusCode);
 	}
 }
 
@@ -240,8 +240,8 @@ export class DuplicateEducationException extends BaseGraphQLException {
  * DuplicateExperienceException - Thrown when trying to add duplicate experience entry
  */
 export class DuplicateExperienceException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.DUPLICATE_KEY_ERROR, 'Experience entry already exists for this company', details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.DUPLICATE_KEY_ERROR, 'Experience entry already exists for this company', details, statusCode);
 	}
 }
 
@@ -249,8 +249,8 @@ export class DuplicateExperienceException extends BaseGraphQLException {
  * DuplicateQualificationException - Thrown when trying to add duplicate qualification entry
  */
 export class DuplicateQualificationException extends BaseGraphQLException {
-	constructor(details?: any) {
-		super(ErrorCode.DUPLICATE_KEY_ERROR, 'Qualification entry already exists with this name', details);
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.DUPLICATE_KEY_ERROR, 'Qualification entry already exists with this name', details, statusCode);
 	}
 }
 
@@ -258,7 +258,7 @@ export class DuplicateQualificationException extends BaseGraphQLException {
  * InternalServerException - Generic internal server error
  */
 export class InternalServerException extends BaseGraphQLException {
-	constructor(message?: string, details?: any) {
-		super(ErrorCode.INTERNAL_SERVER_ERROR, message, details);
+	constructor(message?: string, details?: any, statusCode?: number) {
+		super(ErrorCode.INTERNAL_SERVER_ERROR, message, details, statusCode);
 	}
 }

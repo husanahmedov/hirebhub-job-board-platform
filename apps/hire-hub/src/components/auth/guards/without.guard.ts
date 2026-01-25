@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
+import { CheckUserStatus } from 'apps/hire-hub/src/libs/check-user-status';
 
 @Injectable()
 export class WithoutGuard implements CanActivate {
@@ -16,6 +17,7 @@ export class WithoutGuard implements CanActivate {
 				try {
 					const token = bearerToken.split(' ')[1],
 						authUser = await this.authService.verifyToken(token);
+					CheckUserStatus.displayUserDetails(authUser);
 					request.authUser = authUser;
 				} catch (err) {
 					request.authUser = null;
