@@ -179,7 +179,9 @@ export class AuthController {
 				firstName: user.firstName || '',
 				lastName: user.lastName || '',
 				email: user.email || '',
-				avatarUrl: user.profile?.avatarUrl || '',
+				profile: {
+					avatarUrl: user.profile?.avatarUrl || '',
+				},
 				fullName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
 				createdAt: user.createdAt ? user.createdAt.toISOString() : '',
 				updatedAt: user.updatedAt ? user.updatedAt.toISOString() : '',
