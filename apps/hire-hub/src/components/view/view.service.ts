@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import type { Model, ObjectId } from 'mongoose';
-import { InternalServerException, View, ViewInput } from '../../libs';
+import { InternalServerException, User, View, ViewGroup, ViewInput } from '../../libs';
 
 @Injectable()
 export class ViewService {
@@ -13,7 +13,6 @@ export class ViewService {
 		if (userId) {
 			existingView = await this.checkViewExists(userId, viewRefId);
 			console.log(existingView);
-			
 		}
 
 		return existingView ? null : this.viewModel.create(input);

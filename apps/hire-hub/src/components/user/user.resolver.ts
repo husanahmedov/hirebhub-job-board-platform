@@ -300,4 +300,18 @@ export class UserResolver {
 		console.log('--- @query() Get Active Company is called ---');
 		return await this.userService.getActiveCompany(userId.toString());
 	}
+
+	@Roles(UserRole.CANDIDATE)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Query(() => PublicUser, {
+		description: "Get authenticated candidate user's profile",
+	})
+	public async getCandidateProfile(
+		@AuthUser('_id') userId: ObjectId,
+		@Args('targetUserId', { nullable: true }) targetUserId?: string,
+	): Promise<PublicUser> {
+		console.log(`--- @query() Get Candidate Profile is called: ${userId} ---`);
+		return await this.userService.getCandidateProfile(userId, targetUserId);
+	}
 }

@@ -230,6 +230,9 @@ export class User {
 	@Field(() => String)
 	fullName?: string;
 
+	@Field(() => Int, { nullable: true })
+	viewsCount?: number;
+
 	@IsOptional()
 	@Field(() => String)
 	passwordHash?: string;
@@ -270,6 +273,9 @@ export class PublicUser {
 	fullName?: string;
 
 	@Field(() => String, { nullable: true })
+	profileCompleteness?: string;
+
+	@Field(() => String, { nullable: true })
 	email?: string;
 
 	@Field(() => String)
@@ -281,6 +287,9 @@ export class PublicUser {
 
 	@Field(() => Profile, { nullable: true })
 	profile?: Profile;
+
+	@Field(() => Int, { nullable: true })
+	viewsCount?: number;
 
 	@IsOptional()
 	@Field(() => String, { nullable: true })

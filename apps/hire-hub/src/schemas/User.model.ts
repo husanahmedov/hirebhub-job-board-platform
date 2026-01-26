@@ -526,6 +526,11 @@ const UserSchema = new Schema(
 			type: [Object],
 			default: [],
 		},
+
+		viewsCount: {
+			type: Number,
+			default: 0,
+		},
 	},
 	{
 		// Automatic timestamp management
@@ -655,7 +660,7 @@ UserSchema.virtual('profileCompleteness').get(function () {
 	if (this.profile?.experience && this.profile.experience.length > 0) score += 1;
 	if (this.profile?.resumeId) score += 1;
 
-	return Math.round((score / maxScore) * 100);
+	return `${Math.round((score / maxScore) * 100)}%`;
 });
 
 // ============================================================================

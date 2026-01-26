@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { RegisterUserInput, User } from '../../libs/dto/user';
-import { GetLeanResultType, Model, ObjectId } from 'mongoose';
+import { GetLeanResultType, Model, ObjectId, PipelineStage } from 'mongoose';
 import {
 	UserCreationFailedException,
 	UserAlreadyExistsException,
@@ -19,6 +19,8 @@ import {
 	Step5RegisterInput,
 	ResendVerificationInput,
 	VerifyEmailInput,
+	BadRequestException,
+	ViewGroup,
 } from '../../libs';
 import { AuthService } from '../auth/auth.service';
 import { shapeIntoMongoObjectId } from '../../libs/config';
@@ -26,6 +28,8 @@ import { Step3RegisterInput, Step4RegisterInput } from '../../libs';
 import { EmailService } from '../notification/email.service';
 
 import { LeanOptions } from 'mongoose';
+import { ViewService } from '../view/view.service';
+import { StatsModifier } from '../../libs/interfaces/common';
 
 @Injectable()
 export class UserService {
@@ -33,6 +37,7 @@ export class UserService {
 		@InjectModel('User') private userModel: Model<User>,
 		private readonly authService: AuthService,
 		private readonly emailService: EmailService,
+		private readonly viewService: ViewService,
 	) {}
 
 	/** Register a new user and generate auth tokens */
@@ -1162,7 +1167,6 @@ export class UserService {
 			});
 		}
 		console.log(`-------- User has access to company with ID "${hasAccess[0]}" --------`);
-		
 
 		// Update active company
 		const updatedUser = await this.userModel
@@ -1220,5 +1224,127 @@ export class UserService {
 			.exec();
 
 		return result[0]?.activeCompany || null;
+	}
+
+	public async getCandidateProfile(userId: ObjectId, targetUserId?: string): Promise<PublicUser> {
+		const shapedTargetUserId = shapeIntoMongoObjectId(targetUserId);
+		try {
+			const user = await this.userModel.findById(userId).exec();
+			if (!user) {
+				throw new UserNotFoundException({
+					message: 'User not found',
+					userId,
+				});
+			}
+			if (shapedTargetUserId && typeof shapedTargetUserId !== null) {
+				return this.getUserProfile(userId, shapedTargetUserId);
+			}
+
+			return this.getOwnProfile(userId);
+		} catch (error: any) {
+			if (error instanceof UserNotFoundException) {
+				throw error;
+			}
+
+			// Handle unexpected errors
+			console.error('Unexpected error fetching candidate profile:', {
+				error: error.message,
+				errorName: error.name,
+				userId: userId.toString(),
+				timestamp: new Date().toISOString(),
+				stack: error.stack,
+			});
+
+			throw new InternalServerErrorException('Failed to fetch candidate profile. Please try again later.');
+		}
+	}
+
+	private async getOwnProfile(userId: ObjectId): Promise<PublicUser> {
+		const pipeline: PipelineStage[] = [
+			{ $match: { _id: userId } },
+			{
+				$project: {
+					passwordHash: 0,
+					refreshToken: 0,
+					verificationCode: 0,
+					verificationCodeExpires: 0,
+					oauthProviders: 0,
+				},
+			},
+		];
+
+		const result = await this.userModel.aggregate(pipeline).exec();
+		// result = result. convert to toObject()
+		const docs = result.map((user) => new this.userModel(user));
+		const withVirtuals = docs.map((doc) => doc.toObject({ virtuals: true }));
+		if (result.length === 0) {
+			throw new UserNotFoundException({
+				message: 'User not found',
+				userId,
+			});
+		}
+
+		return withVirtuals[0] as PublicUser;
+	}
+
+	private async getUserProfile(userId: ObjectId, targetUserId: ObjectId): Promise<PublicUser> {
+		const pipeline: PipelineStage[] = [
+			{ $match: { _id: targetUserId } },
+			{
+				$project: {
+					passwordHash: 0,
+					refreshToken: 0,
+					verificationCode: 0,
+					verificationCodeExpires: 0,
+					oauthProviders: 0,
+				},
+			},
+		];
+
+		const result = await this.userModel.aggregate(pipeline).exec();
+		// result = result. convert to toObject()
+		const docs = result.map((user) => new this.userModel(user));
+		const withVirtuals = docs.map((doc) => doc.toObject({ virtuals: true }));
+		if (result.length === 0) {
+			throw new UserNotFoundException({
+				message: 'User not found',
+				targetUserId,
+			});
+		}
+
+		if (userId) {
+			const $resultIncrement = await this.viewService.incremenetViewCount({
+				userId: String(userId),
+				viewRefId: String(targetUserId),
+				viewGroup: ViewGroup.USER,
+			});
+			if ($resultIncrement) {
+				await this.userStatsModifier({
+					id: targetUserId,
+					targetKey: 'viewsCount',
+					modifier: 1,
+				});
+				withVirtuals[0].viewsCount = withVirtuals[0].viewsCount ? withVirtuals[0].viewsCount + 1 : 1;
+			}
+		}
+
+		return withVirtuals[0] as PublicUser;
+	}
+
+	/**
+	 * Increment application count for a job
+	 */
+	public async userStatsModifier(input: StatsModifier): Promise<void> {
+		try {
+			await this.userModel.findByIdAndUpdate(input.id, {
+				$inc: { [input.targetKey]: input.modifier },
+			});
+		} catch (error) {
+			console.log(`---------Error: ${error} ---------`);
+			throw new BadRequestException('Failed to modify job stats', {
+				message: 'Failed to modify job stats',
+				details: error.message,
+			});
+		}
 	}
 }

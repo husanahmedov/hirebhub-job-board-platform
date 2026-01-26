@@ -30,7 +30,7 @@ import { CheckUserStatus } from '../../libs/check-user-status';
 		// Note: Refresh tokens use a separate secret configured in AuthService
 		JwtModule.register({
 			secret: `${EnvUtil.getJwtSecret()}`,
-			signOptions: { expiresIn: '1m' }, // Short-lived access tokens 1 minute
+			signOptions: { expiresIn: '1d' }, // Short-lived access tokens 1 day
 		}),
 
 		// UserModule for UserService (needed by OAuth strategies)
