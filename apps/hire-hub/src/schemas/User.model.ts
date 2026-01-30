@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { UserStatus, UserRole } from '../libs/enums';
+import { UserStatus, UserRole, EmploymentType, WorkPreference } from '../libs/enums';
 
 /**
  * User Schema - MongoDB schema definition for user documents
@@ -142,6 +142,18 @@ const UserSchema = new Schema(
 				type: String,
 				trim: true,
 				maxlength: 2000,
+			},
+
+			contactInfo: {
+				phone_number: { type: String, trim: true, maxlength: 20 },
+				email: { type: String, trim: true, maxlength: 255 },
+			},
+
+			openTo: {
+				work: { type: Boolean, default: false },
+				hiring: { type: Boolean, default: false },
+				freelance: { type: Boolean, default: false },
+				mentorship: { type: Boolean, default: false },
 			},
 
 			/**
@@ -301,6 +313,17 @@ const UserSchema = new Schema(
 						maxlength: 100,
 					},
 
+					employmentType: {
+						type: String,
+						enum: Object.values(EmploymentType),
+						maxlength: 50,
+					},
+
+					currentlyWorkingHere: {
+						type: Boolean,
+						default: false,
+					},
+
 					/**
 					 * Work location
 					 */
@@ -309,6 +332,28 @@ const UserSchema = new Schema(
 						trim: true,
 						maxlength: 200,
 					},
+
+					locationType: {
+						type: String,
+						enum: Object.values(WorkPreference),
+						trim: true,
+						maxlength: 50,
+					},
+
+					skills: [
+						{
+							type: String,
+							trim: true,
+							maxlength: 50,
+						},
+					],
+					media: [
+						{
+							type: String,
+							trim: true,
+							maxlength: 500,
+						},
+					],
 
 					/**
 					 * Employment start date
@@ -439,6 +484,12 @@ const UserSchema = new Schema(
 			index: true,
 		},
 
+		publicProfileUsername: {
+			type: String,
+			trim: true,
+			maxlength: 500,
+		},
+
 		/**
 		 * User preferences and settings
 		 */
@@ -566,6 +617,9 @@ const UserSchema = new Schema(
 // INDEXES - Performance optimization for common queries
 // ============================================================================
 
+UserSchema.index({ email: 1 }, { unique: true });
+UserSchema.index({ publicProfileUsername: 1 }, { unique: true, sparse: true });
+
 /**
  * Compound index for filtering users by role and status
  * Optimizes queries like: find({ role: 'CANDIDATE', status: 'ACTIVE' })
@@ -642,6 +696,10 @@ UserSchema.virtual('isDeleted').get(function () {
 	return this.deletedAt !== null;
 });
 
+UserSchema.virtual('publicProfileUrl').get(function () {
+	return this.publicProfileUsername ? `http://localhost:3000/${this.publicProfileUsername}` : null;
+});
+
 /**
  * Virtual property: profileCompleteness
  * Calculates profile completion percentage (0-100)
@@ -660,7 +718,7 @@ UserSchema.virtual('profileCompleteness').get(function () {
 	if (this.profile?.experience && this.profile.experience.length > 0) score += 1;
 	if (this.profile?.resumeId) score += 1;
 
-	return `${Math.round((score / maxScore) * 100)}%`;
+	return `${Math.round((score / maxScore) * 100)}`;
 });
 
 // ============================================================================
@@ -673,6 +731,12 @@ UserSchema.virtual('profileCompleteness').get(function () {
 UserSchema.pre('save', function (next) {
 	if (this.email) {
 		this.email = this.email.toLowerCase();
+	}
+	if (!this.publicProfileUsername && this.firstName && this.lastName) {
+		const baseUsername = `${this.firstName.toLowerCase()}-${this.lastName.toLowerCase()}`
+			.replace(/\s+/g, '-')
+			.replace(/[^a-z0-9\-]/g, '');
+		this.publicProfileUsername = `${baseUsername}-${Date.now()}`;
 	}
 	next();
 });

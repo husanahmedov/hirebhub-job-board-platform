@@ -1,0 +1,1176 @@
+[
+	{
+		"email": "victoria.edwards@reactnative.mobile",
+		"password": "ReactNative456!",
+		"firstName": "Victoria",
+		"lastName": "Edwards",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "React Native Developer | Cross-Platform Mobile Expert",
+			"bio": "React Native developer with 5 years of experience building cross-platform mobile applications. Expert in JavaScript, TypeScript, and mobile UI/UX. Published multiple apps on both App Store and Google Play.",
+			"contactInfo": {
+				"phone_number": "+1-555-0134",
+				"email": "victoria.edwards@reactnative.mobile"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": false
+			},
+			"location": {
+				"city": "Tampa",
+				"region": "Florida",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-82.4572, 27.9506]
+				}
+			},
+			"skills": [
+				"React Native",
+				"JavaScript",
+				"TypeScript",
+				"Redux",
+				"Mobile Development",
+				"iOS",
+				"Android",
+				"REST API",
+				"Git",
+				"Agile"
+			],
+			"education": [
+				{
+					"school": "University of South Florida",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Computer Science",
+					"startYear": 2014,
+					"endYear": 2018
+				}
+			],
+			"experience": [
+				{
+					"company": "Mobile Innovations Inc.",
+					"title": "Senior React Native Developer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Tampa, FL",
+					"locationType": "REMOTE",
+					"skills": ["React Native", "TypeScript", "Redux"],
+					"media": [],
+					"startDate": 1622505600000,
+					"endDate": null,
+					"description": "Developing cross-platform mobile applications using React Native. Implementing new features and optimizing app performance."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/victoriaedwards", "github.com/victoriaedwards"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/New_York",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	},
+	{
+		"email": "nathaniel.campbell@infosec.security",
+		"password": "InfoSec789!",
+		"firstName": "Nathaniel",
+		"lastName": "Campbell",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Information Security Engineer | CISSP Certified | Security Architect",
+			"bio": "Information security engineer with 8 years of experience protecting enterprise systems. CISSP and CISM certified. Expert in security architecture, incident response, and compliance frameworks.",
+			"contactInfo": {
+				"phone_number": "+1-555-0135",
+				"email": "nathaniel.campbell@infosec.security"
+			},
+			"openTo": {
+				"work": false,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": true
+			},
+			"location": {
+				"city": "Arlington",
+				"region": "Virginia",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-77.1067, 38.8816]
+				}
+			},
+			"skills": [
+				"Security Architecture",
+				"CISSP",
+				"Incident Response",
+				"SIEM",
+				"Firewall Management",
+				"Compliance",
+				"Risk Assessment",
+				"Encryption",
+				"Network Security"
+			],
+			"education": [
+				{
+					"school": "Virginia Tech",
+					"degree": "Master of Science",
+					"fieldOfStudy": "Cybersecurity",
+					"startYear": 2013,
+					"endYear": 2015
+				}
+			],
+			"experience": [
+				{
+					"company": "SecureNet Enterprise",
+					"title": "Senior Information Security Engineer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Arlington, VA",
+					"locationType": "ONSITE",
+					"skills": ["Security Architecture", "SIEM", "Incident Response"],
+					"media": [],
+					"startDate": 1577836800000,
+					"endDate": null,
+					"description": "Designing and implementing security solutions for enterprise environments. Managing incident response and ensuring compliance."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/nathanielcampbell", "twitter.com/nathanielsec"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/New_York",
+			"notifications": {
+				"email": true,
+				"push": false
+			}
+		}
+	},
+	{
+		"email": "angela.stewart@digitalmarketing.growth",
+		"password": "Marketing123!",
+		"firstName": "Angela",
+		"lastName": "Stewart",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Digital Marketing Specialist | SEO Expert | Growth Hacker",
+			"bio": "Digital marketing specialist with 6 years of experience driving online growth. Expert in SEO, SEM, and content marketing. Data-driven approach to marketing with proven track record of increasing conversions.",
+			"contactInfo": {
+				"phone_number": "+1-555-0136",
+				"email": "angela.stewart@digitalmarketing.growth"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": false
+			},
+			"location": {
+				"city": "Las Vegas",
+				"region": "Nevada",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-115.1398, 36.1699]
+				}
+			},
+			"skills": [
+				"SEO",
+				"SEM",
+				"Google Analytics",
+				"Content Marketing",
+				"Social Media Marketing",
+				"Email Marketing",
+				"A/B Testing",
+				"Marketing Automation",
+				"Conversion Optimization"
+			],
+			"education": [
+				{
+					"school": "University of Nevada, Las Vegas",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Marketing",
+					"startYear": 2013,
+					"endYear": 2017
+				}
+			],
+			"experience": [
+				{
+					"company": "Growth Marketing Agency",
+					"title": "Senior Digital Marketing Specialist",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Las Vegas, NV",
+					"locationType": "REMOTE",
+					"skills": ["SEO", "Content Marketing", "Google Analytics"],
+					"media": [],
+					"startDate": 1609459200000,
+					"endDate": null,
+					"description": "Developing and executing digital marketing strategies for clients. Optimizing campaigns for improved ROI and conversion rates."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/angelastewart", "twitter.com/angelamarketing"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Los_Angeles",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	},
+	{
+		"email": "jeremy.morris@javaenterprise.ee",
+		"password": "JavaEE456!",
+		"firstName": "Jeremy",
+		"lastName": "Morris",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Java Enterprise Developer | Spring Boot Expert | Microservices Architect",
+			"bio": "Java enterprise developer with 10+ years of experience building large-scale applications. Expert in Spring Boot, Hibernate, and microservices architecture. Strong background in enterprise integration patterns.",
+			"contactInfo": {
+				"phone_number": "+1-555-0137",
+				"email": "jeremy.morris@javaenterprise.ee"
+			},
+			"openTo": {
+				"work": false,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": true
+			},
+			"location": {
+				"city": "Cleveland",
+				"region": "Ohio",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-81.6944, 41.4993]
+				}
+			},
+			"skills": [
+				"Java",
+				"Spring Boot",
+				"Hibernate",
+				"Microservices",
+				"JPA",
+				"Maven",
+				"Gradle",
+				"REST API",
+				"JUnit",
+				"Oracle"
+			],
+			"education": [
+				{
+					"school": "Case Western Reserve University",
+					"degree": "Master of Science",
+					"fieldOfStudy": "Computer Science",
+					"startYear": 2009,
+					"endYear": 2011
+				}
+			],
+			"experience": [
+				{
+					"company": "Enterprise Software Solutions",
+					"title": "Principal Java Developer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Cleveland, OH",
+					"locationType": "HYBRID",
+					"skills": ["Java", "Spring Boot", "Microservices"],
+					"media": [],
+					"startDate": 1483228800000,
+					"endDate": null,
+					"description": "Architecting and developing enterprise Java applications. Leading microservices migration and mentoring development teams."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/jeremymorris", "github.com/jeremymorris"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/New_York",
+			"notifications": {
+				"email": true,
+				"push": false
+			}
+		}
+	},
+	{
+		"email": "heather.cooper@phpdev.web",
+		"password": "PHP2024!",
+		"firstName": "Heather",
+		"lastName": "Cooper",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "PHP Developer | Laravel Expert | Backend Specialist",
+			"bio": "PHP developer with 7 years of experience building web applications. Expert in Laravel, Symfony, and modern PHP practices. Strong focus on clean architecture and test-driven development.",
+			"contactInfo": {
+				"phone_number": "+1-555-0138",
+				"email": "heather.cooper@phpdev.web"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": false
+			},
+			"location": {
+				"city": "Louisville",
+				"region": "Kentucky",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-85.7585, 38.2527]
+				}
+			},
+			"skills": ["PHP", "Laravel", "Symfony", "MySQL", "Composer", "PHPUnit", "REST API", "Git", "Docker", "Nginx"],
+			"education": [
+				{
+					"school": "University of Louisville",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Web Development",
+					"startYear": 2012,
+					"endYear": 2016
+				}
+			],
+			"experience": [
+				{
+					"company": "WebDev Studios",
+					"title": "Senior PHP Developer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Louisville, KY",
+					"locationType": "REMOTE",
+					"skills": ["PHP", "Laravel", "MySQL"],
+					"media": [],
+					"startDate": 1596240000000,
+					"endDate": null,
+					"description": "Developing backend systems using Laravel framework. Building RESTful APIs and integrating third-party services."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/heathercooper", "github.com/heathercooper"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/New_York",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	},
+	{
+		"email": "marcus.richardson@fluttermobile.dev",
+		"password": "Flutter789!",
+		"firstName": "Marcus",
+		"lastName": "Richardson",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Flutter Developer | Dart Expert | Mobile UI Specialist",
+			"bio": "Flutter developer with 4 years of experience creating beautiful cross-platform mobile applications. Expert in Dart, Flutter widgets, and state management. Passionate about creating smooth, responsive UIs.",
+			"contactInfo": {
+				"phone_number": "+1-555-0139",
+				"email": "marcus.richardson@fluttermobile.dev"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": false
+			},
+			"location": {
+				"city": "Tucson",
+				"region": "Arizona",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-110.9747, 32.2226]
+				}
+			},
+			"skills": [
+				"Flutter",
+				"Dart",
+				"Firebase",
+				"REST API",
+				"State Management",
+				"Material Design",
+				"iOS",
+				"Android",
+				"Git",
+				"Agile"
+			],
+			"education": [
+				{
+					"school": "University of Arizona",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Computer Science",
+					"startYear": 2016,
+					"endYear": 2020
+				}
+			],
+			"experience": [
+				{
+					"company": "Mobile App Creators",
+					"title": "Flutter Developer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Tucson, AZ",
+					"locationType": "REMOTE",
+					"skills": ["Flutter", "Dart", "Firebase"],
+					"media": [],
+					"startDate": 1630454400000,
+					"endDate": null,
+					"description": "Building cross-platform mobile applications with Flutter. Implementing complex UI animations and state management solutions."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/marcusrichardson", "github.com/marcusrichardson"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Phoenix",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	},
+	{
+		"email": "olivia.watson@dotnetcore.ms",
+		"password": "DotNet123!",
+		"firstName": "Olivia",
+		"lastName": "Watson",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": ".NET Developer | C# Expert | Azure Cloud Specialist",
+			"bio": ".NET developer with 8 years of experience building enterprise applications. Expert in C#, ASP.NET Core, and Azure cloud services. Microsoft certified professional with focus on scalable solutions.",
+			"contactInfo": {
+				"phone_number": "+1-555-0140",
+				"email": "olivia.watson@dotnetcore.ms"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": false,
+				"mentorship": true
+			},
+			"location": {
+				"city": "Albuquerque",
+				"region": "New Mexico",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-106.6504, 35.0844]
+				}
+			},
+			"skills": [
+				"C#",
+				"ASP.NET Core",
+				"Azure",
+				"Entity Framework",
+				"SQL Server",
+				"REST API",
+				"Microservices",
+				"Docker",
+				"Git",
+				"Agile"
+			],
+			"education": [
+				{
+					"school": "University of New Mexico",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Computer Science",
+					"startYear": 2011,
+					"endYear": 2015
+				}
+			],
+			"experience": [
+				{
+					"company": ".NET Solutions Corp",
+					"title": "Senior .NET Developer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Albuquerque, NM",
+					"locationType": "HYBRID",
+					"skills": ["C#", "ASP.NET Core", "Azure"],
+					"media": [],
+					"startDate": 1577836800000,
+					"endDate": null,
+					"description": "Developing enterprise applications using .NET Core and Azure. Implementing microservices architecture and cloud-native solutions."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/oliviawatson", "github.com/oliviawatson"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Denver",
+			"notifications": {
+				"email": true,
+				"push": false
+			}
+		}
+	},
+	{
+		"email": "jacob.brooks@airesearch.ml",
+		"password": "AIResearch456!",
+		"firstName": "Jacob",
+		"lastName": "Brooks",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "AI Research Scientist | Deep Learning Expert | PhD in Machine Learning",
+			"bio": "AI research scientist with PhD in Machine Learning from Stanford. 5 years of experience in computer vision and natural language processing. Published researcher with multiple papers in top-tier conferences.",
+			"contactInfo": {
+				"phone_number": "+1-555-0141",
+				"email": "jacob.brooks@airesearch.ml"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": false,
+				"mentorship": true
+			},
+			"location": {
+				"city": "Mountain View",
+				"region": "California",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-122.0838, 37.3861]
+				}
+			},
+			"skills": [
+				"Python",
+				"TensorFlow",
+				"PyTorch",
+				"Deep Learning",
+				"Computer Vision",
+				"NLP",
+				"Research",
+				"Mathematics",
+				"Statistics",
+				"Jupyter"
+			],
+			"education": [
+				{
+					"school": "Stanford University",
+					"degree": "Doctor of Philosophy",
+					"fieldOfStudy": "Machine Learning",
+					"startYear": 2015,
+					"endYear": 2020
+				}
+			],
+			"experience": [
+				{
+					"company": "AI Research Lab",
+					"title": "Senior Research Scientist",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Mountain View, CA",
+					"locationType": "HYBRID",
+					"skills": ["Deep Learning", "Computer Vision", "PyTorch"],
+					"media": [],
+					"startDate": 1609459200000,
+					"endDate": null,
+					"description": "Conducting cutting-edge research in deep learning and computer vision. Publishing research papers and developing novel AI algorithms."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/jacobbrooks", "github.com/jacobbrooks", "scholar.google.com/jacobbrooks"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Los_Angeles",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	},
+	{
+		"email": "melissa.kelly@cloudnative.k8s",
+		"password": "K8s789!",
+		"firstName": "Melissa",
+		"lastName": "Kelly",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Kubernetes Engineer | Cloud Native Specialist | Platform Engineer",
+			"bio": "Kubernetes engineer with 5 years of experience building cloud-native platforms. Certified Kubernetes Administrator (CKA). Expert in container orchestration, service mesh, and infrastructure automation.",
+			"contactInfo": {
+				"phone_number": "+1-555-0142",
+				"email": "melissa.kelly@cloudnative.k8s"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": false
+			},
+			"location": {
+				"city": "Portland",
+				"region": "Oregon",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-122.675, 45.5152]
+				}
+			},
+			"skills": ["Kubernetes", "Docker", "Helm", "Istio", "Terraform", "AWS", "Linux", "CI/CD", "Monitoring", "GitOps"],
+			"education": [
+				{
+					"school": "Portland State University",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Computer Science",
+					"startYear": 2014,
+					"endYear": 2018
+				}
+			],
+			"experience": [
+				{
+					"company": "Cloud Platform Solutions",
+					"title": "Senior Kubernetes Engineer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Portland, OR",
+					"locationType": "REMOTE",
+					"skills": ["Kubernetes", "Docker", "Terraform"],
+					"media": [],
+					"startDate": 1622505600000,
+					"endDate": null,
+					"description": "Building and maintaining Kubernetes platforms for enterprise clients. Implementing service mesh and automation solutions."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/melissakelly", "github.com/melissakelly"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Los_Angeles",
+			"notifications": {
+				"email": true,
+				"push": false
+			}
+		}
+	},
+	{
+		"email": "derek.bailey@elixirdev.ex",
+		"password": "Elixir2024!",
+		"firstName": "Derek",
+		"lastName": "Bailey",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Elixir Developer | Phoenix Framework Expert | Functional Programming Enthusiast",
+			"bio": "Elixir developer with 4 years of experience building scalable real-time applications. Expert in Phoenix Framework and OTP. Passionate about functional programming and fault-tolerant systems.",
+			"contactInfo": {
+				"phone_number": "+1-555-0143",
+				"email": "derek.bailey@elixirdev.ex"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": false
+			},
+			"location": {
+				"city": "Austin",
+				"region": "Texas",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-97.7431, 30.2672]
+				}
+			},
+			"skills": [
+				"Elixir",
+				"Phoenix",
+				"Erlang",
+				"OTP",
+				"PostgreSQL",
+				"REST API",
+				"WebSockets",
+				"Functional Programming",
+				"Git",
+				"Docker"
+			],
+			"education": [
+				{
+					"school": "University of Texas at Austin",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Computer Science",
+					"startYear": 2016,
+					"endYear": 2020
+				}
+			],
+			"experience": [
+				{
+					"company": "Real-Time Systems Inc.",
+					"title": "Elixir Developer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Austin, TX",
+					"locationType": "REMOTE",
+					"skills": ["Elixir", "Phoenix", "PostgreSQL"],
+					"media": [],
+					"startDate": 1630454400000,
+					"endDate": null,
+					"description": "Building real-time applications using Elixir and Phoenix. Implementing fault-tolerant distributed systems."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/derekbailey", "github.com/derekbailey"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Chicago",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	},
+	{
+		"email": "alexandra.rivera@scaladev.fp",
+		"password": "Scala456!",
+		"firstName": "Alexandra",
+		"lastName": "Rivera",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Scala Developer | Functional Programming Expert | Big Data Specialist",
+			"bio": "Scala developer with 6 years of experience building distributed systems. Expert in functional programming, Akka, and Spark. Strong background in big data processing and stream processing.",
+			"contactInfo": {
+				"phone_number": "+1-555-0144",
+				"email": "alexandra.rivera@scaladev.fp"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": false,
+				"mentorship": true
+			},
+			"location": {
+				"city": "San Francisco",
+				"region": "California",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-122.4194, 37.7749]
+				}
+			},
+			"skills": [
+				"Scala",
+				"Akka",
+				"Spark",
+				"Kafka",
+				"Functional Programming",
+				"Cats",
+				"ZIO",
+				"PostgreSQL",
+				"Docker",
+				"Kubernetes"
+			],
+			"education": [
+				{
+					"school": "UC Berkeley",
+					"degree": "Master of Science",
+					"fieldOfStudy": "Computer Science",
+					"startYear": 2014,
+					"endYear": 2016
+				}
+			],
+			"experience": [
+				{
+					"company": "Big Data Analytics Corp",
+					"title": "Senior Scala Developer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "San Francisco, CA",
+					"locationType": "HYBRID",
+					"skills": ["Scala", "Akka", "Spark"],
+					"media": [],
+					"startDate": 1596240000000,
+					"endDate": null,
+					"description": "Building distributed data processing systems using Scala and Spark. Implementing real-time stream processing pipelines."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/alexandrarivera", "github.com/alexandrarivera"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Los_Angeles",
+			"notifications": {
+				"email": true,
+				"push": false
+			}
+		}
+	},
+	{
+		"email": "connor.gray@rubyonrails.rb",
+		"password": "Rails789!",
+		"firstName": "Connor",
+		"lastName": "Gray",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Ruby on Rails Developer | Full Stack Engineer | API Specialist",
+			"bio": "Ruby on Rails developer with 7 years of experience building web applications. Expert in Ruby, Rails, and RESTful API design. Strong focus on clean code, testing, and agile development practices.",
+			"contactInfo": {
+				"phone_number": "+1-555-0145",
+				"email": "connor.gray@rubyonrails.rb"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": false
+			},
+			"location": {
+				"city": "Brooklyn",
+				"region": "New York",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-73.9442, 40.6782]
+				}
+			},
+			"skills": [
+				"Ruby",
+				"Ruby on Rails",
+				"PostgreSQL",
+				"Redis",
+				"Sidekiq",
+				"RSpec",
+				"REST API",
+				"JavaScript",
+				"Git",
+				"Heroku"
+			],
+			"education": [
+				{
+					"school": "Columbia University",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Computer Science",
+					"startYear": 2012,
+					"endYear": 2016
+				}
+			],
+			"experience": [
+				{
+					"company": "Rails Startup Inc.",
+					"title": "Senior Ruby on Rails Developer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Brooklyn, NY",
+					"locationType": "REMOTE",
+					"skills": ["Ruby", "Ruby on Rails", "PostgreSQL"],
+					"media": [],
+					"startDate": 1596240000000,
+					"endDate": null,
+					"description": "Building and maintaining Rails applications for SaaS products. Developing RESTful APIs and integrating third-party services."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/connorgray", "github.com/connorgray"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/New_York",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	},
+	{
+		"email": "brittany.powell@quantdev.quant",
+		"password": "Quant2024!",
+		"firstName": "Brittany",
+		"lastName": "Powell",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Quantitative Developer | Financial Technology Expert | C++ Specialist",
+			"bio": "Quantitative developer with 5 years of experience in financial technology. Expert in C++, algorithmic trading, and quantitative analysis. Strong mathematical background with focus on low-latency systems.",
+			"contactInfo": {
+				"phone_number": "+1-555-0146",
+				"email": "brittany.powell@quantdev.quant"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": false,
+				"mentorship": false
+			},
+			"location": {
+				"city": "Chicago",
+				"region": "Illinois",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-87.6298, 41.8781]
+				}
+			},
+			"skills": [
+				"C++",
+				"Python",
+				"Quantitative Analysis",
+				"Algorithmic Trading",
+				"Statistics",
+				"Linux",
+				"Low Latency",
+				"Financial Modeling",
+				"SQL",
+				"Git"
+			],
+			"education": [
+				{
+					"school": "University of Chicago",
+					"degree": "Master of Science",
+					"fieldOfStudy": "Financial Mathematics",
+					"startYear": 2016,
+					"endYear": 2018
+				}
+			],
+			"experience": [
+				{
+					"company": "QuantTech Trading",
+					"title": "Quantitative Developer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Chicago, IL",
+					"locationType": "ONSITE",
+					"skills": ["C++", "Python", "Algorithmic Trading"],
+					"media": [],
+					"startDate": 1622505600000,
+					"endDate": null,
+					"description": "Developing high-performance trading systems and quantitative models. Implementing low-latency solutions for financial markets."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/brittanypowell", "github.com/brittanypowell"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Chicago",
+			"notifications": {
+				"email": true,
+				"push": false
+			}
+		}
+	},
+	{
+		"email": "austin.perry@sitereliability.sre",
+		"password": "SRE123!",
+		"firstName": "Austin",
+		"lastName": "Perry",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Site Reliability Engineer | SRE | Infrastructure Automation Expert",
+			"bio": "Site Reliability Engineer with 6 years of experience ensuring system reliability and performance. Expert in monitoring, incident response, and automation. Strong background in distributed systems and cloud infrastructure.",
+			"contactInfo": {
+				"phone_number": "+1-555-0147",
+				"email": "austin.perry@sitereliability.sre"
+			},
+			"openTo": {
+				"work": false,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": true
+			},
+			"location": {
+				"city": "Seattle",
+				"region": "Washington",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-122.3321, 47.6062]
+				}
+			},
+			"skills": [
+				"SRE",
+				"Kubernetes",
+				"Terraform",
+				"Prometheus",
+				"Grafana",
+				"Python",
+				"Linux",
+				"AWS",
+				"Incident Management",
+				"Automation"
+			],
+			"education": [
+				{
+					"school": "University of Washington",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Computer Engineering",
+					"startYear": 2013,
+					"endYear": 2017
+				}
+			],
+			"experience": [
+				{
+					"company": "Reliability Systems Inc.",
+					"title": "Senior Site Reliability Engineer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Seattle, WA",
+					"locationType": "REMOTE",
+					"skills": ["Kubernetes", "Terraform", "Monitoring"],
+					"media": [],
+					"startDate": 1609459200000,
+					"endDate": null,
+					"description": "Ensuring system reliability and performance at scale. Implementing monitoring solutions and automating operational tasks."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/austinperry", "github.com/austinperry"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Los_Angeles",
+			"notifications": {
+				"email": true,
+				"push": false
+			}
+		}
+	},
+	{
+		"email": "chelsea.murphy@techwriter.docs",
+		"password": "TechDoc456!",
+		"firstName": "Chelsea",
+		"lastName": "Murphy",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Senior Technical Writer | Developer Documentation Expert | Content Strategist",
+			"bio": "Senior technical writer with 9 years of experience creating comprehensive documentation for developers. Expert in API documentation, tutorials, and technical content strategy. Strong technical background with programming experience.",
+			"contactInfo": {
+				"phone_number": "+1-555-0148",
+				"email": "chelsea.murphy@techwriter.docs"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": true
+			},
+			"location": {
+				"city": "Raleigh",
+				"region": "North Carolina",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-78.6382, 35.7796]
+				}
+			},
+			"skills": [
+				"Technical Writing",
+				"API Documentation",
+				"Developer Documentation",
+				"Markdown",
+				"Git",
+				"JavaScript",
+				"Python",
+				"Content Strategy",
+				"Documentation as Code"
+			],
+			"education": [
+				{
+					"school": "North Carolina State University",
+					"degree": "Master of Arts",
+					"fieldOfStudy": "Technical Communication",
+					"startYear": 2012,
+					"endYear": 2014
+				}
+			],
+			"experience": [
+				{
+					"company": "Developer Docs Inc.",
+					"title": "Senior Technical Writer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Raleigh, NC",
+					"locationType": "REMOTE",
+					"skills": ["Technical Writing", "API Documentation", "Developer Documentation"],
+					"media": [],
+					"startDate": 1546300800000,
+					"endDate": null,
+					"description": "Creating comprehensive developer documentation and API references. Collaborating with engineering teams to ensure documentation accuracy and completeness."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/chelseamurphy", "github.com/chelseamurphy", "medium.com/@chelseamurphy"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/New_York",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	},
+	{
+		"email": "travis.cook@webassembly.wasm",
+		"password": "WebAssembly789!",
+		"firstName": "Travis",
+		"lastName": "Cook",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "WebAssembly Developer | Systems Programmer | Performance Engineer",
+			"bio": "WebAssembly developer specializing in high-performance web applications. 3 years of experience with Wasm, Rust, and C++. Passionate about bringing native performance to the web.",
+			"contactInfo": {
+				"phone_number": "+1-555-0149",
+				"email": "travis.cook@webassembly.wasm"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": false
+			},
+			"location": {
+				"city": "Santa Clara",
+				"region": "California",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-121.9552, 37.3541]
+				}
+			},
+			"skills": [
+				"WebAssembly",
+				"Rust",
+				"C++",
+				"JavaScript",
+				"Performance Optimization",
+				"Emscripten",
+				"AssemblyScript",
+				"Web APIs",
+				"Git"
+			],
+			"education": [
+				{
+					"school": "Santa Clara University",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Computer Science",
+					"startYear": 2017,
+					"endYear": 2021
+				}
+			],
+			"experience": [
+				{
+					"company": "WebTech Innovations",
+					"title": "WebAssembly Developer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Santa Clara, CA",
+					"locationType": "HYBRID",
+					"skills": ["WebAssembly", "Rust", "JavaScript"],
+					"media": [],
+					"startDate": 1638316800000,
+					"endDate": null,
+					"description": "Developing high-performance web applications using WebAssembly. Optimizing critical code paths for web browsers."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/traviscook", "github.com/traviscook"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Los_Angeles",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	}
+]

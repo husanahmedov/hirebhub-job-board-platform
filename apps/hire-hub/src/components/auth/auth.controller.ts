@@ -187,6 +187,7 @@ export class AuthController {
 				updatedAt: user.updatedAt ? user.updatedAt.toISOString() : '',
 				oauthProviders: user.oauthProviders || [],
 				status: user.status || 'active',
+				role: user.role || 'no-role',
 				emailVerified: user.emailVerified || false,
 				accessToken: accessToken,
 				refreshToken: refreshToken,

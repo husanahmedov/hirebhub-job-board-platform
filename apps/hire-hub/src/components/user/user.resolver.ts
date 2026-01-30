@@ -1,18 +1,21 @@
 import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { UserService } from './user.service';
-import { RegisterUserInput, User, RefreshTokenInput, AuthResponse } from '../../libs/dto/user';
 import {
+	RegisterUserInput,
+	User,
+	RefreshTokenInput,
+	AuthResponse,
 	LoginUserInput,
 	PublicUser,
 	ResendVerificationInput,
 	UpdateProfileInput,
 	UpdateUserInput,
-	UserRole,
 	VerifyEmailInput,
 	SwitchCompanyInput,
 	CompanyListItem,
 	ActiveCompanyOutput,
-} from '../../libs';
+} from '../../libs/dto/user';
+import { UserRole } from '../../libs';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthUser } from '../auth/decorators/authUser.decorator';
@@ -21,7 +24,6 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { AuthService } from '../auth/auth.service';
 import type { ObjectId } from 'mongoose';
-import { Step3RegisterInput, Step4RegisterInput, Step5RegisterInput } from '../../libs/';
 import { WithoutGuard } from '../auth/guards/without.guard';
 
 @Resolver()
@@ -32,91 +34,18 @@ export class UserResolver {
 	) {}
 
 	/**
-	 * Register a new user account with email, password, and profile information
+	 * Register a new user account with complete profile information in one step
 	 */
 	@Mutation(() => User, {
-		description: 'Register a new user account with email, password, and profile information',
+		description: 'Register a new user account with email, password, and optional complete profile information',
 	})
 	public async register(
-		@Args('input', { type: () => RegisterUserInput, description: 'User registration data' })
+		@Args('input', { type: () => RegisterUserInput, description: 'Complete user registration data' })
 		input: RegisterUserInput,
 	): Promise<User> {
 		return await this.userService.register(input);
 	}
 
-	/**
-	 * Create or complete user profile after registration
-	 */
-	@Roles(UserRole.CANDIDATE)
-	@UseGuards(RolesGuard)
-	@UseGuards(AuthGuard)
-	@Mutation(() => PublicUser, {
-		description: "Create user profile after registration (completes user's profile data)",
-	})
-	public async createProfileAfterRegistration(
-		@Args('input', { type: () => UpdateProfileInput, description: "User's profile data to create" })
-		input: UpdateProfileInput,
-		@AuthUser('_id') userId: ObjectId,
-	): Promise<PublicUser> {
-		console.log(`--- @mutation() Create Profile After Registration is called: ${userId} ---`);
-		return await this.userService.createProfileAfterRegistration(userId, input);
-	}
-
-	/**
-	 * Add education entries to user profile with automatic duplicate detection
-	 */
-	@Roles(UserRole.CANDIDATE)
-	@UseGuards(RolesGuard)
-	@UseGuards(AuthGuard)
-	@Mutation(() => PublicUser, {
-		description: 'Add education entries to user profile with automatic duplicate detection',
-	})
-	public async step3RegistrationProcess(
-		@Args('input', { type: () => Step3RegisterInput, description: "Education data to add to user's profile" })
-		input: Step3RegisterInput,
-		@AuthUser('_id') userId: ObjectId,
-	): Promise<PublicUser> {
-		console.log(`--- @mutation() Step 3 Registration Process is called: ${userId} ---`);
-		return await this.userService.step3RegistrationProcess(userId, input);
-	}
-
-	/**
-	 * Add work experience entries to user profile with automatic duplicate detection
-	 */
-	@Roles(UserRole.CANDIDATE)
-	@UseGuards(RolesGuard)
-	@UseGuards(AuthGuard)
-	@Mutation(() => PublicUser, {
-		description: 'Add work experience entries to user profile with automatic duplicate detection',
-	})
-	public async step4RegistrationProcess(
-		@Args('input', { type: () => Step4RegisterInput, description: "Experience data to add to user's profile" })
-		input: Step4RegisterInput,
-		@AuthUser('_id') userId: ObjectId,
-	): Promise<PublicUser> {
-		console.log(`--- @mutation() Step 4 Registration Process is called: ${userId} ---`);
-		return await this.userService.step4RegistrationProcess(userId, input);
-	}
-
-	/**
-	 * Add qualifications/certifications to user profile with automatic duplicate detection
-	 */
-	@Roles(UserRole.CANDIDATE)
-	@UseGuards(RolesGuard)
-	@UseGuards(AuthGuard)
-	@Mutation(() => PublicUser, {
-		description: 'Add qualifications to user profile with automatic duplicate detection',
-	})
-	public async step5RegistrationProcess(
-		@Args('input', { type: () => Step5RegisterInput, description: "Qualifications data to add to user's profile" })
-		input: Step5RegisterInput,
-		@AuthUser('_id') userId: ObjectId,
-	): Promise<PublicUser> {
-		console.log(`--- @mutation() Step 5 Registration Process is called: ${userId}  ---`);
-		return await this.userService.step5RegistrationProcess(userId, input);
-	}
-
-	// Add these mutations to the resolver class
 	/**
 	 * Verify user's email with verification code
 	 */
@@ -304,14 +233,24 @@ export class UserResolver {
 	@Roles(UserRole.CANDIDATE)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@Query(() => User, {
+		description: "Get authenticated candidate user's profile",
+	})
+	public async getCandidateProfile(@AuthUser('_id') userId: ObjectId): Promise<User | PublicUser> {
+		console.log(`--- @query() Get Candidate Profile is called: ${userId} ---`);
+		return await this.userService.getCandidateProfile('', userId);
+	}
+
+	@UseGuards(WithoutGuard)
 	@Query(() => PublicUser, {
 		description: "Get authenticated candidate user's profile",
 	})
-	public async getCandidateProfile(
+	public async getCandidatePublicProfile(
 		@AuthUser('_id') userId: ObjectId,
-		@Args('targetUserId', { nullable: true }) targetUserId?: string,
+		@Args('targetUsername', { nullable: true }) targetUsername?: string,
 	): Promise<PublicUser> {
-		console.log(`--- @query() Get Candidate Profile is called: ${userId} ---`);
-		return await this.userService.getCandidateProfile(userId, targetUserId);
+		console.log(`--- @query() Get Candidate Public Profile is called: ${userId} ---`);
+		return await this.userService.getCandidateProfile(targetUsername, userId);
 	}
+
 }

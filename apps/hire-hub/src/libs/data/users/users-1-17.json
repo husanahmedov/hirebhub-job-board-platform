@@ -1,0 +1,1117 @@
+[
+  {
+    "email": "john.anderson@techmail.com",
+    "password": "SecurePass123!",
+    "firstName": "John",
+    "lastName": "Anderson",
+    "role": "CANDIDATE",
+    "profile": {
+      "headline": "Senior Full Stack Developer | React & Node.js Expert",
+      "bio": "Passionate software engineer with 8+ years of experience building scalable web applications. Specialized in modern JavaScript frameworks and cloud technologies. Love mentoring junior developers and contributing to open-source projects.",
+      "contactInfo": {
+        "phone_number": "+1-555-0101",
+        "email": "john.anderson@techmail.com"
+      },
+      "openTo": {
+        "work": true,
+        "hiring": false,
+        "freelance": true,
+        "mentorship": true
+      },
+      "location": {
+        "city": "San Francisco",
+        "region": "California",
+        "country": "United States",
+        "geo": {
+          "type": "Point",
+          "coordinates": [-122.4194, 37.7749]
+        }
+      },
+      "skills": ["JavaScript", "TypeScript", "React", "Node.js", "MongoDB", "PostgreSQL", "AWS", "Docker", "GraphQL", "REST API"],
+      "education": [
+        {
+          "school": "Stanford University",
+          "degree": "Bachelor of Science",
+          "fieldOfStudy": "Computer Science",
+          "startYear": 2011,
+          "endYear": 2015
+        }
+      ],
+      "experience": [
+        {
+          "company": "TechCorp Inc.",
+          "title": "Senior Full Stack Developer",
+          "employmentType": "FULL_TIME",
+          "currentlyWorkingHere": true,
+          "location": "San Francisco, CA",
+          "locationType": "HYBRID",
+          "skills": ["React", "Node.js", "TypeScript", "AWS"],
+          "media": [],
+          "startDate": 1640995200000,
+          "endDate": null,
+          "description": "Leading development of microservices architecture and mentoring junior developers. Implemented CI/CD pipelines and reduced deployment time by 60%."
+        },
+        {
+          "company": "StartupXYZ",
+          "title": "Full Stack Developer",
+          "employmentType": "FULL_TIME",
+          "currentlyWorkingHere": false,
+          "location": "San Francisco, CA",
+          "locationType": "ONSITE",
+          "skills": ["JavaScript", "React", "MongoDB"],
+          "media": [],
+          "startDate": 1483228800000,
+          "endDate": 1640908800000,
+          "description": "Developed and maintained multiple web applications using React and Node.js. Collaborated with design team to improve user experience."
+        }
+      ],
+      "socialLinks": ["linkedin.com/in/johnanderson", "github.com/johnanderson", "twitter.com/johnanderson"]
+    },
+    "settings": {
+      "language": "en",
+      "timezone": "America/Los_Angeles",
+      "notifications": {
+        "email": true,
+        "push": true
+      }
+    }
+  },
+  {
+    "email": "sarah.martinez@devmail.io",
+    "password": "DevPass456!",
+    "firstName": "Sarah",
+    "lastName": "Martinez",
+    "role": "RECRUITER",
+    "profile": {
+      "headline": "Technical Recruiter | Connecting Top Talent with Tech Giants",
+      "bio": "Experienced technical recruiter with 6 years in the industry. Specializing in finding exceptional engineering talent for startups and Fortune 500 companies. Passionate about building diverse and inclusive teams.",
+      "contactInfo": {
+        "phone_number": "+1-555-0102",
+        "email": "sarah.martinez@devmail.io"
+      },
+      "openTo": {
+        "work": false,
+        "hiring": true,
+        "freelance": false,
+        "mentorship": true
+      },
+      "location": {
+        "city": "New York",
+        "region": "New York",
+        "country": "United States",
+        "geo": {
+          "type": "Point",
+          "coordinates": [-74.0060, 40.7128]
+        }
+      },
+      "skills": ["Technical Recruiting", "Talent Acquisition", "Interviewing", "Networking", "ATS Systems", "Boolean Search"],
+      "education": [
+        {
+          "school": "New York University",
+          "degree": "Bachelor of Arts",
+          "fieldOfStudy": "Human Resources Management",
+          "startYear": 2012,
+          "endYear": 2016
+        }
+      ],
+      "experience": [
+        {
+          "company": "TechRecruit Solutions",
+          "title": "Senior Technical Recruiter",
+          "employmentType": "FULL_TIME",
+          "currentlyWorkingHere": true,
+          "location": "New York, NY",
+          "locationType": "HYBRID",
+          "skills": ["Technical Recruiting", "Talent Sourcing"],
+          "media": [],
+          "startDate": 1609459200000,
+          "endDate": null,
+          "description": "Managing full-cycle recruitment for software engineering positions. Successfully placed 100+ candidates in Fortune 500 companies."
+        }
+      ],
+      "socialLinks": ["linkedin.com/in/sarahmartinez", "twitter.com/sarahrecruiter"]
+    },
+    "settings": {
+      "language": "en",
+      "timezone": "America/New_York",
+      "notifications": {
+        "email": true,
+        "push": true
+      }
+    }
+  },
+  {
+    "email": "michael.chen@codemaster.dev",
+    "password": "CodeMaster789!",
+    "firstName": "Michael",
+    "lastName": "Chen",
+    "role": "CANDIDATE",
+    "profile": {
+      "headline": "Lead Backend Engineer | Python & Django Specialist",
+      "bio": "Backend engineer with extensive experience in building robust, scalable APIs and microservices. Expert in Python, Django, and cloud infrastructure. Passionate about clean code and system architecture.",
+      "contactInfo": {
+        "phone_number": "+1-555-0103",
+        "email": "michael.chen@codemaster.dev"
+      },
+      "openTo": {
+        "work": true,
+        "hiring": false,
+        "freelance": false,
+        "mentorship": true
+      },
+      "location": {
+        "city": "Seattle",
+        "region": "Washington",
+        "country": "United States",
+        "geo": {
+          "type": "Point",
+          "coordinates": [-122.3321, 47.6062]
+        }
+      },
+      "skills": ["Python", "Django", "PostgreSQL", "Redis", "Docker", "Kubernetes", "AWS", "Microservices", "REST API", "gRPC"],
+      "education": [
+        {
+          "school": "University of Washington",
+          "degree": "Master of Science",
+          "fieldOfStudy": "Computer Science",
+          "startYear": 2013,
+          "endYear": 2015
+        },
+        {
+          "school": "University of Washington",
+          "degree": "Bachelor of Science",
+          "fieldOfStudy": "Computer Engineering",
+          "startYear": 2009,
+          "endYear": 2013
+        }
+      ],
+      "experience": [
+        {
+          "company": "CloudTech Systems",
+          "title": "Lead Backend Engineer",
+          "employmentType": "FULL_TIME",
+          "currentlyWorkingHere": true,
+          "location": "Seattle, WA",
+          "locationType": "REMOTE",
+          "skills": ["Python", "Django", "PostgreSQL", "AWS"],
+          "media": [],
+          "startDate": 1577836800000,
+          "endDate": null,
+          "description": "Architecting and implementing scalable backend systems serving millions of users. Leading a team of 5 backend engineers."
+        }
+      ],
+      "socialLinks": ["linkedin.com/in/michaelchen", "github.com/michaelchen"]
+    },
+    "settings": {
+      "language": "en",
+      "timezone": "America/Los_Angeles",
+      "notifications": {
+        "email": true,
+        "push": false
+      }
+    }
+  },
+  {
+    "email": "emma.wilson@designpro.com",
+    "password": "Design2024!",
+    "firstName": "Emma",
+    "lastName": "Wilson",
+    "role": "CANDIDATE",
+    "profile": {
+      "headline": "UX/UI Designer | Creating Intuitive Digital Experiences",
+      "bio": "Creative UX/UI designer with a passion for user-centered design. 7 years of experience designing web and mobile applications. Proficient in Figma, Adobe Creative Suite, and design systems.",
+      "contactInfo": {
+        "phone_number": "+1-555-0104",
+        "email": "emma.wilson@designpro.com"
+      },
+      "openTo": {
+        "work": true,
+        "hiring": false,
+        "freelance": true,
+        "mentorship": false
+      },
+      "location": {
+        "city": "Austin",
+        "region": "Texas",
+        "country": "United States",
+        "geo": {
+          "type": "Point",
+          "coordinates": [-97.7431, 30.2672]
+        }
+      },
+      "skills": ["UI Design", "UX Design", "Figma", "Adobe XD", "Sketch", "Prototyping", "User Research", "Design Systems"],
+      "education": [
+        {
+          "school": "Rhode Island School of Design",
+          "degree": "Bachelor of Fine Arts",
+          "fieldOfStudy": "Graphic Design",
+          "startYear": 2010,
+          "endYear": 2014
+        }
+      ],
+      "experience": [
+        {
+          "company": "DesignHub Agency",
+          "title": "Senior UX/UI Designer",
+          "employmentType": "FULL_TIME",
+          "currentlyWorkingHere": true,
+          "location": "Austin, TX",
+          "locationType": "HYBRID",
+          "skills": ["Figma", "UX Design", "Prototyping"],
+          "media": [],
+          "startDate": 1596240000000,
+          "endDate": null,
+          "description": "Leading design projects for Fortune 500 clients. Created design systems used across multiple products."
+        }
+      ],
+      "socialLinks": ["linkedin.com/in/emmawilson", "dribbble.com/emmawilson", "behance.net/emmawilson"]
+    },
+    "settings": {
+      "language": "en",
+      "timezone": "America/Chicago",
+      "notifications": {
+        "email": true,
+        "push": true
+      }
+    }
+  },
+  {
+    "email": "david.thompson@datatech.io",
+    "password": "DataScience101!",
+    "firstName": "David",
+    "lastName": "Thompson",
+    "role": "CANDIDATE",
+    "profile": {
+      "headline": "Data Scientist | ML Engineer | AI Enthusiast",
+      "bio": "Data scientist with strong background in machine learning and statistical analysis. Experienced in developing predictive models and data pipelines. PhD in Statistics with focus on deep learning applications.",
+      "contactInfo": {
+        "phone_number": "+1-555-0105",
+        "email": "david.thompson@datatech.io"
+      },
+      "openTo": {
+        "work": true,
+        "hiring": false,
+        "freelance": false,
+        "mentorship": true
+      },
+      "location": {
+        "city": "Boston",
+        "region": "Massachusetts",
+        "country": "United States",
+        "geo": {
+          "type": "Point",
+          "coordinates": [-71.0589, 42.3601]
+        }
+      },
+      "skills": ["Python", "R", "TensorFlow", "PyTorch", "Machine Learning", "Deep Learning", "SQL", "Pandas", "NumPy", "Scikit-learn"],
+      "education": [
+        {
+          "school": "Massachusetts Institute of Technology",
+          "degree": "Doctor of Philosophy",
+          "fieldOfStudy": "Statistics",
+          "startYear": 2015,
+          "endYear": 2020
+        },
+        {
+          "school": "MIT",
+          "degree": "Master of Science",
+          "fieldOfStudy": "Mathematics",
+          "startYear": 2013,
+          "endYear": 2015
+        }
+      ],
+      "experience": [
+        {
+          "company": "DataCorp Analytics",
+          "title": "Senior Data Scientist",
+          "employmentType": "FULL_TIME",
+          "currentlyWorkingHere": true,
+          "location": "Boston, MA",
+          "locationType": "HYBRID",
+          "skills": ["Python", "Machine Learning", "TensorFlow"],
+          "media": [],
+          "startDate": 1609459200000,
+          "endDate": null,
+          "description": "Developing machine learning models for predictive analytics. Leading data science initiatives and mentoring junior data scientists."
+        }
+      ],
+      "socialLinks": ["linkedin.com/in/davidthompson", "github.com/davidthompson"]
+    },
+    "settings": {
+      "language": "en",
+      "timezone": "America/New_York",
+      "notifications": {
+        "email": true,
+        "push": true
+      }
+    }
+  },
+  {
+    "email": "lisa.rodriguez@mobilehub.dev",
+    "password": "Mobile2024!",
+    "firstName": "Lisa",
+    "lastName": "Rodriguez",
+    "role": "CANDIDATE",
+    "profile": {
+      "headline": "iOS Developer | Swift Expert | Mobile Architecture Specialist",
+      "bio": "Passionate iOS developer with 6 years of experience building user-friendly mobile applications. Expert in Swift, SwiftUI, and iOS architecture patterns. Strong advocate for clean code and test-driven development.",
+      "contactInfo": {
+        "phone_number": "+1-555-0106",
+        "email": "lisa.rodriguez@mobilehub.dev"
+      },
+      "openTo": {
+        "work": true,
+        "hiring": false,
+        "freelance": true,
+        "mentorship": false
+      },
+      "location": {
+        "city": "Los Angeles",
+        "region": "California",
+        "country": "United States",
+        "geo": {
+          "type": "Point",
+          "coordinates": [-118.2437, 34.0522]
+        }
+      },
+      "skills": ["Swift", "SwiftUI", "iOS", "Xcode", "UIKit", "Core Data", "REST API", "Git", "Agile"],
+      "education": [
+        {
+          "school": "University of California, Los Angeles",
+          "degree": "Bachelor of Science",
+          "fieldOfStudy": "Computer Science",
+          "startYear": 2013,
+          "endYear": 2017
+        }
+      ],
+      "experience": [
+        {
+          "company": "MobileFirst Inc.",
+          "title": "Senior iOS Developer",
+          "employmentType": "FULL_TIME",
+          "currentlyWorkingHere": true,
+          "location": "Los Angeles, CA",
+          "locationType": "REMOTE",
+          "skills": ["Swift", "SwiftUI", "iOS"],
+          "media": [],
+          "startDate": 1614556800000,
+          "endDate": null,
+          "description": "Developing and maintaining iOS applications with 1M+ downloads. Implementing new features and improving app performance."
+        }
+      ],
+      "socialLinks": ["linkedin.com/in/lisarodriguez", "github.com/lisarodriguez"]
+    },
+    "settings": {
+      "language": "en",
+      "timezone": "America/Los_Angeles",
+      "notifications": {
+        "email": true,
+        "push": true
+      }
+    }
+  },
+  {
+    "email": "james.brown@cloudarch.tech",
+    "password": "CloudArch456!",
+    "firstName": "James",
+    "lastName": "Brown",
+    "role": "CANDIDATE",
+    "profile": {
+      "headline": "Cloud Solutions Architect | AWS Certified Professional",
+      "bio": "Cloud architect with 10+ years of experience designing and implementing scalable cloud infrastructure. AWS and Azure certified. Specialized in serverless architectures, DevOps, and infrastructure as code.",
+      "contactInfo": {
+        "phone_number": "+1-555-0107",
+        "email": "james.brown@cloudarch.tech"
+      },
+      "openTo": {
+        "work": false,
+        "hiring": false,
+        "freelance": true,
+        "mentorship": true
+      },
+      "location": {
+        "city": "Denver",
+        "region": "Colorado",
+        "country": "United States",
+        "geo": {
+          "type": "Point",
+          "coordinates": [-104.9903, 39.7392]
+        }
+      },
+      "skills": ["AWS", "Azure", "Terraform", "Kubernetes", "Docker", "CI/CD", "Linux", "Python", "Serverless", "CloudFormation"],
+      "education": [
+        {
+          "school": "University of Colorado Boulder",
+          "degree": "Bachelor of Science",
+          "fieldOfStudy": "Information Systems",
+          "startYear": 2007,
+          "endYear": 2011
+        }
+      ],
+      "experience": [
+        {
+          "company": "CloudSolutions Enterprise",
+          "title": "Principal Cloud Architect",
+          "employmentType": "FULL_TIME",
+          "currentlyWorkingHere": true,
+          "location": "Denver, CO",
+          "locationType": "HYBRID",
+          "skills": ["AWS", "Terraform", "Kubernetes"],
+          "media": [],
+          "startDate": 1546300800000,
+          "endDate": null,
+          "description": "Architecting enterprise cloud solutions for Fortune 500 companies. Leading cloud migration projects and cost optimization initiatives."
+        }
+      ],
+      "socialLinks": ["linkedin.com/in/jamesbrown", "github.com/jamesbrown"]
+    },
+    "settings": {
+      "language": "en",
+      "timezone": "America/Denver",
+      "notifications": {
+        "email": true,
+        "push": false
+      }
+    }
+  },
+  {
+    "email": "amanda.lee@securedev.io",
+    "password": "Security789!",
+    "firstName": "Amanda",
+    "lastName": "Lee",
+    "role": "CANDIDATE",
+    "profile": {
+      "headline": "Cybersecurity Specialist | Penetration Tester | Ethical Hacker",
+      "bio": "Cybersecurity professional with expertise in penetration testing, vulnerability assessment, and security architecture. CISSP and CEH certified. Passionate about securing applications and infrastructure.",
+      "contactInfo": {
+        "phone_number": "+1-555-0108",
+        "email": "amanda.lee@securedev.io"
+      },
+      "openTo": {
+        "work": true,
+        "hiring": false,
+        "freelance": false,
+        "mentorship": false
+      },
+      "location": {
+        "city": "Washington",
+        "region": "District of Columbia",
+        "country": "United States",
+        "geo": {
+          "type": "Point",
+          "coordinates": [-77.0369, 38.9072]
+        }
+      },
+      "skills": ["Penetration Testing", "Network Security", "Linux", "Python", "Kali Linux", "Metasploit", "Wireshark", "OWASP", "Security Auditing"],
+      "education": [
+        {
+          "school": "George Washington University",
+          "degree": "Master of Science",
+          "fieldOfStudy": "Cybersecurity",
+          "startYear": 2014,
+          "endYear": 2016
+        }
+      ],
+      "experience": [
+        {
+          "company": "SecureNet Consulting",
+          "title": "Senior Security Analyst",
+          "employmentType": "FULL_TIME",
+          "currentlyWorkingHere": true,
+          "location": "Washington, DC",
+          "locationType": "ONSITE",
+          "skills": ["Penetration Testing", "Security Auditing"],
+          "media": [],
+          "startDate": 1577836800000,
+          "endDate": null,
+          "description": "Conducting security assessments and penetration testing for government and private sector clients. Identifying vulnerabilities and providing remediation recommendations."
+        }
+      ],
+      "socialLinks": ["linkedin.com/in/amandalee", "twitter.com/amandasec"]
+    },
+    "settings": {
+      "language": "en",
+      "timezone": "America/New_York",
+      "notifications": {
+        "email": true,
+        "push": true
+      }
+    }
+  },
+  {
+    "email": "robert.garcia@frontendpro.com",
+    "password": "Frontend123!",
+    "firstName": "Robert",
+    "lastName": "Garcia",
+    "role": "CANDIDATE",
+    "profile": {
+      "headline": "Frontend Developer | React & Vue.js Specialist | UI Enthusiast",
+      "bio": "Frontend developer passionate about creating beautiful, responsive user interfaces. 5 years of experience with modern JavaScript frameworks. Strong focus on performance optimization and accessibility.",
+      "contactInfo": {
+        "phone_number": "+1-555-0109",
+        "email": "robert.garcia@frontendpro.com"
+      },
+      "openTo": {
+        "work": true,
+        "hiring": false,
+        "freelance": true,
+        "mentorship": true
+      },
+      "location": {
+        "city": "Miami",
+        "region": "Florida",
+        "country": "United States",
+        "geo": {
+          "type": "Point",
+          "coordinates": [-80.1918, 25.7617]
+        }
+      },
+      "skills": ["JavaScript", "React", "Vue.js", "HTML5", "CSS3", "SASS", "Webpack", "TypeScript", "Responsive Design", "Accessibility"],
+      "education": [
+        {
+          "school": "Florida International University",
+          "degree": "Bachelor of Science",
+          "fieldOfStudy": "Web Development",
+          "startYear": 2014,
+          "endYear": 2018
+        }
+      ],
+      "experience": [
+        {
+          "company": "WebCreations Studio",
+          "title": "Frontend Developer",
+          "employmentType": "FULL_TIME",
+          "currentlyWorkingHere": true,
+          "location": "Miami, FL",
+          "locationType": "HYBRID",
+          "skills": ["React", "TypeScript", "CSS3"],
+          "media": [],
+          "startDate": 1622505600000,
+          "endDate": null,
+          "description": "Building responsive web applications with focus on user experience. Collaborating with designers and backend developers to deliver high-quality products."
+        }
+      ],
+      "socialLinks": ["linkedin.com/in/robertgarcia", "github.com/robertgarcia", "codepen.io/robertgarcia"]
+    },
+    "settings": {
+      "language": "en",
+      "timezone": "America/New_York",
+      "notifications": {
+        "email": true,
+        "push": true
+      }
+    }
+  },
+  {
+    "email": "jennifer.white@devopsmaster.dev",
+    "password": "DevOps2024!",
+    "firstName": "Jennifer",
+    "lastName": "White",
+    "role": "CANDIDATE",
+    "profile": {
+      "headline": "DevOps Engineer | CI/CD Expert | Automation Specialist",
+      "bio": "DevOps engineer with strong background in automation, continuous integration, and deployment. Expert in Docker, Kubernetes, and cloud platforms. Passionate about streamlining development workflows.",
+      "contactInfo": {
+        "phone_number": "+1-555-0110",
+        "email": "jennifer.white@devopsmaster.dev"
+      },
+      "openTo": {
+        "work": true,
+        "hiring": false,
+        "freelance": false,
+        "mentorship": true
+      },
+      "location": {
+        "city": "Portland",
+        "region": "Oregon",
+        "country": "United States",
+        "geo": {
+          "type": "Point",
+          "coordinates": [-122.6750, 45.5152]
+        }
+      },
+      "skills": ["Docker", "Kubernetes", "Jenkins", "GitLab CI", "Terraform", "Ansible", "AWS", "Linux", "Bash", "Python"],
+      "education": [
+        {
+          "school": "Oregon State University",
+          "degree": "Bachelor of Science",
+          "fieldOfStudy": "Computer Science",
+          "startYear": 2012,
+          "endYear": 2016
+        }
+      ],
+      "experience": [
+        {
+          "company": "DevOps Solutions Inc.",
+          "title": "Senior DevOps Engineer",
+          "employmentType": "FULL_TIME",
+          "currentlyWorkingHere": true,
+          "location": "Portland, OR",
+          "locationType": "REMOTE",
+          "skills": ["Docker", "Kubernetes", "Jenkins"],
+          "media": [],
+          "startDate": 1609459200000,
+          "endDate": null,
+          "description": "Implementing and maintaining CI/CD pipelines. Automating infrastructure provisioning and deployment processes."
+        }
+      ],
+      "socialLinks": ["linkedin.com/in/jenniferwhite", "github.com/jenniferwhite"]
+    },
+    "settings": {
+      "language": "en",
+      "timezone": "America/Los_Angeles",
+      "notifications": {
+        "email": true,
+        "push": false
+      }
+    }
+  },
+  {
+    "email": "kevin.martin@androiddev.io",
+    "password": "Android789!",
+    "firstName": "Kevin",
+    "lastName": "Martin",
+    "role": "CANDIDATE",
+    "profile": {
+      "headline": "Android Developer | Kotlin Expert | Mobile Solutions Architect",
+      "bio": "Android developer with 7 years of experience building native mobile applications. Expert in Kotlin, Android SDK, and modern Android architecture. Published multiple apps on Google Play Store with millions of downloads.",
+      "contactInfo": {
+        "phone_number": "+1-555-0111",
+        "email": "kevin.martin@androiddev.io"
+      },
+      "openTo": {
+        "work": true,
+        "hiring": false,
+        "freelance": true,
+        "mentorship": false
+      },
+      "location": {
+        "city": "Chicago",
+        "region": "Illinois",
+        "country": "United States",
+        "geo": {
+          "type": "Point",
+          "coordinates": [-87.6298, 41.8781]
+        }
+      },
+      "skills": ["Kotlin", "Java", "Android SDK", "Jetpack Compose", "MVVM", "Retrofit", "Room", "Dagger", "RxJava", "Git"],
+      "education": [
+        {
+          "school": "University of Illinois at Chicago",
+          "degree": "Bachelor of Science",
+          "fieldOfStudy": "Software Engineering",
+          "startYear": 2011,
+          "endYear": 2015
+        }
+      ],
+      "experience": [
+        {
+          "company": "MobileApps Corp",
+          "title": "Senior Android Developer",
+          "employmentType": "FULL_TIME",
+          "currentlyWorkingHere": true,
+          "location": "Chicago, IL",
+          "locationType": "HYBRID",
+          "skills": ["Kotlin", "Android SDK", "Jetpack Compose"],
+          "media": [],
+          "startDate": 1596240000000,
+          "endDate": null,
+          "description": "Leading Android development for flagship mobile applications. Implementing new features and optimizing app performance."
+        }
+      ],
+      "socialLinks": ["linkedin.com/in/kevinmartin", "github.com/kevinmartin"]
+    },
+    "settings": {
+      "language": "en",
+      "timezone": "America/Chicago",
+      "notifications": {
+        "email": true,
+        "push": true
+      }
+    }
+  },
+  {
+    "email": "michelle.taylor@qaexpert.com",
+    "password": "QA2024Test!",
+    "firstName": "Michelle",
+    "lastName": "Taylor",
+    "role": "CANDIDATE",
+    "profile": {
+      "headline": "QA Engineer | Test Automation Specialist | Quality Advocate",
+      "bio": "Quality assurance engineer with expertise in manual and automated testing. 6 years of experience ensuring software quality across web and mobile platforms. Strong knowledge of testing frameworks and methodologies.",
+      "contactInfo": {
+        "phone_number": "+1-555-0112",
+        "email": "michelle.taylor@qaexpert.com"
+      },
+      "openTo": {
+        "work": true,
+        "hiring": false,
+        "freelance": false,
+        "mentorship": true
+      },
+      "location": {
+        "city": "Phoenix",
+        "region": "Arizona",
+        "country": "United States",
+        "geo": {
+          "type": "Point",
+          "coordinates": [-112.0740, 33.4484]
+        }
+      },
+      "skills": ["Selenium", "Cypress", "Jest", "JUnit", "TestNG", "API Testing", "Performance Testing", "Agile", "JIRA", "Git"],
+      "education": [
+        {
+          "school": "Arizona State University",
+          "degree": "Bachelor of Science",
+          "fieldOfStudy": "Information Technology",
+          "startYear": 2013,
+          "endYear": 2017
+        }
+      ],
+      "experience": [
+        {
+          "company": "QualityFirst Software",
+          "title": "Senior QA Engineer",
+          "employmentType": "FULL_TIME",
+          "currentlyWorkingHere": true,
+          "location": "Phoenix, AZ",
+          "locationType": "REMOTE",
+          "skills": ["Selenium", "Cypress", "API Testing"],
+          "media": [],
+          "startDate": 1622505600000,
+          "endDate": null,
+          "description": "Developing and executing test automation frameworks. Ensuring quality standards across multiple products and platforms."
+        }
+      ],
+      "socialLinks": ["linkedin.com/in/michelletaylor", "github.com/michelletaylor"]
+    },
+    "settings": {
+      "language": "en",
+      "timezone": "America/Phoenix",
+      "notifications": {
+        "email": true,
+        "push": true
+      }
+    }
+  },
+  {
+    "email": "daniel.moore@dbamaster.db",
+    "password": "Database456!",
+    "firstName": "Daniel",
+    "lastName": "Moore",
+    "role": "CANDIDATE",
+    "profile": {
+      "headline": "Database Administrator | SQL Expert | Performance Tuning Specialist",
+      "bio": "Experienced database administrator with 9 years managing enterprise-scale databases. Expert in PostgreSQL, MySQL, and Oracle. Specialized in performance optimization, backup strategies, and high availability solutions.",
+      "contactInfo": {
+        "phone_number": "+1-555-0113",
+        "email": "daniel.moore@dbamaster.db"
+      },
+      "openTo": {
+        "work": false,
+        "hiring": false,
+        "freelance": true,
+        "mentorship": true
+      },
+      "location": {
+        "city": "Dallas",
+        "region": "Texas",
+        "country": "United States",
+        "geo": {
+          "type": "Point",
+          "coordinates": [-96.7970, 32.7767]
+        }
+      },
+      "skills": ["PostgreSQL", "MySQL", "Oracle", "SQL", "Database Design", "Performance Tuning", "Backup & Recovery", "Linux", "MongoDB", "Redis"],
+      "education": [
+        {
+          "school": "University of Texas at Dallas",
+          "degree": "Master of Science",
+          "fieldOfStudy": "Information Systems",
+          "startYear": 2011,
+          "endYear": 2013
+        }
+      ],
+      "experience": [
+        {
+          "company": "Enterprise Data Systems",
+          "title": "Senior Database Administrator",
+          "employmentType": "FULL_TIME",
+          "currentlyWorkingHere": true,
+          "location": "Dallas, TX",
+          "locationType": "HYBRID",
+          "skills": ["PostgreSQL", "MySQL", "Performance Tuning"],
+          "media": [],
+          "startDate": 1546300800000,
+          "endDate": null,
+          "description": "Managing enterprise database infrastructure. Implementing high availability solutions and optimizing query performance."
+        }
+      ],
+      "socialLinks": ["linkedin.com/in/danielmoore", "github.com/danielmoore"]
+    },
+    "settings": {
+      "language": "en",
+      "timezone": "America/Chicago",
+      "notifications": {
+        "email": true,
+        "push": false
+      }
+    }
+  },
+  {
+    "email": "ashley.jackson@producthub.io",
+    "password": "Product2024!",
+    "firstName": "Ashley",
+    "lastName": "Jackson",
+    "role": "RECRUITER",
+    "profile": {
+      "headline": "Product Manager | Agile Expert | Customer-Focused Leader",
+      "bio": "Product manager with 8 years of experience driving product strategy and execution. Strong background in agile methodologies, user research, and data-driven decision making. Led multiple successful product launches.",
+      "contactInfo": {
+        "phone_number": "+1-555-0114",
+        "email": "ashley.jackson@producthub.io"
+      },
+      "openTo": {
+        "work": false,
+        "hiring": true,
+        "freelance": false,
+        "mentorship": true
+      },
+      "location": {
+        "city": "San Diego",
+        "region": "California",
+        "country": "United States",
+        "geo": {
+          "type": "Point",
+          "coordinates": [-117.1611, 32.7157]
+        }
+      },
+      "skills": ["Product Management", "Agile", "Scrum", "JIRA", "User Research", "Roadmapping", "Analytics", "Stakeholder Management"],
+      "education": [
+        {
+          "school": "University of California, San Diego",
+          "degree": "MBA",
+          "fieldOfStudy": "Business Administration",
+          "startYear": 2012,
+          "endYear": 2014
+        }
+      ],
+      "experience": [
+        {
+          "company": "ProductTech Solutions",
+          "title": "Senior Product Manager",
+          "employmentType": "FULL_TIME",
+          "currentlyWorkingHere": true,
+          "location": "San Diego, CA",
+          "locationType": "HYBRID",
+          "skills": ["Product Management", "Agile", "User Research"],
+          "media": [],
+          "startDate": 1577836800000,
+          "endDate": null,
+          "description": "Leading product strategy and execution for SaaS platform. Managing cross-functional teams and driving product innovation."
+        }
+      ],
+      "socialLinks": ["linkedin.com/in/ashleyjackson", "twitter.com/ashleypm"]
+    },
+    "settings": {
+      "language": "en",
+      "timezone": "America/Los_Angeles",
+      "notifications": {
+        "email": true,
+        "push": true
+      }
+    }
+  },
+  {
+    "email": "christopher.davis@blockchaindev.crypto",
+    "password": "Blockchain123!",
+    "firstName": "Christopher",
+    "lastName": "Davis",
+    "role": "CANDIDATE",
+    "profile": {
+      "headline": "Blockchain Developer | Smart Contract Expert | Web3 Enthusiast",
+      "bio": "Blockchain developer specializing in Ethereum and Solidity development. 4 years of experience building decentralized applications and smart contracts. Passionate about Web3 and the future of decentralized finance.",
+      "contactInfo": {
+        "phone_number": "+1-555-0115",
+        "email": "christopher.davis@blockchaindev.crypto"
+      },
+      "openTo": {
+        "work": true,
+        "hiring": false,
+        "freelance": true,
+        "mentorship": false
+      },
+      "location": {
+        "city": "San Jose",
+        "region": "California",
+        "country": "United States",
+        "geo": {
+          "type": "Point",
+          "coordinates": [-121.8863, 37.3382]
+        }
+      },
+      "skills": ["Solidity", "Ethereum", "Web3.js", "Smart Contracts", "JavaScript", "React", "Truffle", "Hardhat", "DeFi", "NFTs"],
+      "education": [
+        {
+          "school": "San Jose State University",
+          "degree": "Bachelor of Science",
+          "fieldOfStudy": "Computer Science",
+          "startYear": 2015,
+          "endYear": 2019
+        }
+      ],
+      "experience": [
+        {
+          "company": "CryptoStartup Labs",
+          "title": "Blockchain Developer",
+          "employmentType": "FULL_TIME",
+          "currentlyWorkingHere": true,
+          "location": "San Jose, CA",
+          "locationType": "REMOTE",
+          "skills": ["Solidity", "Ethereum", "Smart Contracts"],
+          "media": [],
+          "startDate": 1630454400000,
+          "endDate": null,
+          "description": "Developing smart contracts and dApps for DeFi protocols. Conducting security audits and optimizing gas efficiency."
+        }
+      ],
+      "socialLinks": ["linkedin.com/in/christopherdavis", "github.com/christopherdavis", "twitter.com/chriscrypto"]
+    },
+    "settings": {
+      "language": "en",
+      "timezone": "America/Los_Angeles",
+      "notifications": {
+        "email": true,
+        "push": true
+      }
+    }
+  },
+  {
+    "email": "jessica.hernandez@gamedev.studio",
+    "password": "GameDev789!",
+    "firstName": "Jessica",
+    "lastName": "Hernandez",
+    "role": "CANDIDATE",
+    "profile": {
+      "headline": "Game Developer | Unity Expert | 3D Graphics Specialist",
+      "bio": "Game developer with 6 years of experience creating immersive gaming experiences. Expert in Unity, C#, and 3D graphics. Shipped multiple successful titles across PC and mobile platforms.",
+      "contactInfo": {
+        "phone_number": "+1-555-0116",
+        "email": "jessica.hernandez@gamedev.studio"
+      },
+      "openTo": {
+        "work": true,
+        "hiring": false,
+        "freelance": true,
+        "mentorship": false
+      },
+      "location": {
+        "city": "Sacramento",
+        "region": "California",
+        "country": "United States",
+        "geo": {
+          "type": "Point",
+          "coordinates": [-121.4944, 38.5816]
+        }
+      },
+      "skills": ["Unity", "C#", "3D Modeling", "Blender", "Game Design", "Physics Engines", "Shader Programming", "Git", "Agile"],
+      "education": [
+        {
+          "school": "DigiPen Institute of Technology",
+          "degree": "Bachelor of Science",
+          "fieldOfStudy": "Game Development",
+          "startYear": 2013,
+          "endYear": 2017
+        }
+      ],
+      "experience": [
+        {
+          "company": "GameStudio Interactive",
+          "title": "Senior Game Developer",
+          "employmentType": "FULL_TIME",
+          "currentlyWorkingHere": true,
+          "location": "Sacramento, CA",
+          "locationType": "HYBRID",
+          "skills": ["Unity", "C#", "3D Graphics"],
+          "media": [],
+          "startDate": 1609459200000,
+          "endDate": null,
+          "description": "Leading development of AAA mobile games. Implementing gameplay mechanics and optimizing performance for various platforms."
+        }
+      ],
+      "socialLinks": ["linkedin.com/in/jessicahernandez", "github.com/jessicahernandez", "artstation.com/jessicahernandez"]
+    },
+    "settings": {
+      "language": "en",
+      "timezone": "America/Los_Angeles",
+      "notifications": {
+        "email": true,
+        "push": true
+      }
+    }
+  },
+  {
+    "email": "matthew.wilson@mlops.ai",
+    "password": "MLOps2024!",
+    "firstName": "Matthew",
+    "lastName": "Wilson",
+    "role": "CANDIDATE",
+    "profile": {
+      "headline": "MLOps Engineer | Machine Learning Infrastructure Expert",
+      "bio": "MLOps engineer specializing in deploying and maintaining machine learning models at scale. Expert in model versioning, monitoring, and CI/CD for ML pipelines. Strong background in both data science and DevOps.",
+      "contactInfo": {
+        "phone_number": "+1-555-0117",
+        "email": "matthew.wilson@mlops.ai"
+      },
+      "openTo": {
+        "work": true,
+        "hiring": false,
+        "freelance": false,
+        "mentorship": true
+      },
+      "location": {
+        "city": "Palo Alto",
+        "region": "California",
+        "country": "United States",
+        "geo": {
+          "type": "Point",
+          "coordinates": [-122.1430, 37.4419]
+        }
+      },
+      "skills": ["Python", "TensorFlow", "PyTorch", "MLflow", "Kubernetes", "Docker", "AWS SageMaker", "Data Pipelines", "CI/CD", "Monitoring"],
+      "education": [
+        {
+          "school": "Stanford University",
+          "degree": "Master of Science",
+          "fieldOfStudy": "Machine Learning",
+          "startYear": 2016,
+          "endYear": 2018
+        }
+      ],
+      "experience": [
+        {
+          "company": "AI Systems Corp",
+          "title": "Senior MLOps Engineer",
+          "employmentType": "FULL_TIME",
+          "currentlyWorkingHere": true,
+          "location": "Palo Alto, CA",
+          "locationType": "REMOTE",
+          "skills": ["Python", "MLflow", "Kubernetes"],
+          "media": [],
+          "startDate": 1609459200000,
+          "endDate": null,
+          "description": "Building and maintaining ML infrastructure for production models. Implementing automated training and deployment pipelines."
+        }
+      ],
+      "socialLinks": ["linkedin.com/in/matthewwilson", "github.com/matthewwilson"]
+    },
+    "settings": {
+      "language": "en",
+      "timezone": "America/Los_Angeles",
+      "notifications": {
+        "email": true,
+        "push": false
+      }
+    }
+  }
+]

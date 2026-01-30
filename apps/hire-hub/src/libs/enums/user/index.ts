@@ -7,6 +7,25 @@ export enum UserRole {
 	COMPANY_OWNER = 'COMPANY_OWNER',
 }
 
+export enum EmploymentType {
+	FULL_TIME = 'FULL_TIME',
+	PART_TIME = 'PART_TIME',
+	CONTRACT = 'CONTRACT',
+	TEMPORARY = 'TEMPORARY',
+	INTERNSHIP = 'INTERNSHIP',
+	VOLUNTEER = 'VOLUNTEER',
+	FREELANCE = 'FREELANCE',
+	REMOTE = 'REMOTE',
+	OTHER = 'OTHER',
+}
+
+export enum WorkPreference {
+	ONSITE = 'ONSITE',
+	REMOTE = 'REMOTE',
+	HYBRID = 'HYBRID',
+	NO_PREFERENCE = 'NO_PREFERENCE',
+}
+
 export enum UserStatus {
 	ACTIVE = 'ACTIVE',
 	DEACTIVATED = 'DEACTIVATED',
@@ -274,4 +293,14 @@ registerEnumType(UserStatus, {
 registerEnumType(UserCountry, {
 	name: 'UserCountry',
 	description: 'List of countries for user profiles',
+});
+
+registerEnumType(EmploymentType, {
+	name: 'EmploymentType',
+	description: 'Types of employment available for users',
+});
+
+registerEnumType(WorkPreference, {
+	name: 'WorkPreference',
+	description: 'User work location preferences',
 });

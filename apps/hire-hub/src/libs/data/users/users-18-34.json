@@ -1,0 +1,1159 @@
+[
+	{
+		"email": "stephanie.miller@uxresearch.io",
+		"password": "UXResearch123!",
+		"firstName": "Stephanie",
+		"lastName": "Miller",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "UX Researcher | Human-Computer Interaction Specialist",
+			"bio": "UX researcher with PhD in Human-Computer Interaction. 5 years of experience conducting user research, usability testing, and data analysis. Passionate about creating user-centered design solutions.",
+			"contactInfo": {
+				"phone_number": "+1-555-0118",
+				"email": "stephanie.miller@uxresearch.io"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": false,
+				"mentorship": true
+			},
+			"location": {
+				"city": "Philadelphia",
+				"region": "Pennsylvania",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-75.1652, 39.9526]
+				}
+			},
+			"skills": [
+				"User Research",
+				"Usability Testing",
+				"Qualitative Analysis",
+				"Quantitative Analysis",
+				"A/B Testing",
+				"User Interviews",
+				"Survey Design",
+				"Figma",
+				"SPSS"
+			],
+			"education": [
+				{
+					"school": "Carnegie Mellon University",
+					"degree": "Doctor of Philosophy",
+					"fieldOfStudy": "Human-Computer Interaction",
+					"startYear": 2014,
+					"endYear": 2019
+				}
+			],
+			"experience": [
+				{
+					"company": "Research Lab Inc.",
+					"title": "Senior UX Researcher",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Philadelphia, PA",
+					"locationType": "HYBRID",
+					"skills": ["User Research", "Usability Testing", "Data Analysis"],
+					"media": [],
+					"startDate": 1622505600000,
+					"endDate": null,
+					"description": "Leading user research initiatives for enterprise software products. Conducting usability studies and presenting insights to stakeholders."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/stephaniemiller", "twitter.com/stephanieUX"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/New_York",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	},
+	{
+		"email": "ryan.clark@embeddedsys.tech",
+		"password": "Embedded456!",
+		"firstName": "Ryan",
+		"lastName": "Clark",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Embedded Systems Engineer | IoT Specialist | Firmware Developer",
+			"bio": "Embedded systems engineer with 8 years of experience developing firmware for IoT devices. Expert in C, C++, and real-time operating systems. Strong background in hardware-software integration.",
+			"contactInfo": {
+				"phone_number": "+1-555-0119",
+				"email": "ryan.clark@embeddedsys.tech"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": false
+			},
+			"location": {
+				"city": "San Antonio",
+				"region": "Texas",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-98.4936, 29.4241]
+				}
+			},
+			"skills": ["C", "C++", "ARM", "RTOS", "Embedded Linux", "IoT", "I2C", "SPI", "UART", "Debugging"],
+			"education": [
+				{
+					"school": "Texas A&M University",
+					"degree": "Master of Science",
+					"fieldOfStudy": "Electrical Engineering",
+					"startYear": 2012,
+					"endYear": 2014
+				}
+			],
+			"experience": [
+				{
+					"company": "Embedded Solutions Corp",
+					"title": "Senior Embedded Engineer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "San Antonio, TX",
+					"locationType": "ONSITE",
+					"skills": ["C", "ARM", "RTOS"],
+					"media": [],
+					"startDate": 1546300800000,
+					"endDate": null,
+					"description": "Developing firmware for IoT devices and embedded systems. Optimizing power consumption and implementing communication protocols."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/ryanclark", "github.com/ryanclark"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Chicago",
+			"notifications": {
+				"email": true,
+				"push": false
+			}
+		}
+	},
+	{
+		"email": "nicole.adams@contentwriter.pro",
+		"password": "Content789!",
+		"firstName": "Nicole",
+		"lastName": "Adams",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Technical Writer | Documentation Specialist | Content Strategist",
+			"bio": "Technical writer with 7 years of experience creating clear, comprehensive documentation for software products. Skilled in API documentation, user guides, and technical content strategy.",
+			"contactInfo": {
+				"phone_number": "+1-555-0120",
+				"email": "nicole.adams@contentwriter.pro"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": false
+			},
+			"location": {
+				"city": "Nashville",
+				"region": "Tennessee",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-86.7816, 36.1627]
+				}
+			},
+			"skills": [
+				"Technical Writing",
+				"API Documentation",
+				"Markdown",
+				"Git",
+				"Confluence",
+				"JIRA",
+				"Content Strategy",
+				"Information Architecture"
+			],
+			"education": [
+				{
+					"school": "Vanderbilt University",
+					"degree": "Bachelor of Arts",
+					"fieldOfStudy": "English",
+					"startYear": 2012,
+					"endYear": 2016
+				}
+			],
+			"experience": [
+				{
+					"company": "Documentation Services Inc.",
+					"title": "Senior Technical Writer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Nashville, TN",
+					"locationType": "REMOTE",
+					"skills": ["Technical Writing", "API Documentation", "Markdown"],
+					"media": [],
+					"startDate": 1596240000000,
+					"endDate": null,
+					"description": "Creating and maintaining technical documentation for SaaS products. Collaborating with engineering teams to ensure accuracy."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/nicoleadams", "medium.com/@nicoleadams"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Chicago",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	},
+	{
+		"email": "brandon.lewis@networkengineer.net",
+		"password": "Network2024!",
+		"firstName": "Brandon",
+		"lastName": "Lewis",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Network Engineer | Cisco Certified | Infrastructure Specialist",
+			"bio": "Network engineer with 9 years of experience designing and maintaining enterprise network infrastructure. Cisco CCNP certified. Expert in routing, switching, and network security.",
+			"contactInfo": {
+				"phone_number": "+1-555-0121",
+				"email": "brandon.lewis@networkengineer.net"
+			},
+			"openTo": {
+				"work": false,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": true
+			},
+			"location": {
+				"city": "Charlotte",
+				"region": "North Carolina",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-80.8431, 35.2271]
+				}
+			},
+			"skills": [
+				"Cisco",
+				"Routing & Switching",
+				"Network Security",
+				"Firewall",
+				"VPN",
+				"BGP",
+				"OSPF",
+				"TCP/IP",
+				"Wireshark",
+				"Network Monitoring"
+			],
+			"education": [
+				{
+					"school": "University of North Carolina at Charlotte",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Network Engineering",
+					"startYear": 2010,
+					"endYear": 2014
+				}
+			],
+			"experience": [
+				{
+					"company": "Enterprise Networks Ltd.",
+					"title": "Senior Network Engineer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Charlotte, NC",
+					"locationType": "HYBRID",
+					"skills": ["Cisco", "Routing & Switching", "Network Security"],
+					"media": [],
+					"startDate": 1546300800000,
+					"endDate": null,
+					"description": "Designing and implementing enterprise network solutions. Managing network infrastructure and troubleshooting connectivity issues."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/brandonlewis", "github.com/brandonlewis"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/New_York",
+			"notifications": {
+				"email": true,
+				"push": false
+			}
+		}
+	},
+	{
+		"email": "rachel.young@scrummaster.agile",
+		"password": "Scrum123!",
+		"firstName": "Rachel",
+		"lastName": "Young",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Scrum Master | Agile Coach | Team Facilitator",
+			"bio": "Certified Scrum Master with 6 years of experience facilitating agile teams. Passionate about continuous improvement and team empowerment. Skilled in removing blockers and fostering collaborative environments.",
+			"contactInfo": {
+				"phone_number": "+1-555-0122",
+				"email": "rachel.young@scrummaster.agile"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": false,
+				"mentorship": true
+			},
+			"location": {
+				"city": "Columbus",
+				"region": "Ohio",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-82.9988, 39.9612]
+				}
+			},
+			"skills": [
+				"Scrum",
+				"Agile",
+				"Kanban",
+				"JIRA",
+				"Team Facilitation",
+				"Stakeholder Management",
+				"Sprint Planning",
+				"Retrospectives"
+			],
+			"education": [
+				{
+					"school": "Ohio State University",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Business Management",
+					"startYear": 2013,
+					"endYear": 2017
+				}
+			],
+			"experience": [
+				{
+					"company": "Agile Teams Inc.",
+					"title": "Scrum Master",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Columbus, OH",
+					"locationType": "REMOTE",
+					"skills": ["Scrum", "Agile", "Team Facilitation"],
+					"media": [],
+					"startDate": 1622505600000,
+					"endDate": null,
+					"description": "Facilitating scrum ceremonies and coaching teams on agile practices. Removing impediments and fostering continuous improvement."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/rachelyoung", "twitter.com/rachelagile"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/New_York",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	},
+	{
+		"email": "justin.hall@sysadmin.ops",
+		"password": "SysAdmin456!",
+		"firstName": "Justin",
+		"lastName": "Hall",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Systems Administrator | Linux Expert | Infrastructure Manager",
+			"bio": "Systems administrator with 10+ years of experience managing Linux servers and cloud infrastructure. Expert in automation, monitoring, and disaster recovery. Red Hat certified.",
+			"contactInfo": {
+				"phone_number": "+1-555-0123",
+				"email": "justin.hall@sysadmin.ops"
+			},
+			"openTo": {
+				"work": false,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": true
+			},
+			"location": {
+				"city": "Indianapolis",
+				"region": "Indiana",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-86.1581, 39.7684]
+				}
+			},
+			"skills": [
+				"Linux",
+				"Red Hat",
+				"Shell Scripting",
+				"Ansible",
+				"Nagios",
+				"Apache",
+				"Nginx",
+				"MySQL",
+				"Backup & Recovery",
+				"Virtualization"
+			],
+			"education": [
+				{
+					"school": "Purdue University",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Information Technology",
+					"startYear": 2008,
+					"endYear": 2012
+				}
+			],
+			"experience": [
+				{
+					"company": "IT Operations Corp",
+					"title": "Senior Systems Administrator",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Indianapolis, IN",
+					"locationType": "HYBRID",
+					"skills": ["Linux", "Ansible", "Shell Scripting"],
+					"media": [],
+					"startDate": 1483228800000,
+					"endDate": null,
+					"description": "Managing enterprise Linux infrastructure. Automating system administration tasks and ensuring 99.9% uptime."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/justinhall", "github.com/justinhall"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Indiana/Indianapolis",
+			"notifications": {
+				"email": true,
+				"push": false
+			}
+		}
+	},
+	{
+		"email": "megan.walker@salesforce.crm",
+		"password": "Salesforce789!",
+		"firstName": "Megan",
+		"lastName": "Walker",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Salesforce Developer | CRM Specialist | Apex Expert",
+			"bio": "Salesforce developer with 5 years of experience building custom CRM solutions. Certified Salesforce Platform Developer. Expert in Apex, Lightning Web Components, and Salesforce integrations.",
+			"contactInfo": {
+				"phone_number": "+1-555-0124",
+				"email": "megan.walker@salesforce.crm"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": false
+			},
+			"location": {
+				"city": "Atlanta",
+				"region": "Georgia",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-84.388, 33.749]
+				}
+			},
+			"skills": [
+				"Salesforce",
+				"Apex",
+				"Lightning Web Components",
+				"Visualforce",
+				"SOQL",
+				"Salesforce APIs",
+				"Integration",
+				"Workflows",
+				"Process Builder"
+			],
+			"education": [
+				{
+					"school": "Georgia Institute of Technology",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Information Systems",
+					"startYear": 2014,
+					"endYear": 2018
+				}
+			],
+			"experience": [
+				{
+					"company": "CRM Solutions Inc.",
+					"title": "Salesforce Developer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Atlanta, GA",
+					"locationType": "REMOTE",
+					"skills": ["Salesforce", "Apex", "Lightning Web Components"],
+					"media": [],
+					"startDate": 1622505600000,
+					"endDate": null,
+					"description": "Developing custom Salesforce applications and integrations. Implementing business logic and optimizing CRM workflows."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/meganwalker", "trailhead.salesforce.com/meganwalker"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/New_York",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	},
+	{
+		"email": "tyler.scott@arvr.dev",
+		"password": "ARVR2024!",
+		"firstName": "Tyler",
+		"lastName": "Scott",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "AR/VR Developer | Unity3D Expert | Immersive Experience Creator",
+			"bio": "AR/VR developer with 4 years of experience creating immersive experiences. Expert in Unity3D, C#, and spatial computing. Developed applications for Oculus, HoloLens, and mobile AR platforms.",
+			"contactInfo": {
+				"phone_number": "+1-555-0125",
+				"email": "tyler.scott@arvr.dev"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": false
+			},
+			"location": {
+				"city": "Raleigh",
+				"region": "North Carolina",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-78.6382, 35.7796]
+				}
+			},
+			"skills": [
+				"Unity3D",
+				"C#",
+				"AR",
+				"VR",
+				"Oculus SDK",
+				"ARKit",
+				"ARCore",
+				"3D Modeling",
+				"Spatial Audio",
+				"UX Design"
+			],
+			"education": [
+				{
+					"school": "North Carolina State University",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Computer Science",
+					"startYear": 2016,
+					"endYear": 2020
+				}
+			],
+			"experience": [
+				{
+					"company": "Immersive Tech Studios",
+					"title": "AR/VR Developer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Raleigh, NC",
+					"locationType": "HYBRID",
+					"skills": ["Unity3D", "C#", "VR Development"],
+					"media": [],
+					"startDate": 1630454400000,
+					"endDate": null,
+					"description": "Developing immersive AR/VR applications for training and entertainment. Implementing intuitive interactions and optimizing performance."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/tylerscott", "github.com/tylerscott"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/New_York",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	},
+	{
+		"email": "laura.green@bioinformatics.bio",
+		"password": "BioInfo123!",
+		"firstName": "Laura",
+		"lastName": "Green",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Bioinformatics Scientist | Genomics Expert | Computational Biologist",
+			"bio": "Bioinformatics scientist with PhD in Computational Biology. 6 years of experience analyzing genomic data and developing computational tools for biological research. Expert in Python, R, and next-generation sequencing analysis.",
+			"contactInfo": {
+				"phone_number": "+1-555-0126",
+				"email": "laura.green@bioinformatics.bio"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": false,
+				"mentorship": true
+			},
+			"location": {
+				"city": "Baltimore",
+				"region": "Maryland",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-76.6122, 39.2904]
+				}
+			},
+			"skills": [
+				"Python",
+				"R",
+				"Bioinformatics",
+				"Genomics",
+				"Machine Learning",
+				"NGS Analysis",
+				"Statistical Analysis",
+				"Linux",
+				"Perl",
+				"SQL"
+			],
+			"education": [
+				{
+					"school": "Johns Hopkins University",
+					"degree": "Doctor of Philosophy",
+					"fieldOfStudy": "Computational Biology",
+					"startYear": 2013,
+					"endYear": 2018
+				}
+			],
+			"experience": [
+				{
+					"company": "Genomics Research Institute",
+					"title": "Senior Bioinformatics Scientist",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Baltimore, MD",
+					"locationType": "ONSITE",
+					"skills": ["Python", "R", "Genomics"],
+					"media": [],
+					"startDate": 1609459200000,
+					"endDate": null,
+					"description": "Analyzing genomic data and developing computational pipelines for biological research. Collaborating with wet lab scientists."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/lauragreen", "github.com/lauragreen", "scholar.google.com/lauragreen"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/New_York",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	},
+	{
+		"email": "eric.baker@fullstackjs.dev",
+		"password": "FullStack456!",
+		"firstName": "Eric",
+		"lastName": "Baker",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Full Stack JavaScript Developer | MERN Stack Expert",
+			"bio": "Full stack JavaScript developer specializing in MERN stack. 7 years of experience building modern web applications. Passionate about clean code, performance optimization, and continuous learning.",
+			"contactInfo": {
+				"phone_number": "+1-555-0127",
+				"email": "eric.baker@fullstackjs.dev"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": true
+			},
+			"location": {
+				"city": "Detroit",
+				"region": "Michigan",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-83.0458, 42.3314]
+				}
+			},
+			"skills": ["JavaScript", "React", "Node.js", "Express", "MongoDB", "Redux", "TypeScript", "Jest", "Git", "Agile"],
+			"education": [
+				{
+					"school": "University of Michigan",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Computer Science",
+					"startYear": 2012,
+					"endYear": 2016
+				}
+			],
+			"experience": [
+				{
+					"company": "WebDev Solutions",
+					"title": "Senior Full Stack Developer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Detroit, MI",
+					"locationType": "REMOTE",
+					"skills": ["React", "Node.js", "MongoDB"],
+					"media": [],
+					"startDate": 1596240000000,
+					"endDate": null,
+					"description": "Building scalable web applications using MERN stack. Leading development of new features and mentoring junior developers."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/ericbaker", "github.com/ericbaker", "dev.to/ericbaker"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Detroit",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	},
+	{
+		"email": "samantha.carter@businessanalyst.biz",
+		"password": "Business789!",
+		"firstName": "Samantha",
+		"lastName": "Carter",
+		"role": "RECRUITER",
+		"profile": {
+			"headline": "Business Analyst | Requirements Specialist | Process Improvement Expert",
+			"bio": "Business analyst with 8 years of experience bridging the gap between business and technology. Skilled in requirements gathering, process mapping, and stakeholder management. CBAP certified.",
+			"contactInfo": {
+				"phone_number": "+1-555-0128",
+				"email": "samantha.carter@businessanalyst.biz"
+			},
+			"openTo": {
+				"work": false,
+				"hiring": true,
+				"freelance": false,
+				"mentorship": true
+			},
+			"location": {
+				"city": "Milwaukee",
+				"region": "Wisconsin",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-87.9065, 43.0389]
+				}
+			},
+			"skills": [
+				"Business Analysis",
+				"Requirements Gathering",
+				"Process Mapping",
+				"JIRA",
+				"SQL",
+				"Data Analysis",
+				"Stakeholder Management",
+				"Agile"
+			],
+			"education": [
+				{
+					"school": "University of Wisconsin-Milwaukee",
+					"degree": "Bachelor of Business Administration",
+					"fieldOfStudy": "Management Information Systems",
+					"startYear": 2011,
+					"endYear": 2015
+				}
+			],
+			"experience": [
+				{
+					"company": "Business Solutions Corp",
+					"title": "Senior Business Analyst",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Milwaukee, WI",
+					"locationType": "HYBRID",
+					"skills": ["Business Analysis", "Requirements Gathering", "Process Mapping"],
+					"media": [],
+					"startDate": 1577836800000,
+					"endDate": null,
+					"description": "Analyzing business processes and gathering requirements for software projects. Collaborating with stakeholders to deliver solutions."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/samanthacarter", "twitter.com/samanthaBA"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Chicago",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	},
+	{
+		"email": "andrew.phillips@erpdev.sap",
+		"password": "ERP2024!",
+		"firstName": "Andrew",
+		"lastName": "Phillips",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "SAP Developer | ERP Consultant | ABAP Expert",
+			"bio": "SAP developer with 9 years of experience implementing and customizing SAP solutions. Expert in ABAP programming and SAP modules. Certified SAP consultant specializing in finance and logistics.",
+			"contactInfo": {
+				"phone_number": "+1-555-0129",
+				"email": "andrew.phillips@erpdev.sap"
+			},
+			"openTo": {
+				"work": false,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": true
+			},
+			"location": {
+				"city": "Minneapolis",
+				"region": "Minnesota",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-93.265, 44.9778]
+				}
+			},
+			"skills": [
+				"SAP",
+				"ABAP",
+				"SAP HANA",
+				"SAP Fiori",
+				"SAP S/4HANA",
+				"SQL",
+				"SAP Module Configuration",
+				"Integration",
+				"Project Management"
+			],
+			"education": [
+				{
+					"school": "University of Minnesota",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Information Systems",
+					"startYear": 2010,
+					"endYear": 2014
+				}
+			],
+			"experience": [
+				{
+					"company": "ERP Solutions Ltd.",
+					"title": "Senior SAP Developer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Minneapolis, MN",
+					"locationType": "HYBRID",
+					"skills": ["SAP", "ABAP", "SAP HANA"],
+					"media": [],
+					"startDate": 1546300800000,
+					"endDate": null,
+					"description": "Developing and customizing SAP applications for enterprise clients. Implementing SAP solutions and providing technical consultation."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/andrewphillips", "twitter.com/andrewsap"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Chicago",
+			"notifications": {
+				"email": true,
+				"push": false
+			}
+		}
+	},
+	{
+		"email": "kimberly.mitchell@dataviz.analytics",
+		"password": "DataViz456!",
+		"firstName": "Kimberly",
+		"lastName": "Mitchell",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Data Visualization Specialist | Tableau Expert | Analytics Professional",
+			"bio": "Data visualization specialist with 6 years of experience creating insightful dashboards and reports. Expert in Tableau, Power BI, and D3.js. Strong background in data analytics and storytelling with data.",
+			"contactInfo": {
+				"phone_number": "+1-555-0130",
+				"email": "kimberly.mitchell@dataviz.analytics"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": false
+			},
+			"location": {
+				"city": "Kansas City",
+				"region": "Missouri",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-94.5786, 39.0997]
+				}
+			},
+			"skills": [
+				"Tableau",
+				"Power BI",
+				"D3.js",
+				"SQL",
+				"Python",
+				"Data Analysis",
+				"Dashboard Design",
+				"Statistics",
+				"Excel",
+				"Data Storytelling"
+			],
+			"education": [
+				{
+					"school": "University of Missouri-Kansas City",
+					"degree": "Master of Science",
+					"fieldOfStudy": "Data Analytics",
+					"startYear": 2015,
+					"endYear": 2017
+				}
+			],
+			"experience": [
+				{
+					"company": "Analytics Insights Inc.",
+					"title": "Senior Data Visualization Specialist",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Kansas City, MO",
+					"locationType": "REMOTE",
+					"skills": ["Tableau", "Power BI", "Data Analysis"],
+					"media": [],
+					"startDate": 1609459200000,
+					"endDate": null,
+					"description": "Creating interactive dashboards and visualizations for business stakeholders. Analyzing data and presenting insights through compelling visual stories."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/kimberlymitchell", "tableau.public.com/kimberlymitchell"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Chicago",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	},
+	{
+		"email": "gregory.roberts@godev.lang",
+		"password": "Golang123!",
+		"firstName": "Gregory",
+		"lastName": "Roberts",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Go Developer | Microservices Architect | Backend Specialist",
+			"bio": "Go developer with 5 years of experience building high-performance backend systems. Expert in microservices architecture, distributed systems, and cloud-native applications. Passionate about clean, efficient code.",
+			"contactInfo": {
+				"phone_number": "+1-555-0131",
+				"email": "gregory.roberts@godev.lang"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": false,
+				"mentorship": true
+			},
+			"location": {
+				"city": "Boulder",
+				"region": "Colorado",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-105.2705, 40.015]
+				}
+			},
+			"skills": [
+				"Go",
+				"Microservices",
+				"Docker",
+				"Kubernetes",
+				"gRPC",
+				"PostgreSQL",
+				"Redis",
+				"AWS",
+				"REST API",
+				"Git"
+			],
+			"education": [
+				{
+					"school": "University of Colorado Boulder",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Computer Science",
+					"startYear": 2014,
+					"endYear": 2018
+				}
+			],
+			"experience": [
+				{
+					"company": "Cloud Native Systems",
+					"title": "Senior Go Developer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Boulder, CO",
+					"locationType": "REMOTE",
+					"skills": ["Go", "Microservices", "Kubernetes"],
+					"media": [],
+					"startDate": 1622505600000,
+					"endDate": null,
+					"description": "Building scalable microservices using Go. Architecting distributed systems and implementing cloud-native solutions."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/gregoryroberts", "github.com/gregoryroberts"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Denver",
+			"notifications": {
+				"email": true,
+				"push": false
+			}
+		}
+	},
+	{
+		"email": "crystal.turner@rustlang.rs",
+		"password": "Rust789!",
+		"firstName": "Crystal",
+		"lastName": "Turner",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Rust Developer | Systems Programming Expert | Performance Enthusiast",
+			"bio": "Rust developer specializing in systems programming and high-performance applications. 4 years of experience building reliable, concurrent software. Contributor to open-source Rust projects.",
+			"contactInfo": {
+				"phone_number": "+1-555-0132",
+				"email": "crystal.turner@rustlang.rs"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": true,
+				"mentorship": false
+			},
+			"location": {
+				"city": "Pittsburgh",
+				"region": "Pennsylvania",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-79.9959, 40.4406]
+				}
+			},
+			"skills": [
+				"Rust",
+				"Systems Programming",
+				"C++",
+				"Linux",
+				"Performance Optimization",
+				"Concurrency",
+				"Memory Management",
+				"Git",
+				"Cargo"
+			],
+			"education": [
+				{
+					"school": "Carnegie Mellon University",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Computer Science",
+					"startYear": 2016,
+					"endYear": 2020
+				}
+			],
+			"experience": [
+				{
+					"company": "Systems Software Corp",
+					"title": "Rust Developer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Pittsburgh, PA",
+					"locationType": "REMOTE",
+					"skills": ["Rust", "Systems Programming", "Performance Optimization"],
+					"media": [],
+					"startDate": 1630454400000,
+					"endDate": null,
+					"description": "Developing high-performance systems software using Rust. Optimizing critical code paths and ensuring memory safety."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/crystalturner", "github.com/crystalturner", "crates.io/users/crystalturner"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/New_York",
+			"notifications": {
+				"email": true,
+				"push": true
+			}
+		}
+	},
+	{
+		"email": "patrick.collins@testautomation.qa",
+		"password": "TestAuto123!",
+		"firstName": "Patrick",
+		"lastName": "Collins",
+		"role": "CANDIDATE",
+		"profile": {
+			"headline": "Test Automation Engineer | Selenium Expert | CI/CD Specialist",
+			"bio": "Test automation engineer with 7 years of experience building robust test frameworks. Expert in Selenium, Cypress, and API testing. Strong advocate for shift-left testing and continuous quality.",
+			"contactInfo": {
+				"phone_number": "+1-555-0133",
+				"email": "patrick.collins@testautomation.qa"
+			},
+			"openTo": {
+				"work": true,
+				"hiring": false,
+				"freelance": false,
+				"mentorship": true
+			},
+			"location": {
+				"city": "Salt Lake City",
+				"region": "Utah",
+				"country": "United States",
+				"geo": {
+					"type": "Point",
+					"coordinates": [-111.891, 40.7608]
+				}
+			},
+			"skills": ["Selenium", "Cypress", "Java", "Python", "API Testing", "Jenkins", "Git", "TestNG", "BDD", "Cucumber"],
+			"education": [
+				{
+					"school": "University of Utah",
+					"degree": "Bachelor of Science",
+					"fieldOfStudy": "Software Engineering",
+					"startYear": 2012,
+					"endYear": 2016
+				}
+			],
+			"experience": [
+				{
+					"company": "QA Automation Inc.",
+					"title": "Senior Test Automation Engineer",
+					"employmentType": "FULL_TIME",
+					"currentlyWorkingHere": true,
+					"location": "Salt Lake City, UT",
+					"locationType": "HYBRID",
+					"skills": ["Selenium", "Cypress", "API Testing"],
+					"media": [],
+					"startDate": 1596240000000,
+					"endDate": null,
+					"description": "Building and maintaining automated test frameworks. Integrating tests into CI/CD pipelines and improving test coverage."
+				}
+			],
+			"socialLinks": ["linkedin.com/in/patrickcollins", "github.com/patrickcollins"]
+		},
+		"settings": {
+			"language": "en",
+			"timezone": "America/Denver",
+			"notifications": {
+				"email": true,
+				"push": false
+			}
+		}
+	}
+]

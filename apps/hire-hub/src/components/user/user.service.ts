@@ -1,33 +1,32 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { RegisterUserInput, User } from '../../libs/dto/user';
-import { GetLeanResultType, Model, ObjectId, PipelineStage } from 'mongoose';
+import {
+	RegisterUserInput,
+	User,
+	LoginUserInput,
+	PublicUser,
+	UpdateProfileInput,
+	UpdateUserInput,
+	ResendVerificationInput,
+	VerifyEmailInput,
+} from '../../libs/dto/user';
+import { GetLeanResultType, Model, ObjectId, PipelineStage, LeanOptions } from 'mongoose';
 import {
 	UserCreationFailedException,
 	UserAlreadyExistsException,
 	DatabaseException,
 	ErrorCode,
-	LoginUserInput,
 	UserNotFoundException,
 	InvalidCredentialsException,
 	UserStatus,
 	UserDeactivatedException,
 	UserSuspendedException,
-	UpdateUserInput,
-	PublicUser,
-	UpdateProfileInput,
-	Step5RegisterInput,
-	ResendVerificationInput,
-	VerifyEmailInput,
 	BadRequestException,
 	ViewGroup,
 } from '../../libs';
 import { AuthService } from '../auth/auth.service';
 import { shapeIntoMongoObjectId } from '../../libs/config';
-import { Step3RegisterInput, Step4RegisterInput } from '../../libs';
 import { EmailService } from '../notification/email.service';
-
-import { LeanOptions } from 'mongoose';
 import { ViewService } from '../view/view.service';
 import { StatsModifier } from '../../libs/interfaces/common';
 
@@ -40,7 +39,7 @@ export class UserService {
 		private readonly viewService: ViewService,
 	) {}
 
-	/** Register a new user and generate auth tokens */
+	/** Register a new user with complete profile data - combines all registration steps */
 	public async register(input: RegisterUserInput): Promise<User> {
 		const normalizedEmail: string = input.email.toLowerCase().trim();
 		const hashedPassword: string = await this.authService.hashPassword(input.passwordHash);
@@ -59,15 +58,20 @@ export class UserService {
 			const verificationCode = this.generateVerificationCode();
 			const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000);
 
+			// Build complete user data with all optional fields
 			const userData = {
-				...input,
 				email: normalizedEmail,
 				passwordHash: hashedPassword,
+				firstName: input.firstName,
+				lastName: input.lastName,
+				role: input.role,
 				status: UserStatus.ACTIVE,
 				emailVerified: false,
 				verificationCode,
 				verificationCodeExpires,
-				settings: {
+				profile: input.profile || undefined,
+				qualifications: input.qualifications || undefined,
+				settings: input.settings || {
 					language: 'en',
 					timezone: 'UTC',
 					notifications: {
@@ -75,6 +79,11 @@ export class UserService {
 						push: false,
 					},
 				},
+				hasCompleteRegistration: !!(
+					input.profile?.skills?.length &&
+					input.profile?.location &&
+					(input.profile?.education?.length || input.profile?.experience?.length)
+				),
 			};
 
 			const newUser = await this.userModel.create(userData);
@@ -86,6 +95,7 @@ export class UserService {
 				});
 			}
 
+			// Send verification email (non-blocking)
 			try {
 				await this.emailService.sendVerificationEmail(normalizedEmail, verificationCode, input.firstName);
 			} catch (error) {
@@ -474,218 +484,6 @@ export class UserService {
 		}
 	}
 
-	/** Create user profile after registration */
-	public async createProfileAfterRegistration(userId: ObjectId, profileData: UpdateProfileInput): Promise<PublicUser> {
-		try {
-			const updatedUser = await this.userModel
-				.findByIdAndUpdate(userId, { profile: profileData.profile }, { new: true })
-				.exec();
-
-			if (!updatedUser) {
-				throw new UserNotFoundException({
-					message: 'User not found for profile creation',
-					userId,
-				});
-			}
-
-			return updatedUser.toObject() as PublicUser;
-		} catch (error: any) {
-			if (error instanceof UserNotFoundException) {
-				throw error;
-			}
-
-			throw new InternalServerErrorException('Failed to create user profile. Please try again later.');
-		}
-	}
-
-	/** Step 3: Add education entries (with duplicate detection) */
-	public async step3RegistrationProcess(userId: ObjectId, inputData: Step3RegisterInput): Promise<PublicUser> {
-		try {
-			const currentUser = await this.userModel.findById(userId).exec();
-
-			if (!currentUser) {
-				throw new UserNotFoundException({
-					message: 'User not found for step 3 registration process',
-					userId,
-				});
-			}
-
-			// STEP 2: Get existing education entries (or empty array if none)
-			const existingEducation = currentUser.profile?.education || [];
-
-			// STEP 3: Normalize existing school names for comparison
-			const existingSchoolNames = existingEducation.map((edu: any) => edu.school.toLowerCase().trim());
-
-			// STEP 4: Check for duplicates in new education entries
-			const duplicateSchools: string[] = [];
-			(inputData.education || []).forEach((newEdu) => {
-				const normalizedNewSchool = newEdu.school.toLowerCase().trim();
-				if (existingSchoolNames.includes(normalizedNewSchool)) {
-					duplicateSchools.push(newEdu.school);
-				}
-			});
-
-			// Throw error if duplicates found
-			if (duplicateSchools.length > 0) {
-				throw new DatabaseException(ErrorCode.DUPLICATE_KEY_ERROR, {
-					message: `Education entries already exist for: ${duplicateSchools.join(', ')}`,
-					duplicateSchools,
-				});
-			}
-
-			// STEP 5: Merge existing and new education entries
-			const mergedEducation = [...existingEducation, ...(inputData.education || [])];
-
-			// STEP 6: Update user with merged education array
-			const updatedUser = await this.userModel
-				.findByIdAndUpdate(userId, { 'profile.education': mergedEducation }, { new: true })
-				.exec();
-
-			if (!updatedUser) {
-				throw new UserNotFoundException({
-					message: 'User not found after education update',
-					userId,
-				});
-			}
-
-			return updatedUser.toObject() as PublicUser;
-		} catch (error: any) {
-			if (error instanceof UserNotFoundException || error instanceof DatabaseException) {
-				throw error;
-			}
-
-			throw new InternalServerErrorException(
-				'Failed to update user information during step 3 registration process. Please try again later.',
-			);
-		}
-	}
-
-	/** Step 4: Add work experience entries (with duplicate detection) */
-	public async step4RegistrationProcess(userId: ObjectId, inputData: Step4RegisterInput): Promise<PublicUser> {
-		try {
-			const currentUser = await this.userModel.findById(userId).exec();
-
-			if (!currentUser) {
-				throw new UserNotFoundException({
-					message: 'User not found for step 4 registration process',
-					userId,
-				});
-			}
-
-			// STEP 2: Get existing experience entries (or empty array if none)
-			const existingExperience = currentUser.profile?.experience || [];
-
-			// STEP 3: Normalize existing company names for comparison
-			const existingCompanyNames = existingExperience.map((exp: any) => exp.company.toLowerCase().trim());
-
-			// STEP 4: Check for duplicates in new experience entries
-			const duplicateCompanies: string[] = [];
-			(inputData.experience || []).forEach((newExp) => {
-				const normalizedNewCompany = newExp.company.toLowerCase().trim();
-				if (existingCompanyNames.includes(normalizedNewCompany)) {
-					duplicateCompanies.push(newExp.company);
-				}
-			});
-
-			// Throw error if duplicates found
-			if (duplicateCompanies.length > 0) {
-				throw new DatabaseException(ErrorCode.DUPLICATE_KEY_ERROR, {
-					message: `Experience entries already exist for: ${duplicateCompanies.join(', ')}`,
-					duplicateCompanies,
-				});
-			}
-
-			// STEP 5: Merge existing and new experience entries
-			const mergedExperience = [...existingExperience, ...(inputData.experience || [])];
-
-			// STEP 6: Update user with merged experience array
-			const updatedUser = await this.userModel
-				.findByIdAndUpdate(userId, { 'profile.experience': mergedExperience }, { new: true })
-				.exec();
-
-			if (!updatedUser) {
-				throw new UserNotFoundException({
-					message: 'User not found after experience update',
-					userId,
-				});
-			}
-
-			return updatedUser.toObject() as PublicUser;
-		} catch (error: any) {
-			if (error instanceof UserNotFoundException || error instanceof DatabaseException) {
-				throw error;
-			}
-
-			throw new InternalServerErrorException(
-				'Failed to update user information during step 4 registration process. Please try again later.',
-			);
-		}
-	}
-
-	/** Step 5: Add certifications/qualifications (with duplicate detection) */
-	public async step5RegistrationProcess(userId: ObjectId, inputData: Step5RegisterInput): Promise<PublicUser> {
-		try {
-			const currentUser = await this.userModel.findById(userId).exec();
-
-			if (!currentUser) {
-				throw new UserNotFoundException({
-					message: 'User not found for step 5 registration process',
-					userId,
-				});
-			}
-
-			// STEP 2: Get existing qualifications entries (or empty array if none)
-			const existingQualifications = currentUser.qualifications || [];
-
-			// STEP 3: Normalize existing profcertorawards names for comparison
-			const existingQualificationNames = existingQualifications.map((qual: any) =>
-				qual.profcertorawards.toLowerCase().trim(),
-			);
-
-			// STEP 4: Check for duplicates in new qualification entries
-			const duplicateQualifications: string[] = [];
-			(inputData.qualifications || []).forEach((newQual) => {
-				const normalizedNewQualification = newQual.profcertorawards.toLowerCase().trim();
-				if (existingQualificationNames.includes(normalizedNewQualification)) {
-					duplicateQualifications.push(newQual.profcertorawards);
-				}
-			});
-
-			// Throw error if duplicates found
-			if (duplicateQualifications.length > 0) {
-				throw new DatabaseException(ErrorCode.DUPLICATE_KEY_ERROR, {
-					message: `Qualification entries already exist for: ${duplicateQualifications.join(', ')}`,
-					duplicateQualifications,
-				});
-			}
-
-			// STEP 5: Merge existing and new qualification entries
-			const mergedQualifications = [...existingQualifications, ...(inputData.qualifications || [])];
-
-			// STEP 6: Update user with merged qualifications array
-			const updatedUser = await this.userModel
-				.findByIdAndUpdate(userId, { qualifications: mergedQualifications }, { new: true })
-				.exec();
-
-			if (!updatedUser) {
-				throw new UserNotFoundException({
-					message: 'User not found after qualifications update',
-					userId,
-				});
-			}
-
-			return updatedUser.toObject() as PublicUser;
-		} catch (error: any) {
-			if (error instanceof UserNotFoundException || error instanceof DatabaseException) {
-				throw error;
-			}
-
-			throw new InternalServerErrorException(
-				'Failed to update user information during step 5 registration process. Please try again later.',
-			);
-		}
-	}
-
 	/** Validate OAuth login (find existing user or create new one) */
 	public async validateOAuthLogin(
 		provider: string,
@@ -947,6 +745,8 @@ export class UserService {
 	 * Verify user's email with verification code
 	 * @param input - Email and verification code
 	 * @returns Updated user object
+	 * PERFORMANCE: This runs on every render
+	 * # Authentication - Optional description
 	 */
 	public async verifyEmail(input: VerifyEmailInput): Promise<User> {
 		const normalizedEmail = input.email.toLowerCase().trim();
@@ -1226,18 +1026,22 @@ export class UserService {
 		return result[0]?.activeCompany || null;
 	}
 
-	public async getCandidateProfile(userId: ObjectId, targetUserId?: string): Promise<PublicUser> {
-		const shapedTargetUserId = shapeIntoMongoObjectId(targetUserId);
+	public async getCandidateProfile(targetUsername?: string, userId?: ObjectId): Promise<PublicUser | User> {
+		console.log('----- Getting candidate profile -----');
+		console.log('Target Username', targetUsername);
+		console.log('User id ', userId);
+
 		try {
+			if (targetUsername && typeof targetUsername !== null) {
+				return this.getUserProfile(targetUsername, userId);
+			}
+
 			const user = await this.userModel.findById(userId).exec();
 			if (!user) {
 				throw new UserNotFoundException({
 					message: 'User not found',
 					userId,
 				});
-			}
-			if (shapedTargetUserId && typeof shapedTargetUserId !== null) {
-				return this.getUserProfile(userId, shapedTargetUserId);
 			}
 
 			return this.getOwnProfile(userId);
@@ -1250,7 +1054,7 @@ export class UserService {
 			console.error('Unexpected error fetching candidate profile:', {
 				error: error.message,
 				errorName: error.name,
-				userId: userId.toString(),
+				userId: userId?.toString(),
 				timestamp: new Date().toISOString(),
 				stack: error.stack,
 			});
@@ -1259,7 +1063,7 @@ export class UserService {
 		}
 	}
 
-	private async getOwnProfile(userId: ObjectId): Promise<PublicUser> {
+	private async getOwnProfile(userId?: ObjectId): Promise<User> {
 		const pipeline: PipelineStage[] = [
 			{ $match: { _id: userId } },
 			{
@@ -1284,12 +1088,12 @@ export class UserService {
 			});
 		}
 
-		return withVirtuals[0] as PublicUser;
+		return withVirtuals[0] as User;
 	}
 
-	private async getUserProfile(userId: ObjectId, targetUserId: ObjectId): Promise<PublicUser> {
+	private async getUserProfile(targetUsername: string, userId?: ObjectId): Promise<PublicUser> {
 		const pipeline: PipelineStage[] = [
-			{ $match: { _id: targetUserId } },
+			{ $match: { publicProfileUsername: targetUsername } },
 			{
 				$project: {
 					passwordHash: 0,
@@ -1308,19 +1112,19 @@ export class UserService {
 		if (result.length === 0) {
 			throw new UserNotFoundException({
 				message: 'User not found',
-				targetUserId,
+				targetUsername,
 			});
 		}
 
 		if (userId) {
 			const $resultIncrement = await this.viewService.incremenetViewCount({
 				userId: String(userId),
-				viewRefId: String(targetUserId),
+				viewRefId: String(withVirtuals[0]._id),
 				viewGroup: ViewGroup.USER,
 			});
 			if ($resultIncrement) {
 				await this.userStatsModifier({
-					id: targetUserId,
+					id: shapeIntoMongoObjectId(withVirtuals[0]._id),
 					targetKey: 'viewsCount',
 					modifier: 1,
 				});

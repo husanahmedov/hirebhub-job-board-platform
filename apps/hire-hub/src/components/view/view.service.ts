@@ -14,6 +14,9 @@ export class ViewService {
 			existingView = await this.checkViewExists(userId, viewRefId);
 			console.log(existingView);
 		}
+		if (userId === viewRefId) {
+			return null;
+		}
 
 		return existingView ? null : this.viewModel.create(input);
 	}

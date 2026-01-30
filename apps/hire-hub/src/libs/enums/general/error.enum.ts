@@ -111,7 +111,7 @@ export const ErrorMessage: Record<ErrorCode, string> = {
 	[ErrorCode.USER_NOT_AUTHENTICATED]: 'You are not authenticated. Please login to continue',
 
 	// User Related
-	[ErrorCode.USER_NOT_FOUND]: 'User not found',
+	[ErrorCode.USER_NOT_FOUND]: 'User not found. Invalid Credentials',
 	[ErrorCode.USER_ALREADY_EXISTS]: 'User already exists with this email',
 	[ErrorCode.USER_CREATION_FAILED]: 'Failed to create user',
 	[ErrorCode.USER_UPDATE_FAILED]: 'Failed to update user',

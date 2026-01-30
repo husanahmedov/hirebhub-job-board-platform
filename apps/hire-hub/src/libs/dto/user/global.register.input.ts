@@ -17,7 +17,7 @@ import {
 	IsDateString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { UserStatus, UserRole, UserCountry } from '../../enums';
+import { UserStatus, UserRole, UserCountry, EmploymentType, WorkPreference } from '../../enums';
 
 /**
  * Geographic coordinates input for location
@@ -121,6 +121,33 @@ export class ExperienceInput {
 	@MaxLength(200)
 	@Field(() => String, { nullable: true })
 	location?: string;
+
+	@IsNotEmpty()
+	@IsEnum(EmploymentType)
+	@Field(() => EmploymentType)
+	employmentType: string;
+
+	@IsNotEmpty()
+	@IsBoolean()
+	@Field(() => Boolean)
+	currentlyWorkingHere: boolean;
+
+	@IsNotEmpty()
+	@IsEnum(WorkPreference)
+	@Field(() => WorkPreference)
+	locationType: string;
+
+	@IsNotEmpty()
+	@IsArray()
+	@IsString({ each: true })
+	@Field(() => [String])
+	skills: string[];
+
+	@IsOptional()
+	@IsArray()
+	@IsString({ each: true })
+	@Field(() => [String], { nullable: true })
+	media?: string[];
 
 	@IsNotEmpty()
 	@IsNumber()
