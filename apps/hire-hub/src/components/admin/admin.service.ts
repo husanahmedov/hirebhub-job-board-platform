@@ -16,12 +16,9 @@ import {
 	RateLimitsSettings,
 } from '../../libs/dto/admin';
 
-/**
- * AdminService - Handles all admin-related operations
- *
- * This service provides methods for managing system settings,
- * including content moderation, rate limits, and feature flags.
- */
+/***
+ * CRITICAL: ADMIN SERVICE
+ ***/
 @Injectable()
 export class AdminService {
 	constructor(

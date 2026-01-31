@@ -3,15 +3,9 @@ import * as nodemailer from 'nodemailer';
 import { Transporter } from 'nodemailer';
 import { EnvUtil } from '../../libs/env.util';
 
-/**
- * Email Service
- *
- * Handles sending emails using SMTP configuration from environment variables.
- * Supports verification emails, password resets, and general notifications.
- *
- * For development: Uses Ethereal (fake SMTP) or Resend
- * For production: Uses Resend or any SMTP provider
- */
+/***
+ * INFO: EMAIL SERVICE
+ ***/
 @Injectable()
 export class EmailService {
 	private readonly logger = new Logger(EmailService.name);

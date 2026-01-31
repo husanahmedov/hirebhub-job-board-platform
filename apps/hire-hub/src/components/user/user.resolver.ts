@@ -1,4 +1,4 @@
-import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
+import { Args, Mutation, Resolver, Query, Context } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import {
 	RegisterUserInput,
@@ -15,7 +15,8 @@ import {
 	CompanyListItem,
 	ActiveCompanyOutput,
 } from '../../libs/dto/user';
-import { UserRole } from '../../libs';
+import { UserRole, UserSettingsOutput } from '../../libs';
+import { SessionOutput, MessageResponse } from '../../libs/dto/sessions/output';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthUser } from '../auth/decorators/authUser.decorator';
@@ -25,6 +26,8 @@ import { shapeIntoMongoObjectId } from '../../libs/config';
 import { AuthService } from '../auth/auth.service';
 import type { ObjectId } from 'mongoose';
 import { WithoutGuard } from '../auth/guards/without.guard';
+import { DeviceParser } from '../../libs/utils/device.parser';
+import { AuthToken } from '../auth/decorators/authToken.decorator';
 
 @Resolver()
 export class UserResolver {
@@ -33,22 +36,22 @@ export class UserResolver {
 		private readonly authService: AuthService,
 	) {}
 
-	/**
-	 * Register a new user account with complete profile information in one step
-	 */
+	/*****************************************************************************
+	 * SECURITY USER REGISTRATION & ACCOUNT CREATION
+	 ****************************************************************************/
 	@Mutation(() => User, {
-		description: 'Register a new user account with email, password, and optional complete profile information',
+		description: 'Register a new user with email, password, and optional profile details',
 	})
 	public async register(
-		@Args('input', { type: () => RegisterUserInput, description: 'Complete user registration data' })
+		@Args('input', { type: () => RegisterUserInput, description: 'Registration form data' })
 		input: RegisterUserInput,
 	): Promise<User> {
 		return await this.userService.register(input);
 	}
 
-	/**
-	 * Verify user's email with verification code
-	 */
+	/*****************************************************************************
+	 * SECURITY EMAIL VERIFICATION
+	 ****************************************************************************/
 	@Mutation(() => User, {
 		description: 'Verify email address with verification code',
 	})
@@ -59,9 +62,9 @@ export class UserResolver {
 		return await this.userService.verifyEmail(input);
 	}
 
-	/**
-	 * Resend verification code to user's email
-	 */
+	/*****************************************************************************
+	 * SECURITY VERIFICATION CODE RESEND
+	 ****************************************************************************/
 	@Mutation(() => String, {
 		description: 'Resend verification code to email',
 	})
@@ -73,22 +76,58 @@ export class UserResolver {
 		return result.message;
 	}
 
-	/**
-	 * Authenticate user with email and password
-	 */
+	/*****************************************************************************
+	 * SECURITY USER LOGIN & AUTHENTICATION
+	 ****************************************************************************/
 	@Mutation(() => User, {
 		description: 'Authenticate user with email and password, returns user with access token',
 	})
 	public async login(
 		@Args('input', { type: () => LoginUserInput, description: 'User login credentials (email and password)' })
 		input: LoginUserInput,
+		@Context()
+		context,
 	): Promise<User> {
-		return await this.userService.login(input);
+		console.log(`--- @mutation() Login is called with input: ${JSON.stringify(input)} ---`);
+		// DEVICE - Parse device info from user-agent
+		const userAgent = context.req.headers['user-agent'] || 'Unknown Device';
+		const deviceInfo = DeviceParser.parseUserAgent(userAgent);
+
+		// IP - Extract IP address (check for proxy headers)
+		const ipAddress =
+			context.req.headers['x-forwarded-for']?.split(',')[0] ||
+			context.req.headers['x-real-ip'] ||
+			context.req.ip ||
+			context.req.connection?.remoteAddress ||
+			'Unknown IP';
+		const cleanIp = ipAddress.replace('::ffff:', '');
+
+		// LOCATION - Use IP as location for now (localhost won't give geolocation)
+		const location = cleanIp.includes('127.0.0.1') || cleanIp.includes('localhost') ? 'Local Development' : cleanIp;
+
+		console.log(`--- Device Info: ${JSON.stringify(deviceInfo)}, IP Address: ${cleanIp}, Location: ${location} ---`);
+		return await this.userService.login(input, deviceInfo, cleanIp, location);
 	}
 
-	/**
-	 * Update authenticated user's own profile data
-	 */
+	/*****************************************************************************
+	 * SECURITY USER LOGOUT & SESSION REVOCATION
+	 ****************************************************************************/
+	@UseGuards(AuthGuard)
+	@Mutation(() => MessageResponse, {
+		description: 'Logout user by revoking current session',
+	})
+	public async logout(@AuthUser('_id') userId: ObjectId, @AuthToken() currentToken: string): Promise<MessageResponse> {
+		console.log(`--- @mutation() Logout is called for user: ${userId} ---`);
+		await this.userService.logout(userId, currentToken);
+		return {
+			message: 'User logged out successfully',
+			success: true,
+		};
+	}
+
+	/*****************************************************************************
+	 * FEATURE USER PROFILE SELF-UPDATE
+	 ****************************************************************************/
 	@Roles(UserRole.CANDIDATE)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -104,9 +143,9 @@ export class UserResolver {
 		return await this.userService.updateUserByUser(userId, input);
 	}
 
-	/**
-	 * Admin: Update any user's profile including privileged fields (status, role)
-	 */
+	/*****************************************************************************
+	 * CRITICAL ADMIN USER PROFILE UPDATE
+	 ****************************************************************************/
 	@Roles(UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -124,6 +163,9 @@ export class UserResolver {
 		return await this.userService.updateUserByAdmin(objectId, input);
 	}
 
+	/*****************************************************************************
+	 * SECURITY AUTHENTICATION STATUS CHECK
+	 ****************************************************************************/
 	@UseGuards(AuthGuard)
 	@Query(() => PublicUser)
 	public async checkAuthenticatedUser(@AuthUser() user: PublicUser): Promise<PublicUser> {
@@ -134,21 +176,25 @@ export class UserResolver {
 		};
 	}
 
+	/*****************************************************************************
+	 * SECURITY AUTHORIZATION ROLE VERIFICATION
+	 ****************************************************************************/
+
 	@Roles(UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
 	@Query(() => PublicUser)
 	public async checkAuthRoles(@AuthUser() user: PublicUser): Promise<PublicUser> {
-		console.log('--- @query() Check auth Roles is queried: ${user} ---');
+		console.log(`--- @query() Check auth Roles is queried: ${user} ---`);
 		return {
 			...user,
 			message: 'User has proper roles to access this resource',
 		};
 	}
 
-	/**
-	 * Refresh access token using a valid refresh token
-	 */
+	/*****************************************************************************
+	 * SECURITY TOKEN REFRESH & ROTATION
+	 ****************************************************************************/
 	@UseGuards(WithoutGuard)
 	@Mutation(() => AuthResponse, {
 		description: 'Refresh access token using a valid refresh token',
@@ -169,15 +215,15 @@ export class UserResolver {
 		return {
 			user: result.user,
 			accessToken: result.accessToken,
-			refreshToken: result.newRefreshToken || input.refreshToken, // Use new token if rotated
+			refreshToken: result.newRefreshToken ? result.newRefreshToken : input.refreshToken, // Use new token if rotated
 			accessTokenExpiresAt: this.authService.getAccessTokenExpiration(),
 			refreshTokenExpiresAt: this.authService.getRefreshTokenExpiration(),
 		};
 	}
 
-	/**
-	 * Get all companies where the authenticated user is owner or recruiter
-	 */
+	/*****************************************************************************
+	 * API RECRUITER COMPANY LIST
+	 ****************************************************************************/
 	@UseGuards(AuthGuard)
 	@Query(() => [CompanyListItem], {
 		description: 'Get all companies where user is owner or recruiter',
@@ -187,9 +233,9 @@ export class UserResolver {
 		return await this.userService.getMyCompanies(userId.toString());
 	}
 
-	/**
-	 * Switch active company for recruiter operations
-	 */
+	/*****************************************************************************
+	 * FEATURE RECRUITER COMPANY SWITCHING
+	 ****************************************************************************/
 	@Roles(UserRole.RECRUITER)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -215,9 +261,9 @@ export class UserResolver {
 		};
 	}
 
-	/**
-	 * Get current active company details
-	 */
+	/*****************************************************************************
+	 * API RECRUITER ACTIVE COMPANY DETAILS
+	 ****************************************************************************/
 	@Roles(UserRole.RECRUITER)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -230,27 +276,48 @@ export class UserResolver {
 		return await this.userService.getActiveCompany(userId.toString());
 	}
 
+	/*****************************************************************************
+	 * API CANDIDATE PRIVATE PROFILE QUERY
+	 ****************************************************************************/
+
 	@Roles(UserRole.CANDIDATE)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
-	@Query(() => User, {
-		description: "Get authenticated candidate user's profile",
-	})
+	@Query(() => User, { description: 'Fetch authenticated candidate profile with full details' })
 	public async getCandidateProfile(@AuthUser('_id') userId: ObjectId): Promise<User | PublicUser> {
-		console.log(`--- @query() Get Candidate Profile is called: ${userId} ---`);
+		console.log(`--- @query() Get Candidate Profile for user: ${userId} ---`);
 		return await this.userService.getCandidateProfile('', userId);
 	}
 
+	/*****************************************************************************
+	 * API CANDIDATE PUBLIC PROFILE QUERY
+	 ****************************************************************************/
+
 	@UseGuards(WithoutGuard)
-	@Query(() => PublicUser, {
-		description: "Get authenticated candidate user's profile",
-	})
+	@Query(() => PublicUser, { description: 'Fetch public profile of any candidate by username (no auth required)' })
 	public async getCandidatePublicProfile(
 		@AuthUser('_id') userId: ObjectId,
 		@Args('targetUsername', { nullable: true }) targetUsername?: string,
 	): Promise<PublicUser> {
-		console.log(`--- @query() Get Candidate Public Profile is called: ${userId} ---`);
+		console.log(`--- @query() Get Candidate Public Profile for: ${targetUsername || userId} ---`);
 		return await this.userService.getCandidateProfile(targetUsername, userId);
 	}
 
+	/*****************************************************************************
+	 * INFO CANDIDATE SETTINGS & PREFERENCES
+	 ****************************************************************************/
+
+	@Roles(UserRole.CANDIDATE, UserRole.RECRUITER)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Query(() => UserSettingsOutput, {
+		description: "Get authenticated candidate user's settings data (aggregated custom settings)",
+	})
+	public async getCandidateSettings(
+		@AuthUser('_id') userId: ObjectId,
+		@AuthToken() currentToken: string,
+	): Promise<UserSettingsOutput> {
+		console.log(`--- @query() Get Candidate Settings is called ---`);
+		return await this.userService.getCandidateSettings(userId, currentToken);
+	}
 }

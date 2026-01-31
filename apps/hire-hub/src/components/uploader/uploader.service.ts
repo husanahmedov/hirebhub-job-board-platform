@@ -7,13 +7,9 @@ import * as path from 'path';
 export class UploaderService {
 	constructor() {}
 
-	/**
-	 * Upload file to local storage
-	 * @param file - The file to upload
-	 * @param folder - The folder name (e.g., 'avatars', 'resumes', 'companies')
-	 * @param type - The type of file ('image' or 'document')
-	 * @returns The public URL path to access the file
-	 */
+	/***
+	 * FEATURE: UPLOAD FILE
+	 ***/
 	async uploadFile(file: Express.Multer.File, folder: string, type: 'image' | 'document'): Promise<string> {
 		// Create uploads directory structure
 		const uploadDir = path.join(process.cwd(), 'uploads', folder);
@@ -36,10 +32,9 @@ export class UploaderService {
 		return Promise.all(uploadPromises);
 	}
 
-	/**
-	 * Delete file from local storage
-	 * @param fileUrl - The URL path of the file to delete
-	 */
+	/***
+	 * FEATURE: DELETE FILE
+	 ***/
 	async deleteFile(fileUrl: string): Promise<void> {
 		try {
 			// Remove leading slash and construct file path

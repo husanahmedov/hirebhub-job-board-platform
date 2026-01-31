@@ -16,14 +16,16 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthUser } from '../auth/decorators/authUser.decorator';
 import type { ObjectId } from 'mongoose';
 
-/**
- * CompanyResolver - Handles company queries and mutations
- */
+/***
+ * FEATURE: COMPANY OPERATIONS
+ ***/
 @Resolver()
 export class CompanyResolver {
 	constructor(private readonly companyService: CompanyService) {}
 
-	/** Get companies with filtering, sorting, and pagination */
+	/***
+	 * API: GET COMPANIES
+	 ***/
 	@Roles(UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -37,7 +39,9 @@ export class CompanyResolver {
 		return this.companyService.getCompanies(input);
 	}
 
-	/** Find companies near a specific location using geospatial queries */
+	/***
+	 * API: GET NEARBY COMPANIES
+	 ***/
 	@Query(() => PaginatedCompaniesOutput, {
 		name: 'getNearbyCompanies',
 		description: 'Find companies near a specific location',
@@ -46,7 +50,9 @@ export class CompanyResolver {
 		return this.companyService.getNearbyCompanies(input);
 	}
 
-	/** Get a single company by ID with job count and ratings */
+	/***
+	 * API: GET COMPANY BY ID
+	 ***/
 	@Query(() => CompanyOutput, {
 		name: 'getCompanyById',
 		description: 'Get a single company by ID',
@@ -55,7 +61,9 @@ export class CompanyResolver {
 		return this.companyService.getCompanyById(id);
 	}
 
-	/** Get aggregated company statistics */
+	/***
+	 * API: GET COMPANY STATS
+	 ***/
 	@Query(() => String, {
 		name: 'getCompanyStats',
 		description: 'Get company statistics',
@@ -64,7 +72,9 @@ export class CompanyResolver {
 		return this.companyService.getCompanyStats();
 	}
 
-	/** Create a new company (Admin only) */
+	/***
+	 * CRITICAL: CREATE COMPANY
+	 ***/
 	@Roles(UserRole.ADMIN)
 	@UseGuards(AuthGuard, RolesGuard)
 	@Mutation(() => CompanyOutput, {
@@ -75,7 +85,9 @@ export class CompanyResolver {
 		return this.companyService.createCompany(input);
 	}
 
-	/** Update an existing company */
+	/***
+	 * FEATURE: UPDATE COMPANY
+	 ***/
 	@Mutation(() => CompanyOutput, {
 		name: 'updateCompany',
 		description: 'Update an existing company',
@@ -90,7 +102,9 @@ export class CompanyResolver {
 		return this.companyService.updateCompany(id, userId, input);
 	}
 
-	/** Delete a company (soft delete) */
+	/***
+	 * CRITICAL: DELETE COMPANY
+	 ***/
 	@Mutation(() => Boolean, {
 		name: 'deleteCompany',
 		description: 'Delete a company (soft delete)',

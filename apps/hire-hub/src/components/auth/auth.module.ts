@@ -27,10 +27,10 @@ import { CheckUserStatus } from '../../libs/check-user-status';
 		PassportModule.register({ defaultStrategy: 'jwt' }),
 
 		// JWT for token generation (access tokens)
-		// Note: Refresh tokens use a separate secret configured in AuthService
+		// NOTE -Refresh tokens use a separate secret configured in AuthService
 		JwtModule.register({
 			secret: `${EnvUtil.getJwtSecret()}`,
-			signOptions: { expiresIn: '1d' }, // Short-lived access tokens 1 day
+			signOptions: { expiresIn: '1h' }, // 1 hour
 		}),
 
 		// UserModule for UserService (needed by OAuth strategies)

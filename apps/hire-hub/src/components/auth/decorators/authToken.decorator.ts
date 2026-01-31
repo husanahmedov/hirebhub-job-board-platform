@@ -5,13 +5,11 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
  *
  * This decorator extracts the authenticated member's information from the request and injects it
  * as a parameter in your resolver or controller methods.
+ 
  *
- * @param data - Optional property name to extract specific field from the member object (e.g., '_id', 'memberNick')
- * @param context - The execution context containing request information
- *
- * @returns The authenticated member object, a specific property of the member, or null if not authenticated
+ * @returns The authenticated member tokens object, a specific property of the member, or null if not authenticated
  */
-export const AuthUser = createParamDecorator((data: string, context: ExecutionContext | any) => {
+export const AuthToken = createParamDecorator((data: string, context: ExecutionContext | any) => {
 	// Variable to hold the request object
 	let request: any;
 
@@ -35,12 +33,15 @@ export const AuthUser = createParamDecorator((data: string, context: ExecutionCo
 
 	// Extract the authenticated member from request.body
 	// This was previously set by AuthGuard or RolesGuard after token verification
-	const user = request.authUser;
+	const bearerToken = request.authUser.authorization;
+	// INFO need to extract refreshToken mainly
+	const token = bearerToken ? bearerToken.split(' ')[1] : null;
+	const refreshToken = bearerToken ? bearerToken.split(' ')[3] : null;
 
-	// Return logic:
-	// - If member exists and data parameter is provided, return specific property (e.g., member['_id'])
-	// - If member exists and no data parameter, return the entire member object
-	// - If no member exists, return null
-	if (user) return data ? user?.[data] : user;
+	/**
+	 * NOTE - for now we are returning refreshToken coming from AuthHeader
+	 * TODO In future, if we need to return accessToken or both tokens, we can modify here
+	 */
+	if (refreshToken) return refreshToken;
 	else return null;
 });

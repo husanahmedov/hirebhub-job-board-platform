@@ -25,15 +25,9 @@ import type { ObjectId } from 'mongoose';
 import { CompanyService } from '../company/company.service';
 import { StatsModifier } from '../../libs/interfaces/common';
 
-/**
- * ApplicationService - Business logic for application management
- *
- * This service handles:
- * - Creating, updating, and deleting applications
- * - Querying applications with advanced filtering, sorting, and pagination
- * - Managing application notes and status transitions
- * - Preventing duplicate applications
- */
+/***
+ * FEATURE: APPLICATION SERVICE
+ ***/
 @Injectable()
 export class ApplicationService {
 	constructor(
@@ -113,7 +107,9 @@ export class ApplicationService {
 		user.role === UserRole.RECRUITER &&
 			(filter.companyId = (await this.companyService.getRecruiterCompanyId(user._id.toString())) || undefined);
 		user.role === UserRole.ADMIN && null;
-		// ==================== STAGE 1: MATCH (Filtering) ====================
+		/***
+		 * FEATURE: FILTERING
+		 ***/
 		const matchStage: any = {};
 
 		// Soft delete filter

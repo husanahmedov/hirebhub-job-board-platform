@@ -22,15 +22,9 @@ import { JOBS_AGGREGATION_PIPELINES, shapeIntoMongoObjectId } from '../../libs/c
 import { StatsModifier } from '../../libs/interfaces/common';
 import { CompanyService } from '../company/company.service';
 
-/**
- * JobService - Business logic for job management
- *
- * This service handles:
- * - Creating, updating, and deleting jobs
- * - Querying jobs with advanced filtering, sorting, and pagination
- * - Managing job statistics (views, applications)
- * - Validating job data and business rules
- */
+/***
+ * FEATURE: JOB SERVICE
+ ***/
 @Injectable()
 export class JobService {
 	constructor(
@@ -105,8 +99,9 @@ export class JobService {
 
 		const pipeline: PipelineStage[] = [];
 
-		// ==================== STAGE 1: TEXT SEARCH ====================
-		// If search query exists, add text search stage with score
+		/***
+		 * PERFORMANCE: TEXT SEARCH
+		 ***/
 		if (filter.search) {
 			pipeline.push({
 				$match: {
@@ -120,7 +115,9 @@ export class JobService {
 			});
 		}
 
-		// ==================== STAGE 2: MATCH (Filtering) ====================
+		/***
+		 * FEATURE: FILTERING
+		 ***/
 		const matchStage: any = {
 			deletedAt: null,
 		};

@@ -6,16 +6,19 @@ import { EnvUtil } from '../../libs/env.util';
 
 import * as bcrypt from 'bcryptjs';
 
-/**
- * Token expiration times
- */
-const ACCESS_TOKEN_EXPIRATION = '1d'; // 1 day for testing
-const REFRESH_TOKEN_EXPIRATION = '7d'; // 7 days
+/*****************************************************************************
+ * INFO TOKEN EXPIRATION CONFIGURATION
+ ****************************************************************************/
+const ACCESS_TOKEN_EXPIRATION = '1h'; // 1 hour
+const REFRESH_TOKEN_EXPIRATION = '31d'; // 31 days
 
 @Injectable()
 export class AuthService {
 	constructor(private readonly jwtService: JwtService) {}
 
+	/*****************************************************************************
+	 * SECURITY PASSWORD HASHING & VERIFICATION
+	 ****************************************************************************/
 	/**
 	 * Hash a password using bcrypt
 	 * @param password - Plain text password
@@ -36,6 +39,9 @@ export class AuthService {
 		return await bcrypt.compare(password, hashedPassword);
 	}
 
+	/*****************************************************************************
+	 * SECURITY ACCESS TOKEN MANAGEMENT
+	 ****************************************************************************/
 	/**
 	 * Create an access token (short-lived)
 	 * @param data - User data or Mongoose document
@@ -54,6 +60,9 @@ export class AuthService {
 		});
 	}
 
+	/*****************************************************************************
+	 * SECURITY REFRESH TOKEN MANAGEMENT
+	 ****************************************************************************/
 	/**
 	 * Create a refresh token (long-lived)
 	 * @param data - User data or Mongoose document
@@ -75,6 +84,9 @@ export class AuthService {
 		});
 	}
 
+	/*****************************************************************************
+	 * SECURITY TOKEN VERIFICATION
+	 ****************************************************************************/
 	/**
 	 * Verify an access token
 	 * @param token - JWT access token
@@ -105,11 +117,9 @@ export class AuthService {
 		}
 	}
 
-	/**
-	 * Verify a refresh token
-	 * @param token - JWT refresh token
-	 * @returns Decoded minimal user data (id, email)
-	 */
+	/***
+	 * SECURITY: REFRESH TOKEN METHODS
+	 ***/
 	public async verifyRefreshToken(token: string): Promise<{ _id: any; email: string }> {
 		const payload = await this.jwtService.verifyAsync<{ _id: any; email: string }>(token, {
 			secret: EnvUtil.getJwtRefreshSecret(),
@@ -118,6 +128,9 @@ export class AuthService {
 		return payload;
 	}
 
+	/*****************************************************************************
+	 * SECURITY TOKEN EXPIRATION & HASHING
+	 ****************************************************************************/
 	/**
 	 * Get access token expiration date
 	 * @returns Date when access token expires

@@ -19,14 +19,16 @@ import { AuthUser } from '../auth/decorators/authUser.decorator';
 
 import type { ObjectId } from 'mongoose';
 
-/**
- * ApplicationResolver - Handles application queries and mutations
- */
+/***
+ * FEATURE: APPLICATION OPERATIONS
+ ***/
 @Resolver()
 export class ApplicationResolver {
 	constructor(private readonly applicationService: ApplicationService) {}
 
-	/** Get applications with filtering, sorting, and pagination */
+	/***
+	 * API: GET APPLICATIONS
+	 ***/
 	@Roles(UserRole.CANDIDATE, UserRole.ADMIN, UserRole.RECRUITER)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -41,7 +43,9 @@ export class ApplicationResolver {
 		return this.applicationService.getApplications(input, user);
 	}
 
-	/** Get a single application by ID */
+	/***
+	 * API: GET APPLICATION BY ID
+	 ***/
 	@Query(() => ApplicationOutput, {
 		name: 'getApplicationById',
 		description: 'Get a single application by ID',
@@ -54,7 +58,9 @@ export class ApplicationResolver {
 		return this.applicationService.getApplicationById(applicationId, candidateId);
 	}
 
-	/** Get application statistics with optional filters */
+	/***
+	 * API: GET APPLICATION STATS
+	 ***/
 	@Query(() => ApplicationStatsOutput, {
 		name: 'getApplicationStats',
 		description: 'Get application statistics with optional filters',
@@ -72,7 +78,9 @@ export class ApplicationResolver {
 		});
 	}
 
-	/** Create a new job application */
+	/***
+	 * FEATURE: CREATE APPLICATION
+	 ***/
 	@Mutation(() => ApplicationOutput, {
 		name: 'createApplication',
 		description: 'Create a new job application',
@@ -85,7 +93,9 @@ export class ApplicationResolver {
 		return this.applicationService.createApplication(input, user._id);
 	}
 
-	/** Update an existing application */
+	/***
+	 * FEATURE: UPDATE APPLICATION
+	 ***/
 	@Mutation(() => ApplicationOutput, {
 		name: 'updateApplication',
 		description: 'Update an existing application',
@@ -98,7 +108,9 @@ export class ApplicationResolver {
 		return this.applicationService.updateApplication(input, candidateId);
 	}
 
-	/** Delete an application (soft delete) */
+	/***
+	 * FEATURE: APPLICATION DELETION
+	 ***/
 	@Mutation(() => Boolean, {
 		name: 'deleteApplication',
 		description: 'Delete an application (soft delete)',
@@ -108,7 +120,9 @@ export class ApplicationResolver {
 		return this.applicationService.deleteApplication(applicationId);
 	}
 
-	/** Add a note to an application */
+	/***
+	 * FEATURE: APPLICATION NOTES
+	 ***/
 	@Mutation(() => ApplicationOutput, {
 		name: 'addApplicationNote',
 		description: 'Add a note to an application',

@@ -17,14 +17,16 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthUser } from '../auth/decorators/authUser.decorator';
 import { WithoutGuard } from '../auth/guards/without.guard';
 
-/**
- * JobResolver - Handles job queries and mutations
- */
+/***
+ * FEATURE: JOB OPERATIONS
+ ***/
 @Resolver()
 export class JobResolver {
 	constructor(private readonly jobService: JobService) {}
 
-	/** Get jobs with filtering, sorting, and pagination */
+	/***
+	 * API: GET JOBS
+	 ***/
 	@Query(() => PaginatedJobsOutput, {
 		name: 'getJobs',
 		description: 'Get jobs with advanced filtering, sorting, and pagination',
@@ -33,7 +35,9 @@ export class JobResolver {
 		return this.jobService.getJobs(input);
 	}
 
-	/** Get a single job by ID */
+	/***
+	 * API: GET JOB BY ID
+	 ***/
 	@UseGuards(WithoutGuard)
 	@Query(() => JobOutput, {
 		name: 'getJobById',
@@ -47,7 +51,9 @@ export class JobResolver {
 		return this.jobService.getJobById(jobId, userId);
 	}
 
-	/** Get job statistics */
+	/***
+	 * API: GET JOB STATS
+	 ***/
 	@Roles(UserRole.RECRUITER, UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -62,7 +68,9 @@ export class JobResolver {
 		return this.jobService.getJobStats(companyId, user);
 	}
 
-	/** Create a new job posting */
+	/***
+	 * FEATURE: CREATE JOB
+	 ***/
 	@Roles(UserRole.RECRUITER, UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -74,7 +82,9 @@ export class JobResolver {
 		return this.jobService.createJob(input, userId);
 	}
 
-	/** Update a job posting */
+	/***
+	 * FEATURE: UPDATE JOB
+	 ***/
 	@Roles(UserRole.RECRUITER, UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -86,7 +96,9 @@ export class JobResolver {
 		return this.jobService.updateJob(input, userId);
 	}
 
-	/** Delete a job (soft delete) */
+	/***
+	 * CRITICAL: DELETE JOB
+	 ***/
 	@Roles(UserRole.RECRUITER, UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -98,7 +110,9 @@ export class JobResolver {
 		return this.jobService.deleteJob(jobId);
 	}
 
-	/** Close a job (mark as filled) */
+	/***
+	 * FEATURE: JOB CLOSURE
+	 ***/
 	@Roles(UserRole.RECRUITER, UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)

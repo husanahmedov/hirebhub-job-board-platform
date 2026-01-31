@@ -18,17 +18,9 @@ import { PaginatedCompaniesOutput, CompanyOutput } from '../../libs';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { UserService } from '../user/user.service';
 
-/**
- * CompanyService - Business logic for company operations
- *
- * This service handles all company-related operations including:
- * - Creating, updating, and deleting companies
- * - Complex filtering and searching using MongoDB aggregations
- * - Geospatial queries for nearby companies
- * - Statistics and analytics
- *
- * @uses MongoDB Aggregation Framework for complex queries
- */
+/***
+ * FEATURE: COMPANY SERVICE
+ ***/
 @Injectable()
 export class CompanyService {
 	constructor(
@@ -61,9 +53,9 @@ export class CompanyService {
 		// Build aggregation pipeline
 		const pipeline: PipelineStage[] = [];
 
-		// ==================== STAGE 1: TEXT SEARCH (MUST BE FIRST IF EXISTS) ====================
-		// Full-text search on name and description
-		// MongoDB requires $text to be in the FIRST $match stage
+		/***
+		 * PERFORMANCE: TEXT SEARCH
+		 ***/
 		if (filter.search) {
 			pipeline.push({
 				$match: {
@@ -82,7 +74,9 @@ export class CompanyService {
 			});
 		}
 
-		// ==================== STAGE 2: MATCH (Other Filters) ====================
+		/***
+		 * FEATURE: FILTERING
+		 ***/
 		const matchStage: any = {};
 
 		// Filter by soft delete status
@@ -130,7 +124,9 @@ export class CompanyService {
 			pipeline.push({ $match: matchStage });
 		}
 
-		// ==================== STAGE 3: LOOKUP (Joins) ====================
+		/***
+		 * PERFORMANCE: DATABASE JOINS
+		 ***/
 		// Join with Job collection to count active jobs
 		pipeline.push(
 			{

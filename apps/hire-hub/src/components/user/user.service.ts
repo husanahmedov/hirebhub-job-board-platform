@@ -23,12 +23,15 @@ import {
 	UserSuspendedException,
 	BadRequestException,
 	ViewGroup,
+	UserSettingsOutput,
 } from '../../libs';
 import { AuthService } from '../auth/auth.service';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { EmailService } from '../notification/email.service';
 import { ViewService } from '../view/view.service';
 import { StatsModifier } from '../../libs/interfaces/common';
+import { SessionsService } from '../sessions/sessions.service';
+import { SessionOutput } from '../../libs/dto/sessions/output';
 
 @Injectable()
 export class UserService {
@@ -37,9 +40,9 @@ export class UserService {
 		private readonly authService: AuthService,
 		private readonly emailService: EmailService,
 		private readonly viewService: ViewService,
+		private readonly sessionService: SessionsService,
 	) {}
 
-	/** Register a new user with complete profile data - combines all registration steps */
 	public async register(input: RegisterUserInput): Promise<User> {
 		const normalizedEmail: string = input.email.toLowerCase().trim();
 		const hashedPassword: string = await this.authService.hashPassword(input.passwordHash);
@@ -155,8 +158,7 @@ export class UserService {
 		}
 	}
 
-	/** Authenticate user and generate auth tokens */
-	public async login(input: LoginUserInput): Promise<User> {
+	public async login(input: LoginUserInput, deviceInfo: any, ipAddress: string, location: any): Promise<User> {
 		const normalizedEmail: string = input.email.toLowerCase().trim();
 
 		try {
@@ -214,11 +216,25 @@ export class UserService {
 			const refreshToken: string = await this.authService.createRefreshToken(user);
 			const hashedRefreshToken: string = await this.authService.hashRefreshToken(refreshToken);
 
+			// STEP 9: Create new session record
+			await this.sessionService.createSession(user._id, deviceInfo, refreshToken, ipAddress, location);
+
 			// STEP 10: Store hashed refresh token in user document
 			await this.userModel.findByIdAndUpdate(user._id, { refreshToken: hashedRefreshToken });
 
 			// Attach refresh token to user object (will be sent to client)
+
 			userObject.refreshToken = refreshToken;
+			userObject.session = {
+				deviceName: deviceInfo.deviceName,
+				deviceType: deviceInfo.deviceType,
+				browser: deviceInfo.browser,
+				os: deviceInfo.os,
+				ipAddress: ipAddress,
+				location: location,
+				createdAt: new Date(),
+				isActive: true,
+			};
 
 			// STEP 11: Return authenticated user object with tokens
 			// Client can use these tokens for all subsequent authenticated requests
@@ -262,7 +278,27 @@ export class UserService {
 		}
 	}
 
-	/** Update user profile (self-update) */
+	public async logout(userId: ObjectId, currentToken: string): Promise<void> {
+		try {
+			// TODO - check if user exists?
+			// TODO - delete session associated with this refresh token
+			const user = await this.userModel.findById(userId).exec();
+			if (!user) {
+				throw new UserNotFoundException(
+					{
+						message: 'User not found',
+					},
+					404,
+				);
+			}
+			await this.sessionService.revokeSession(userId, currentToken);
+		} catch (error) {
+			if (error instanceof UserNotFoundException) {
+				throw error;
+			}
+		}
+	}
+
 	public async updateUserByUser(userId: ObjectId, input: UpdateUserInput): Promise<PublicUser> {
 		const normalizedEmail: string | undefined = input.email ? input.email.toLowerCase().trim() : undefined;
 
@@ -646,6 +682,7 @@ export class UserService {
 			throw new InternalServerErrorException('Failed to authenticate with OAuth provider. Please try again later.');
 		}
 	}
+
 	/** Refresh access token using valid refresh token */
 	public async refreshAccessToken(
 		userId: ObjectId,
@@ -700,17 +737,19 @@ export class UserService {
 			// STEP 5: Generate new access token
 			const accessToken = await this.authService.createToken(user);
 
-			// STEP 6: Optionally rotate refresh token (for enhanced security)
-			// For now, we'll keep the same refresh token
-			// To enable rotation, uncomment the following:
-			// const newRefreshToken = await this.authService.createRefreshToken(user);
-			// const hashedNewRefreshToken = await this.authService.hashRefreshToken(newRefreshToken);
-			// await this.userModel.findByIdAndUpdate(userId, { refreshToken: hashedNewRefreshToken });
+			// TODO - STEP 6: Optionally rotate refresh token (for enhanced security)
+			// TODO - For now, we'll keep the same refresh token
+			// TODO - To enable rotation, uncomment the following:
+			const newRefreshToken = await this.authService.createRefreshToken(user);
+			const hashedNewRefreshToken = await this.authService.hashRefreshToken(newRefreshToken);
+			await this.userModel.findByIdAndUpdate(userId, { refreshToken: hashedNewRefreshToken });
+			// TODO - Updates sessions collection based on refresh token to mark session as active
+			await this.sessionService.updateSessionActivity(refreshToken, newRefreshToken);
 
 			return {
 				user: user.toObject() as User,
 				accessToken,
-				// newRefreshToken, // Uncomment if rotating refresh tokens
+				newRefreshToken, // Uncomment if rotating refresh tokens
 			};
 		} catch (error: any) {
 			// Re-throw custom exceptions
@@ -742,11 +781,8 @@ export class UserService {
 	}
 
 	/**
-	 * Verify user's email with verification code
-	 * @param input - Email and verification code
-	 * @returns Updated user object
-	 * PERFORMANCE: This runs on every render
-	 * # Authentication - Optional description
+	 * * @param input - Email and verification code
+	 * * @returns Updated user object
 	 */
 	public async verifyEmail(input: VerifyEmailInput): Promise<User> {
 		const normalizedEmail = input.email.toLowerCase().trim();
@@ -856,17 +892,15 @@ export class UserService {
 	}
 
 	/**
-	 * Generate a 6-digit verification code
-	 * @returns 6-digit numeric string
+	 * * Generate a 6-digit verification code
+	 * @param @returns 6-digit numeric string
 	 */
 	private generateVerificationCode(): string {
 		return Math.floor(100000 + Math.random() * 900000).toString();
 	}
 
 	/**
-	 * Get all companies where the user is owner or recruiter
-	 * @param userId - User ID
-	 * @returns Array of companies with user's role
+	 * * @param userId - User ID
 	 */
 	async getMyCompanies(userId: string) {
 		const objUserId = shapeIntoMongoObjectId(userId);
@@ -918,10 +952,8 @@ export class UserService {
 	}
 
 	/**
-	 * Switch active company for a recruiter
-	 * @param userId - User ID
-	 * @param companyId - Company ID to switch to
-	 * @returns Updated user with new active company
+	 * * @param userId - User ID
+	 * * @param companyId - Company ID to switch to
 	 */
 	async switchActiveCompany(userId: string, companyId: string): Promise<PublicUser> {
 		const objUserId = shapeIntoMongoObjectId(userId);
@@ -978,11 +1010,6 @@ export class UserService {
 		return updatedUser as PublicUser;
 	}
 
-	/**
-	 * Get user's active company details
-	 * @param userId - User ID
-	 * @returns Active company details or null
-	 */
 	async getActiveCompany(userId: string) {
 		const objUserId = shapeIntoMongoObjectId(userId);
 
@@ -1135,9 +1162,10 @@ export class UserService {
 		return withVirtuals[0] as PublicUser;
 	}
 
-	/**
-	 * Increment application count for a job
-	 */
+	/********************************************************************************
+	 * * USER STATS MODIFIER
+	 * * @param input - StatsModifier object containing user ID, target key, and modifier value
+	 *****************************************************************************************/
 	public async userStatsModifier(input: StatsModifier): Promise<void> {
 		try {
 			await this.userModel.findByIdAndUpdate(input.id, {
@@ -1150,5 +1178,90 @@ export class UserService {
 				details: error.message,
 			});
 		}
+	}
+
+	public async getCandidateSettings(userId: ObjectId, currentToken?: string): Promise<UserSettingsOutput> {
+		const sessions = await this.sessionService.getUserSessions(userId, currentToken);
+		const pipeline: PipelineStage[] = [
+			{ $match: { _id: userId } },
+			{
+				$addFields: {
+					account: {
+						professionalHeadline: '$profile.headline',
+						avatarUrl: '$profile.avatarUrl',
+						country: '$profile.location.country',
+						website: '$profile.website',
+						firstName: '$firstName',
+						lastName: '$lastName',
+						email: '$email',
+						recoveryEmail: '$recoveryEmail',
+						emailVerified: '$emailVerified',
+						publicProfileUrl: '$publicProfileUsername',
+						phoneNumber: '$phoneNumber',
+						sessions: sessions,
+					},
+				},
+			},
+			{
+				$project: {
+					_id: 0,
+					account: 1,
+				},
+			},
+		];
+
+		const userSettings = await this.userModel.aggregate(pipeline).exec();
+
+		if (!userSettings || userSettings.length === 0) {
+			throw new UserNotFoundException({
+				message: 'User not found',
+				userId,
+			});
+		}
+
+		return userSettings[0];
+	}
+
+	/********************************************************************************
+	 * * GET USER SESSIONS
+	 * * Retrieves all active sessions for a user with isCurrent flag
+	 * * @param userId - The ID of the user
+	 * * @param currentToken - Optional JWT token to identify the current session
+	 *****************************************************************************************/
+	public async getUserSessions(userId: ObjectId, currentToken?: string): Promise<SessionOutput[]> {
+		return await this.sessionService.getUserSessions(userId, currentToken);
+	}
+
+	/********************************************************************************
+	 * * REVOKE SESSION
+	 * * Revokes a specific session by ID
+	 * * @param userId - The ID of the user
+	 * * @param sessionId - The ID of the session to revoke
+	 *****************************************************************************************/
+	public async revokeSession(userId: ObjectId, sessionId: string): Promise<void> {
+		return await this.sessionService.revokeSession(userId, sessionId);
+	}
+
+	/********************************************************************************
+	 * * REVOKE ALL OTHER SESSIONS
+	 * * Revokes all sessions except the current one
+	 * * @param userId - The ID of the user
+	 * * @param currentToken - The current JWT token to identify which session to keep
+	 *****************************************************************************************/
+	public async revokeAllOtherSessions(userId: ObjectId, currentToken?: string): Promise<void> {
+		if (!currentToken) {
+			// If no current token, revoke all sessions
+			return await this.sessionService.revokeAllSessions(userId.toString());
+		}
+
+		// Find the current session by token hash
+		const currentSession = await this.sessionService.validateSession(currentToken);
+		if (!currentSession) {
+			// If current session not found, revoke all
+			return await this.sessionService.revokeAllSessions(userId.toString());
+		}
+
+		// Revoke all sessions except the current one
+		return await this.sessionService.revokeAllSessions(userId.toString(), currentSession.id);
 	}
 }

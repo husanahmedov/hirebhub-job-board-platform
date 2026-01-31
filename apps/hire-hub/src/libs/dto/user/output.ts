@@ -1,6 +1,7 @@
 import { Field, ObjectType, ID, GraphQLISODateTime, Int } from '@nestjs/graphql';
 import { UserStatus, UserRole } from '../../enums';
 import { IsOptional } from 'class-validator';
+import { SessionOutput } from '../sessions/output';
 
 // ============================================================
 // Nested Output Types (Building Blocks)
@@ -213,9 +214,9 @@ export class NotificationSettings {
 	push: boolean;
 }
 
-/**
- * User settings output
- */
+/****************************
+ * *USER SETTINGS OUTPUT
+ **************************/
 @ObjectType()
 export class UserSettings {
 	@Field(() => String, { defaultValue: 'en' })
@@ -232,9 +233,10 @@ export class UserSettings {
 // Main Output Types
 // ============================================================
 
-/**
- * Complete user output (excludes sensitive data like password)
- */
+/*****************************************************************************
+ * * COMPLETE USER OUTPUT (EXCLUDES SENSITIVE DATA LIKE PASSWORD)
+ ****************************************************************************/
+
 @ObjectType()
 export class User {
 	@Field(() => ID)
@@ -321,10 +323,14 @@ export class User {
 	@IsOptional()
 	@Field(() => String, { nullable: true })
 	publicProfileUsername?: string;
+
+	@IsOptional()
+	@Field(() => SessionOutput, { nullable: true })
+	session?: SessionOutput;
 }
 
 /**
- * Public user output (for public profiles, limited data)
+ * * PUBLIC USER OUTPUT (FOR PUBLIC PROFILES)
  */
 @ObjectType()
 export class PublicUser {
@@ -378,7 +384,7 @@ export class PublicUser {
 }
 
 /**
- * User authentication response with tokens
+ * *USER AUTHENTICATION RESPONSE WITH TOKENS
  */
 @ObjectType()
 export class AuthResponse {
@@ -399,7 +405,7 @@ export class AuthResponse {
 }
 
 /**
- * User list response with pagination
+ * *USER LIST RESPONSE WITH PAGINATION
  */
 @ObjectType()
 export class UserListResponse {
@@ -420,7 +426,7 @@ export class UserListResponse {
 }
 
 /**
- * Success response for operations
+ * *SUCCESS RESPONSE FOR OPERATIONS
  */
 @ObjectType()
 export class UserOperationResponse {
@@ -435,7 +441,7 @@ export class UserOperationResponse {
 }
 
 /**
- * Company location nested type
+ * *COMPANY LOCATION NESTED TYPE
  */
 @ObjectType()
 export class CompanyLocation {
@@ -450,7 +456,7 @@ export class CompanyLocation {
 }
 
 /**
- * Company list item output
+ * *COMPANY LIST ITEM OUTPUT
  */
 @ObjectType()
 export class CompanyListItem {
@@ -476,9 +482,9 @@ export class CompanyListItem {
 	size?: string;
 }
 
-/**
- * Active company output
- */
+/****************************
+ * *USER SETTINGS OUTPUT
+ **************************/
 @ObjectType()
 export class ActiveCompanyOutput {
 	@Field(() => String)
@@ -501,4 +507,55 @@ export class ActiveCompanyOutput {
 
 	@Field(() => CompanyLocation, { nullable: true })
 	location?: CompanyLocation;
+}
+
+// ============================================
+// *USER ACCOUNT SETTINGS OUTPUT
+// ============================================
+@ObjectType()
+export class UserAccountSettingsOutput {
+	@Field(() => String, { description: 'User First Name' })
+	firstName: string;
+
+	@Field(() => String, { description: 'User Last Name' })
+	lastName: string;
+
+	@Field(() => String, { description: 'User Last Name', nullable: true })
+	professionalHeadline?: string;
+
+	@Field(() => String, { description: 'User Avatar Url', nullable: true })
+	avatarUrl?: string;
+
+	@Field(() => String, { description: 'Public Profile Url', nullable: true })
+	publicProfileUrl?: string;
+
+	@Field(() => String, { description: 'User Country', nullable: true })
+	country?: string;
+
+	@Field(() => String, { description: 'User Website', nullable: true })
+	website?: string;
+
+	@Field(() => String, { description: 'User Email' })
+	email: string;
+
+	@Field(() => String, { description: 'User Recovery Email', nullable: true })
+	recoveryEmail?: string;
+
+	@Field(() => Boolean, { description: 'Email Verified Status' })
+	emailVerified: boolean;
+
+	@Field(() => String, { description: 'User Phone Number', nullable: true })
+	phoneNumber?: string;
+
+	@Field(() => [SessionOutput], { description: 'List of active user sessions' })
+	sessions: SessionOutput[];
+}
+
+// ============================================
+// *USER SETTINGS OUTPUT
+// ============================================
+@ObjectType()
+export class UserSettingsOutput {
+	@Field(() => UserAccountSettingsOutput, { description: 'User account settings' })
+	account: UserAccountSettingsOutput;
 }

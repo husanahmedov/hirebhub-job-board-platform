@@ -38,6 +38,15 @@ const UserSchema = new Schema(
 			maxlength: 255,
 		},
 
+		recoveryEmail: {
+			type: String,
+			required: false,
+			lowercase: true,
+			trim: true,
+			maxlength: 70,
+			index: { sparse: true },
+		},
+
 		/**
 		 * Email verification status
 		 * @default false
@@ -154,6 +163,13 @@ const UserSchema = new Schema(
 				hiring: { type: Boolean, default: false },
 				freelance: { type: Boolean, default: false },
 				mentorship: { type: Boolean, default: false },
+			},
+
+			website: {
+				type: String,
+				trim: true,
+				required: false,
+				index: { sparse: true },
 			},
 
 			/**

@@ -23,6 +23,7 @@ import { AdminModule } from './components/admin/admin.module';
 import { UploaderModule } from './components/uploader/uploader.module';
 import { HealthModule } from './components/health/health.module';
 import { ViewModule } from './components/view/view.module';
+import { SessionsModule } from './components/sessions/sessions.module';
 
 @Module({
 	imports: [
@@ -30,6 +31,7 @@ import { ViewModule } from './components/view/view.module';
 		GraphQLModule.forRoot({
 			autoSchemaFile: true,
 			driver: ApolloDriver,
+			context: ({ req, res }) => ({ req, res }),
 			uploads: false,
 			playground: true,
 			dateScalarMode: 'isoDate' as DateScalarMode,
@@ -76,6 +78,7 @@ import { ViewModule } from './components/view/view.module';
 		UploaderModule,
 		HealthModule,
 		ViewModule,
+		SessionsModule,
 	],
 	controllers: [AppController],
 	providers: [

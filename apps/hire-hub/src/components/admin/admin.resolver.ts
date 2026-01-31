@@ -21,14 +21,16 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { AuthUser } from '../auth/decorators/authUser.decorator';
 import { UserRole } from '../../libs';
 
-/**
- * AdminResolver - Handles admin system settings and operations
- */
+/***
+ * CRITICAL: ADMIN OPERATIONS
+ ***/
 @Resolver()
 export class AdminResolver {
 	constructor(private readonly adminService: AdminService) {}
 
-	/** Update content settings (Admin only) */
+	/***
+	 * CRITICAL: UPDATE CONTENT SETTINGS
+	 ***/
 	@Roles(UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -42,7 +44,9 @@ export class AdminResolver {
 		return this.adminService.updateContentSettings(input, user._id);
 	}
 
-	/** Get current content settings (Admin only) */
+	/***
+	 * INFO: GET CONTENT SETTINGS
+	 ***/
 	@Roles(UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -53,8 +57,9 @@ export class AdminResolver {
 		return this.adminService.getContentSettings();
 	}
 
-	// ==================== FEATURES SETTINGS ====================
-
+	/***
+	 * INFO: FEATURES SETTINGS
+	 ***/
 	@Roles(UserRole.ADMIN)
 	@UseGuards(RolesGuard, AuthGuard)
 	@Mutation(() => FeaturesSettings)
@@ -72,8 +77,9 @@ export class AdminResolver {
 		return this.adminService.getFeaturesSettings();
 	}
 
-	// ==================== NOTIFICATIONS SETTINGS ====================
-
+	/***
+	 * INFO: NOTIFICATIONS SETTINGS
+	 ***/
 	@Roles(UserRole.ADMIN)
 	@UseGuards(RolesGuard, AuthGuard)
 	@Mutation(() => EmailNotificationsSettings)
@@ -91,8 +97,9 @@ export class AdminResolver {
 		return this.adminService.getNotificationsSettings();
 	}
 
-	// ==================== PAYMENT & BILLING SETTINGS ====================
-
+	/***
+	 * INFO: PAYMENT & BILLING SETTINGS
+	 ***/
 	@Roles(UserRole.ADMIN)
 	@UseGuards(RolesGuard, AuthGuard)
 	@Mutation(() => PaymentBillingSettings)
@@ -110,8 +117,9 @@ export class AdminResolver {
 		return this.adminService.getPaymentBillingSettings();
 	}
 
-	// ==================== PLATFORM SETTINGS ====================
-
+	/***
+	 * INFO: PLATFORM SETTINGS
+	 ***/
 	@Roles(UserRole.ADMIN)
 	@UseGuards(RolesGuard, AuthGuard)
 	@Mutation(() => PlatformSettings)
@@ -129,8 +137,9 @@ export class AdminResolver {
 		return this.adminService.getPlatformSettings();
 	}
 
-	// ==================== RATE LIMITS SETTINGS ====================
-
+	/***
+	 * INFO: RATE LIMITS SETTINGS
+	 ***/
 	@Roles(UserRole.ADMIN)
 	@UseGuards(RolesGuard, AuthGuard)
 	@Mutation(() => RateLimitsSettings)
