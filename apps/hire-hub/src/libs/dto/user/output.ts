@@ -185,6 +185,9 @@ export class Profile {
 
 	@Field(() => String, { nullable: true })
 	bannerUrl?: string;
+
+	@Field(() => String, { nullable: true })
+	website?: string;
 }
 
 /**
@@ -317,6 +320,9 @@ export class User {
 	@Field(() => String, { nullable: true })
 	activeCompanyId?: string;
 
+	@IsOptional()
+	recoveryEmail?: string;
+
 	@Field(() => String, { nullable: true })
 	profileCompleteness?: string;
 
@@ -334,8 +340,8 @@ export class User {
  */
 @ObjectType()
 export class PublicUser {
-	@Field(() => ID)
-	_id: string;
+	@Field(() => ID, { nullable: true })
+	_id?: string;
 
 	@IsOptional()
 	@Field(() => String, { nullable: true })
@@ -353,8 +359,8 @@ export class PublicUser {
 	@Field(() => String, { nullable: true })
 	email?: string;
 
-	@Field(() => String)
-	role: UserRole;
+	@Field(() => String, { nullable: true })
+	role?: UserRole;
 
 	@IsOptional()
 	@Field(() => [QualificationsOutput], { nullable: true })
@@ -381,6 +387,10 @@ export class PublicUser {
 	@IsOptional()
 	@Field(() => GraphQLISODateTime, { nullable: true })
 	createdAt?: Date;
+
+	@IsOptional()
+	@Field(() => Boolean, { nullable: true })
+	emailVerified?: boolean;
 }
 
 /**
@@ -538,6 +548,9 @@ export class UserAccountSettingsOutput {
 	@Field(() => String, { description: 'User Email' })
 	email: string;
 
+	@Field(() => String, { description: 'User Contact Email', nullable: true })
+	contactEmail?: string;
+
 	@Field(() => String, { description: 'User Recovery Email', nullable: true })
 	recoveryEmail?: string;
 
@@ -548,14 +561,32 @@ export class UserAccountSettingsOutput {
 	phoneNumber?: string;
 
 	@Field(() => [SessionOutput], { description: 'List of active user sessions' })
-	sessions: SessionOutput[];
+	sessions?: SessionOutput[];
 }
 
-// ============================================
-// *USER SETTINGS OUTPUT
-// ============================================
+/***********************************************************
+ * [DTO] - USER SETTINGS OUTPUT
+ **********************************************************/
 @ObjectType()
 export class UserSettingsOutput {
 	@Field(() => UserAccountSettingsOutput, { description: 'User account settings' })
 	account: UserAccountSettingsOutput;
+}
+
+/***********************************************************
+ * [DTO] - FILE UPLOAD OUTPUT
+ **********************************************************/
+@ObjectType()
+export class FileUploadOutput {
+	@Field(() => String, { description: 'URL of the uploaded file' })
+	url: string;
+
+	@Field(() => String, { description: 'Filename of the uploaded file' })
+	filename: string;
+
+	@Field(() => Number, { description: 'Size of the uploaded file in bytes', nullable: true })
+	size?: number;
+
+	@Field(() => String, { description: 'MIME type of the uploaded file', nullable: true })
+	mimeType?: string;
 }

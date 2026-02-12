@@ -42,6 +42,29 @@ export class UploaderController {
 		};
 	}
 
+	@Post('banner')
+	@UseInterceptors(
+		FileInterceptor('file', {
+			limits: { fileSize: 5 * 1024 * 1024 },
+		}),
+	)
+	async uploadBanner(@UploadedFile() file: Express.Multer.File, @AuthUser() user: User) {
+		console.log(`--- file upload request received (${user}) ---`);
+		if (!file) {
+			throw new InvalidFileFormatException('No file uploaded');
+		}
+		if (!file.mimetype.match(/^image\/(jpg|jpeg|png|gif|webp)$/)) {
+			throw new InvalidFileFormatException('Only image files (JPG, JPEG, PNG, GIF, WEBP) are allowed');
+		}
+		const url = await this.uploadService.uploadFile(file, `banners/${user._id}`, 'image');
+		return {
+			url,
+			filename: file.originalname,
+			size: file.size,
+			mimeType: file.mimetype,
+		};
+	}
+
 	@Post('resume')
 	@UseInterceptors(
 		FileInterceptor('file', {

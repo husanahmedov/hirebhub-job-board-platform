@@ -24,6 +24,9 @@ import {
 	BadRequestException,
 	ViewGroup,
 	UserSettingsOutput,
+	InternalServerException,
+	FileUploadOutput,
+	FileUploadInput,
 } from '../../libs';
 import { AuthService } from '../auth/auth.service';
 import { shapeIntoMongoObjectId } from '../../libs/config';
@@ -216,10 +219,14 @@ export class UserService {
 			const refreshToken: string = await this.authService.createRefreshToken(user);
 			const hashedRefreshToken: string = await this.authService.hashRefreshToken(refreshToken);
 
-			// STEP 9: Create new session record
+			// STEP 9: Detect timezone based on user's location (where they're logging in from)
+			// This ensures sessions reflect the user's current timezone, not a stored preference
+			const userTimezone = this.detectTimezoneFromLocation(location);
+
+			// STEP 10: Create new session record
 			await this.sessionService.createSession(user._id, deviceInfo, refreshToken, ipAddress, location);
 
-			// STEP 10: Store hashed refresh token in user document
+			// STEP 11: Store hashed refresh token in user document
 			await this.userModel.findByIdAndUpdate(user._id, { refreshToken: hashedRefreshToken });
 
 			// Attach refresh token to user object (will be sent to client)
@@ -232,6 +239,7 @@ export class UserService {
 				os: deviceInfo.os,
 				ipAddress: ipAddress,
 				location: location,
+				// timezone: userTimezone,
 				createdAt: new Date(),
 				isActive: true,
 			};
@@ -299,14 +307,27 @@ export class UserService {
 		}
 	}
 
-	public async updateUserByUser(userId: ObjectId, input: UpdateUserInput): Promise<PublicUser> {
-		const normalizedEmail: string | undefined = input.email ? input.email.toLowerCase().trim() : undefined;
+	public async updateUserByUser(userId: ObjectId, input: UpdateUserInput): Promise<UserSettingsOutput> {
+		const normalizedEmail: string | undefined = input.account?.email
+			? input.account.email.toLowerCase().trim()
+			: undefined;
+		const {
+			firstName,
+			lastName,
+			contactEmail,
+			professionalHeadline,
+			publicProfileUrl,
+			country,
+			website,
+			phoneNumber,
+			recoveryEmail,
+		} = input.account || {};
 
 		try {
 			// STEP 2: If email is being updated, check if it's already taken by another user
 			// Prevents email conflicts while allowing user to keep their own email
 			if (normalizedEmail) {
-				input.email = normalizedEmail;
+				input.account?.email ? (input.account.email = normalizedEmail) : null;
 
 				// Query for existing user with this email (excluding current user)
 				const existingUser = await this.userModel
@@ -326,6 +347,26 @@ export class UserService {
 						message: 'This email address is already registered to another account',
 					});
 				}
+				const currentUser = await this.userModel.findById(userId).exec();
+				if (currentUser?.email !== normalizedEmail) {
+					currentUser!.emailVerified = false;
+					// Generate new verification code
+					const verificationCode = this.generateVerificationCode();
+					const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+					currentUser!.verificationCode = verificationCode;
+					currentUser!.verificationCodeExpires = verificationCodeExpires;
+					await currentUser!.save();
+					// Send verification email (non-blocking)
+					try {
+						await this.emailService.sendVerificationEmail(
+							normalizedEmail,
+							verificationCode,
+							firstName || currentUser!.firstName,
+						);
+					} catch (error) {
+						console.error('Failed to send verification email:', error);
+					}
+				}
 			}
 
 			// STEP 3: Update the user document with new values
@@ -333,10 +374,25 @@ export class UserService {
 			// { new: true } ensures we get the updated document, not the old one
 			// { runValidators: true } runs Mongoose schema validators on update
 			const updatedUser = await this.userModel
-				.findByIdAndUpdate(userId, input, {
-					new: true, // Return updated document
-					runValidators: true, // Run schema validators
-				})
+				.findByIdAndUpdate(
+					userId,
+					{
+						firstName: firstName,
+						lastName: lastName,
+						recoveryEmail: recoveryEmail,
+						publicProfileUsername: publicProfileUrl,
+						'profile.website': website,
+						'profile.contactInfo.email': contactEmail,
+						'profile.contactInfo.phone_number': phoneNumber,
+						'profile.headline': professionalHeadline,
+						'profile.location.country': country,
+						email: normalizedEmail,
+					},
+					{
+						new: true, // Return updated document
+						runValidators: true, // Run schema validators
+					},
+				)
 				.exec();
 
 			// STEP 4: Verify the user was found and updated
@@ -352,7 +408,21 @@ export class UserService {
 			// This includes virtual fields (fullName, profileCompleteness, etc.)
 			// and removes Mongoose-specific properties
 			// Returns PublicUser (excludes sensitive fields like passwordHash)
-			return updatedUser.toObject() as PublicUser;
+			return {
+				account: {
+					email: updatedUser?.email || '',
+					contactEmail: updatedUser?.profile?.contactInfo?.email || '',
+					firstName: updatedUser.firstName || '',
+					lastName: updatedUser.lastName || '',
+					professionalHeadline: updatedUser?.profile?.headline || '',
+					publicProfileUrl: updatedUser.publicProfileUsername || '',
+					country: updatedUser?.profile?.location?.country || '',
+					website: updatedUser?.profile?.website || '',
+					phoneNumber: updatedUser?.profile?.contactInfo?.phone_number || '',
+					recoveryEmail: updatedUser.recoveryEmail || '',
+					emailVerified: updatedUser.emailVerified || false,
+				},
+			};
 		} catch (error: any) {
 			// Error handling with specific exceptions for different failure scenarios
 
@@ -402,116 +472,6 @@ export class UserService {
 				error: error.message,
 				errorName: error.name,
 				userId: userId.toString(),
-				timestamp: new Date().toISOString(),
-				stack: error.stack,
-			});
-
-			throw new InternalServerErrorException('Failed to update user information. Please try again later.');
-		}
-	}
-
-	/** Update user profile by admin (can modify privileged fields) */
-	public async updateUserByAdmin(targetUserId: ObjectId, input: UpdateUserInput): Promise<PublicUser> {
-		const normalizedEmail: string | undefined = input.email ? input.email.toLowerCase().trim() : undefined;
-
-		try {
-			if (normalizedEmail) {
-				input.email = normalizedEmail;
-
-				const existingUser = await this.userModel
-					.findOne({
-						email: normalizedEmail,
-						_id: { $ne: targetUserId },
-					})
-					.select('_id email')
-					.lean()
-					.exec();
-
-				if (existingUser) {
-					// Email is already taken by another user - throw specific exception
-					throw new UserAlreadyExistsException({
-						email: normalizedEmail,
-						existingUserId: existingUser._id,
-						message: 'This email address is already registered to another account',
-					});
-				}
-			}
-
-			// STEP 3: Update the user document with new values
-			// Admin can update all fields including status and role (if provided in input)
-			// findByIdAndUpdate is atomic and returns the updated document
-			// { new: true } ensures we get the updated document, not the old one
-			// { runValidators: true } runs Mongoose schema validators on update
-			const updatedUser = await this.userModel
-				.findByIdAndUpdate(targetUserId, input, {
-					new: true, // Return updated document
-					runValidators: true, // Run schema validators
-				})
-				.exec();
-
-			// STEP 4: Verify the user was found and updated
-			if (!updatedUser) {
-				// User not found with this ID - throw specific exception
-				throw new UserNotFoundException({
-					message: 'Target user not found for admin update',
-					userId: targetUserId,
-				});
-			}
-
-			// STEP 5: Convert Mongoose document to plain object
-			// This includes virtual fields (fullName, profileCompleteness, etc.)
-			// and removes Mongoose-specific properties
-			// Returns PublicUser (excludes sensitive fields like passwordHash)
-			return updatedUser.toObject() as PublicUser;
-		} catch (error: any) {
-			// Error handling with specific exceptions for different failure scenarios
-
-			// Re-throw custom exceptions (already properly formatted)
-			if (error instanceof UserNotFoundException) {
-				throw error;
-			}
-
-			if (error instanceof UserAlreadyExistsException) {
-				throw error;
-			}
-
-			// Handle MongoDB duplicate key error (E11000)
-			// This can occur if email unique index is violated (race condition)
-			if (error.name === 'MongoServerError' && error.code === 11000) {
-				const duplicateField: string = Object.keys(error.keyValue || {})[0] || 'email';
-				const duplicateValue: string = error.keyValue?.[duplicateField] || 'unknown';
-				throw new UserAlreadyExistsException({
-					field: duplicateField,
-					value: duplicateValue,
-					message: `A user with this ${duplicateField} already exists`,
-				});
-			}
-
-			// Handle Mongoose validation errors (invalid data types, formats, etc.)
-			if (error.name === 'ValidationError') {
-				const validationErrors = Object.keys(error.errors || {}).map((field) => ({
-					field,
-					message: error.errors[field]?.message || 'Validation failed',
-					value: error.errors[field]?.value,
-				}));
-
-				throw new DatabaseException(ErrorCode.VALIDATION_ERROR, {
-					message: 'User data validation failed during admin update',
-					validationErrors,
-				});
-			}
-
-			// Handle database connection errors
-			if (error.name === 'MongoNetworkError' || error.name === 'MongoTimeoutError') {
-				throw new InternalServerErrorException('Unable to connect to database service. Please try again later.');
-			}
-
-			// Handle unexpected errors with detailed context for debugging
-			// Log error details but return generic message to client
-			console.error('Unexpected error during admin user update:', {
-				error: error.message,
-				errorName: error.name,
-				targetUserId: targetUserId.toString(),
 				timestamp: new Date().toISOString(),
 				stack: error.stack,
 			});
@@ -1194,10 +1154,11 @@ export class UserService {
 						firstName: '$firstName',
 						lastName: '$lastName',
 						email: '$email',
+						contactEmail: '$profile.contactInfo.email',
 						recoveryEmail: '$recoveryEmail',
 						emailVerified: '$emailVerified',
 						publicProfileUrl: '$publicProfileUsername',
-						phoneNumber: '$phoneNumber',
+						phoneNumber: '$profile.contactInfo.phone_number',
 						sessions: sessions,
 					},
 				},
@@ -1242,12 +1203,76 @@ export class UserService {
 		return await this.sessionService.revokeSession(userId, sessionId);
 	}
 
-	/********************************************************************************
-	 * * REVOKE ALL OTHER SESSIONS
-	 * * Revokes all sessions except the current one
-	 * * @param userId - The ID of the user
-	 * * @param currentToken - The current JWT token to identify which session to keep
-	 *****************************************************************************************/
+	/*****************************************************************************
+	 * INFO TIMEZONE DETECTION FROM LOCATION
+	 ****************************************************************************/
+	/**
+	 * Detect timezone based on user's current location (from IP geolocation)
+	 * Maps country codes and coordinates to standard IANA timezone identifiers
+	 * @param location - Location string or object from IP geolocation service
+	 * @returns IANA timezone identifier (e.g., 'Asia/Seoul', 'America/New_York')
+	 */
+	private detectTimezoneFromLocation(location: any): string {
+		// If location is already a timezone string, use it
+		if (typeof location === 'string' && location.includes('/')) {
+			return location;
+		}
+
+		// Common timezone mappings by country code
+		const countryTimezoneMap: { [key: string]: string } = {
+			KR: 'Asia/Seoul',
+			US: 'America/Chicago',
+			GB: 'Europe/London',
+			DE: 'Europe/Berlin',
+			FR: 'Europe/Paris',
+			JP: 'Asia/Tokyo',
+			CN: 'Asia/Shanghai',
+			IN: 'Asia/Kolkata',
+			BR: 'America/Sao_Paulo',
+			AU: 'Australia/Sydney',
+			CA: 'America/Toronto',
+			MX: 'America/Mexico_City',
+			RU: 'Europe/Moscow',
+			SG: 'Asia/Singapore',
+			TH: 'Asia/Bangkok',
+			VN: 'Asia/Ho_Chi_Minh',
+			PH: 'Asia/Manila',
+			MY: 'Asia/Kuala_Lumpur',
+			ID: 'Asia/Jakarta',
+			NZ: 'Pacific/Auckland',
+			ZA: 'Africa/Johannesburg',
+		};
+
+		// Try to extract country code from location
+		let countryCode: string | null = null;
+
+		if (typeof location === 'object' && location !== null) {
+			// If location has country property
+			if (location.country) {
+				countryCode = location.country.toUpperCase();
+			} else if (location.countryCode) {
+				countryCode = location.countryCode.toUpperCase();
+			}
+		} else if (typeof location === 'string') {
+			// Try to extract country code from string (e.g., "Seoul, KR")
+			const matches = location.match(/,\s*([A-Z]{2})$/);
+			if (matches && matches[1]) {
+				countryCode = matches[1];
+			}
+		}
+
+		// Return mapped timezone or default to UTC
+		if (countryCode && countryTimezoneMap[countryCode]) {
+			return countryTimezoneMap[countryCode];
+		}
+
+		// Default fallback
+		return 'UTC';
+	}
+
+	/*****************************************************************************
+	 * SECURITY SESSION & TOKEN MANAGEMENT
+	 ****************************************************************************/
 	public async revokeAllOtherSessions(userId: ObjectId, currentToken?: string): Promise<void> {
 		if (!currentToken) {
 			// If no current token, revoke all sessions
@@ -1263,5 +1288,90 @@ export class UserService {
 
 		// Revoke all sessions except the current one
 		return await this.sessionService.revokeAllSessions(userId.toString(), currentSession.id);
+	}
+
+	/*****************************************************************************
+	 * [SERVICE] USER AVATAR UPLOAD
+	 * * Updates user's avatar URL in profile
+	 * * @param userId - ID of the user
+	 * * @param input - AvatarUploadInput containing the new avatar URL
+	 * * @returns Updated PublicUser object
+	 ****************************************************************************/
+
+	public async uploadUserAvatar(userId: ObjectId, input: FileUploadInput): Promise<FileUploadOutput> {
+		try {
+			const user = await this.userModel
+				.findByIdAndUpdate(
+					userId,
+					{
+						'profile.avatarUrl': input.url,
+					},
+					{ new: true },
+				)
+				.exec();
+			if (!user) {
+				throw new UserNotFoundException({
+					message: 'User not found',
+					userId,
+				});
+			}
+			return {
+				url: user.profile?.avatarUrl || '',
+				filename: input.filename,
+			};
+		} catch (error) {
+			if (error instanceof UserNotFoundException) {
+				throw error;
+			}
+			throw new InternalServerException(
+				'Failed to upload user avatar. Please try again later.',
+				{
+					error: "Hey you've got an error in uploadUserAvatar method",
+				},
+				500,
+			);
+		}
+	}
+
+	/*****************************************************************************
+	 * [SERVICE] USER BANNER UPLOAD
+	 * * Updates user's banner URL in profile
+	 * * @param userId - ID of the user
+	 * * @param input - BannerUploadInput containing the new banner URL
+	 * * @returns Updated PublicUser object
+	 ****************************************************************************/
+	public async uploadUserBanner(userId: ObjectId, input: FileUploadInput): Promise<FileUploadOutput> {
+		try {
+			const user = await this.userModel
+				.findByIdAndUpdate(
+					userId,
+					{
+						'profile.bannerUrl': input.url,
+					},
+					{ new: true },
+				)
+				.exec();
+			if (!user) {
+				throw new UserNotFoundException({
+					message: 'User not found',
+					userId,
+				});
+			}
+			return {
+				url: user.profile?.bannerUrl || '',
+				filename: input.filename,
+			};
+		} catch (error) {
+			if (error instanceof UserNotFoundException) {
+				throw error;
+			}
+			throw new InternalServerException(
+				'Failed to upload user banner. Please try again later.',
+				{
+					error: "Hey you've got an error in uploadUserBanner method",
+				},
+				500,
+			);
+		}
 	}
 }

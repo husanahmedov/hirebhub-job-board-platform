@@ -15,7 +15,7 @@ import {
 	CompanyListItem,
 	ActiveCompanyOutput,
 } from '../../libs/dto/user';
-import { UserRole, UserSettingsOutput } from '../../libs';
+import { FileUploadInput, FileUploadOutput, UserRole, UserSettingsOutput } from '../../libs';
 import { SessionOutput, MessageResponse } from '../../libs/dto/sessions/output';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -131,36 +131,16 @@ export class UserResolver {
 	@Roles(UserRole.CANDIDATE)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
-	@Mutation(() => PublicUser, {
+	@Mutation(() => UserSettingsOutput, {
 		description: "Update authenticated user's own profile data (name, email, profile)",
 	})
 	public async updateUserByUser(
 		@Args('input', { type: () => UpdateUserInput, description: 'User update data with optional fields' })
 		input: UpdateUserInput,
 		@AuthUser('_id') userId: ObjectId,
-	): Promise<PublicUser> {
+	): Promise<UserSettingsOutput> {
 		console.log(`--- @mutation() Update User by User is called: ${userId} ---`);
 		return await this.userService.updateUserByUser(userId, input);
-	}
-
-	/*****************************************************************************
-	 * CRITICAL ADMIN USER PROFILE UPDATE
-	 ****************************************************************************/
-	@Roles(UserRole.ADMIN)
-	@UseGuards(RolesGuard)
-	@UseGuards(AuthGuard)
-	@Mutation(() => PublicUser, {
-		description: "Admin update any user's profile data including privileged fields (status, role)",
-	})
-	public async updateUserByAdmin(
-		@Args('targetUserId', { type: () => String, description: 'The ID of the user to update' })
-		targetUserId: string,
-		@Args('input', { type: () => UpdateUserInput, description: 'User update data with optional fields' })
-		input: UpdateUserInput,
-	): Promise<PublicUser> {
-		console.log(`--- @mutation() Update User by Admin is called for user: ${targetUserId} ---`);
-		const objectId = shapeIntoMongoObjectId(targetUserId);
-		return await this.userService.updateUserByAdmin(objectId, input);
 	}
 
 	/*****************************************************************************
@@ -319,5 +299,33 @@ export class UserResolver {
 	): Promise<UserSettingsOutput> {
 		console.log(`--- @query() Get Candidate Settings is called ---`);
 		return await this.userService.getCandidateSettings(userId, currentToken);
+	}
+
+	@Roles(UserRole.CANDIDATE)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Mutation(() => FileUploadOutput, {
+		description: "Upload or update user's avatar image and return the new avatar URL",
+	})
+	public async uploadUserAvatar(
+		@AuthUser('_id') userId: ObjectId,
+		@Args('input', { type: () => FileUploadInput }) input: FileUploadInput,
+	): Promise<FileUploadOutput> {
+		console.log(`--- @mutation() Upload User Avatar is called ---`);
+		return await this.userService.uploadUserAvatar(shapeIntoMongoObjectId(userId), input);
+	}
+
+	@Roles(UserRole.CANDIDATE)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Mutation(() => FileUploadOutput, {
+		description: "Upload or update user's banner image and return the new banner URL",
+	})
+	public async uploadUserBanner(
+		@AuthUser('_id') userId: ObjectId,
+		@Args('input', { type: () => FileUploadInput }) input: FileUploadInput,
+	): Promise<FileUploadOutput> {
+		console.log(`--- @mutation() Upload User Banner is called ---`);
+		return await this.userService.uploadUserBanner(shapeIntoMongoObjectId(userId), input);
 	}
 }

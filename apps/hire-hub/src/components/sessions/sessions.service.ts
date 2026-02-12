@@ -112,7 +112,7 @@ export class SessionsService {
 		const tokenHash = this.hashToken(token);
 		await this.sessionModel.deleteOne({ token: tokenHash, userId }).exec();
 	}
-
+	
 	/***
 	 * SECURITY: REVOKE ALL SESSIONS
 	 ***/

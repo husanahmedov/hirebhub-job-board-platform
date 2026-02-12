@@ -499,11 +499,8 @@ export class UpdateProfileInput {
 	profile?: ProfileInput;
 }
 
-/**
- * Update user basic info input
- */
 @InputType()
-export class UpdateUserInput {
+export class UpdateUserAccountInput {
 	@IsOptional()
 	@IsString()
 	@MinLength(2)
@@ -521,25 +518,69 @@ export class UpdateUserInput {
 	@IsOptional()
 	@IsEmail()
 	@Field(() => String, { nullable: true })
+	contactEmail?: string;
+
+	@IsOptional()
+	@IsString()
+	@MinLength(30)
+	@MaxLength(200)
+	@Field(() => String, { nullable: true })
+	professionalHeadline?: string;
+
+	@IsOptional()
+	@IsString()
+	@MinLength(6)
+	@MaxLength(50)
+	@Field(() => String, { nullable: true })
+	publicProfileUrl?: string;
+
+	@IsOptional()
+	@IsEnum(UserCountry)
+	@Field(() => String, { nullable: true })
+	country?: UserCountry;
+
+	@IsOptional()
+	@IsString()
+	@MinLength(6)
+	@MaxLength(100)
+	@Field(() => String, { nullable: true })
+	website?: string;
+
+	@IsOptional()
+	@IsString()
+	@MaxLength(20)
+	@Field(() => String, { nullable: true })
+	phoneNumber?: string;
+
+	@IsOptional()
+	@IsString()
+	@MaxLength(100)
+	@Field(() => String, { nullable: true })
+	recoveryEmail?: string;
+
+	@IsOptional()
+	@IsString()
+	@Field(() => String, { nullable: true })
 	email?: string;
 
-	@IsOptional()
-	@IsEnum(UserStatus)
-	@Field(() => String, { nullable: true })
-	status?: UserStatus;
+	// @IsOptional()
+	// @IsArray()
+	// @ValidateNested({ each: true })
+	// @Type(() => QualificationsInput)
+	// @Field(() => [QualificationsInput], { nullable: true })
+	// qualifications?: QualificationsInput[];
+}
 
+/**
+ * Update user basic info input
+ */
+@InputType()
+export class UpdateUserInput {
 	@IsOptional()
 	@ValidateNested()
-	@Type(() => ProfileInput)
-	@Field(() => ProfileInput, { nullable: true })
-	profile?: ProfileInput;
-
-	@IsOptional()
-	@IsArray()
-	@ValidateNested({ each: true })
-	@Type(() => QualificationsInput)
-	@Field(() => [QualificationsInput], { nullable: true })
-	qualifications?: QualificationsInput[];
+	@Type(() => UpdateUserAccountInput)
+	@Field(() => UpdateUserAccountInput, { nullable: true })
+	account?: UpdateUserAccountInput;
 }
 
 /**
@@ -646,4 +687,18 @@ export class SwitchCompanyInput {
 	@IsNotEmpty({ message: 'Company ID is required' })
 	@IsMongoId({ message: 'Invalid company ID format' })
 	companyId: string;
+}
+
+/***********************************************************
+ * [DTO] - FILE UPLOAD INPUT
+ **********************************************************/
+@InputType({ description: 'Input type for uploading or updating user file' })
+export class FileUploadInput {
+	@Field(() => String, { description: 'URL of the uploaded file' })
+	@IsNotEmpty({ message: 'File URL is required' })
+	url: string;
+
+	@Field(() => String, { description: 'Filename of the uploaded file' })
+	@IsNotEmpty({ message: 'Filename is required' })
+	filename: string;
 }
