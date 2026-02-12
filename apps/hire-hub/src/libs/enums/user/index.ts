@@ -1,4 +1,5 @@
 import { registerEnumType } from '@nestjs/graphql';
+import { register } from 'module';
 
 export enum UserRole {
 	ADMIN = 'ADMIN',
@@ -280,6 +281,27 @@ export enum UserCountry {
 	OTHER = 'OTHER',
 }
 
+export enum WhoCanSeeMyProfile {
+	PUBLIC = 'PUBLIC',
+	PRIVATE = 'PRIVATE',
+	MEMBERS_ONLY = 'MEMBERS_ONLY',
+	CONNECTIONS_ONLY = 'CONNECTIONS_ONLY',
+}
+
+export enum WhoCanSeeProfilePhoto {
+	PUBLIC = 'PUBLIC',
+	PRIVATE = 'PRIVATE',
+	MEMBERS_ONLY = 'MEMBERS_ONLY',
+	CONNECTIONS_ONLY = 'CONNECTIONS_ONLY',
+}
+
+export enum WhoCanSendMeMessages {
+	ANYONE = 'ANYONE',
+	CONNECTIONS_ONLY = 'CONNECTIONS_ONLY',
+	PREMIUM_MEMBERS = 'PREMIUM_MEMBERS',
+	NO_ONE = 'NO_ONE',
+}
+
 registerEnumType(UserRole, {
 	name: 'UserRole',
 	description: 'Roles assigned to users within the system',
@@ -303,4 +325,19 @@ registerEnumType(EmploymentType, {
 registerEnumType(WorkPreference, {
 	name: 'WorkPreference',
 	description: 'User work location preferences',
+});
+
+registerEnumType(WhoCanSeeMyProfile, {
+	name: 'WhoCanSeeMyProfile',
+	description: 'Privacy settings for user profile visibility',
+});
+
+registerEnumType(WhoCanSeeProfilePhoto, {
+	name: 'WhoCanSeeProfilePhoto',
+	description: 'Privacy settings for user profile photo visibility',
+});
+
+registerEnumType(WhoCanSendMeMessages, {
+	name: 'WhoCanSendMeMessages',
+	description: 'Settings for who can send messages to the user',
 });

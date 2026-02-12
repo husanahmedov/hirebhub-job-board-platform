@@ -1140,33 +1140,71 @@ export class UserService {
 		}
 	}
 
-	public async getCandidateSettings(userId: ObjectId, currentToken?: string): Promise<UserSettingsOutput> {
+	public async getCandidateSettings(
+		userId: ObjectId,
+		requestedField: string,
+		currentToken?: string,
+	): Promise<UserSettingsOutput> {
 		const sessions = await this.sessionService.getUserSessions(userId, currentToken);
+		const addFieldStage: any = {};
+		if (requestedField === 'account') {
+			addFieldStage.account = {
+				professionalHeadline: '$profile.headline',
+				avatarUrl: '$profile.avatarUrl',
+				country: '$profile.location.country',
+				website: '$profile.website',
+				firstName: '$firstName',
+				lastName: '$lastName',
+				email: '$email',
+				contactEmail: '$profile.contactInfo.email',
+				recoveryEmail: '$recoveryEmail',
+				emailVerified: '$emailVerified',
+				publicProfileUrl: '$publicProfileUsername',
+				phoneNumber: '$profile.contactInfo.phone_number',
+				sessions: sessions,
+			};
+		}
+		if (requestedField === 'privacy') {
+			addFieldStage.privacy = {
+				whoCanSeeMyProfile: {
+					$ifNull: ['$settings.privacy.whoCanSeeMyProfile', 'PUBLIC'],
+				},
+				whoCanSeeProfilePhoto: {
+					$ifNull: ['$settings.privacy.whoCanSeeProfilePhoto', 'PUBLIC'],
+				},
+				whoCanSendMeMessages: {
+					$ifNull: ['$settings.privacy.whoCanSendMeMessages', 'ANYONE'],
+				},
+				showEmailAddress: {
+					$ifNull: ['$settings.privacy.showEmailAddress', false],
+				},
+				showPhoneNumber: {
+					$ifNull: ['$settings.privacy.showPhoneNumber', false],
+				},
+				showLocation: {
+					$ifNull: ['$settings.privacy.showLocation', false],
+				},
+				disoverableByEmail: {
+					$ifNull: ['$settings.privacy.disoverableByEmail', false],
+				},
+				discoverableByPhoneNumber: {
+					$ifNull: ['$settings.privacy.discoverableByPhoneNumber', false],
+				},
+				showActivityStatus: {
+					$ifNull: ['$settings.privacy.showActivityStatus', false],
+				},
+				showLastSeenStatus: {
+					$ifNull: ['$settings.privacy.showLastSeenStatus', false],
+				},
+			};
+		}
 		const pipeline: PipelineStage[] = [
 			{ $match: { _id: userId } },
-			{
-				$addFields: {
-					account: {
-						professionalHeadline: '$profile.headline',
-						avatarUrl: '$profile.avatarUrl',
-						country: '$profile.location.country',
-						website: '$profile.website',
-						firstName: '$firstName',
-						lastName: '$lastName',
-						email: '$email',
-						contactEmail: '$profile.contactInfo.email',
-						recoveryEmail: '$recoveryEmail',
-						emailVerified: '$emailVerified',
-						publicProfileUrl: '$publicProfileUsername',
-						phoneNumber: '$profile.contactInfo.phone_number',
-						sessions: sessions,
-					},
-				},
-			},
+			{ $addFields: addFieldStage },
 			{
 				$project: {
 					_id: 0,
-					account: 1,
+					[requestedField]: 1,
 				},
 			},
 		];
@@ -1184,7 +1222,7 @@ export class UserService {
 	}
 
 	/********************************************************************************
-	 * * GET USER SESSIONS
+	 * * [GET] USER SESSIONS
 	 * * Retrieves all active sessions for a user with isCurrent flag
 	 * * @param userId - The ID of the user
 	 * * @param currentToken - Optional JWT token to identify the current session

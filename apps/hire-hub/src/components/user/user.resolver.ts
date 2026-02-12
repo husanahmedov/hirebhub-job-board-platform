@@ -296,9 +296,14 @@ export class UserResolver {
 	public async getCandidateSettings(
 		@AuthUser('_id') userId: ObjectId,
 		@AuthToken() currentToken: string,
+		@Args('requestedField', {
+			type: () => String,
+			description: 'Specify which settings field to retrieve (e.g. "account", "privacy")',
+		})
+		requestedField: string,
 	): Promise<UserSettingsOutput> {
 		console.log(`--- @query() Get Candidate Settings is called ---`);
-		return await this.userService.getCandidateSettings(userId, currentToken);
+		return await this.userService.getCandidateSettings(userId, requestedField, currentToken);
 	}
 
 	@Roles(UserRole.CANDIDATE)

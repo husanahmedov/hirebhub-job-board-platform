@@ -1,5 +1,13 @@
 import { Schema } from 'mongoose';
-import { UserStatus, UserRole, EmploymentType, WorkPreference } from '../libs/enums';
+import {
+	UserStatus,
+	UserRole,
+	EmploymentType,
+	WorkPreference,
+	WhoCanSeeMyProfile,
+	WhoCanSeeProfilePhoto,
+	WhoCanSendMeMessages,
+} from '../libs/enums';
 
 /**
  * User Schema - MongoDB schema definition for user documents
@@ -549,6 +557,52 @@ const UserSchema = new Schema(
 				 * @default false
 				 */
 				push: {
+					type: Boolean,
+					default: false,
+				},
+			},
+
+			privacy: {
+				whoCanSeeMyProfile: {
+					type: String,
+					enum: Object.values(WhoCanSeeMyProfile),
+					default: WhoCanSeeMyProfile.PUBLIC,
+				},
+				whoCanSeeProfilePhoto: {
+					type: String,
+					enum: Object.values(WhoCanSeeProfilePhoto),
+					default: WhoCanSeeProfilePhoto.PUBLIC,
+				},
+				whoCanSendMeMessages: {
+					type: String,
+					enum: Object.values(WhoCanSendMeMessages),
+					default: WhoCanSendMeMessages.ANYONE,
+				},
+				showEmailAddress: {
+					type: Boolean,
+					default: false,
+				},
+				showPhoneNumber: {
+					type: Boolean,
+					default: false,
+				},
+				showLocation: {
+					type: Boolean,
+					default: true,
+				},
+				disoverableByEmail: {
+					type: Boolean,
+					default: true,
+				},
+				discoverableByPhoneNumber: {
+					type: Boolean,
+					default: false,
+				},
+				showActivityStatus: {
+					type: Boolean,
+					default: false,
+				},
+				showLastSeenStatus: {
 					type: Boolean,
 					default: false,
 				},

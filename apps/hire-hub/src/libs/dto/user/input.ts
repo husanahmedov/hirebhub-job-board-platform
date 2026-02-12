@@ -562,13 +562,6 @@ export class UpdateUserAccountInput {
 	@IsString()
 	@Field(() => String, { nullable: true })
 	email?: string;
-
-	// @IsOptional()
-	// @IsArray()
-	// @ValidateNested({ each: true })
-	// @Type(() => QualificationsInput)
-	// @Field(() => [QualificationsInput], { nullable: true })
-	// qualifications?: QualificationsInput[];
 }
 
 /**
@@ -702,3 +695,5 @@ export class FileUploadInput {
 	@IsNotEmpty({ message: 'Filename is required' })
 	filename: string;
 }
+
+

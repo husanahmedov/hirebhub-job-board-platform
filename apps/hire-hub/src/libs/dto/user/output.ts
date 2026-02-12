@@ -1,5 +1,5 @@
 import { Field, ObjectType, ID, GraphQLISODateTime, Int } from '@nestjs/graphql';
-import { UserStatus, UserRole } from '../../enums';
+import { UserStatus, UserRole, WhoCanSeeMyProfile, WhoCanSeeProfilePhoto, WhoCanSendMeMessages } from '../../enums';
 import { IsOptional } from 'class-validator';
 import { SessionOutput } from '../sessions/output';
 
@@ -564,13 +564,56 @@ export class UserAccountSettingsOutput {
 	sessions?: SessionOutput[];
 }
 
+/**
+ * [DTO] - USER PRIVACY SETTINGS OUTPUT
+ * */
+
+@ObjectType()
+export class UserPrivacySettingsOutput {
+	// PROFILE VISIBILITY SETTINGS
+	@Field(() => WhoCanSeeMyProfile, { description: 'Who can see my profile settings' })
+	whoCanSeeMyProfile: WhoCanSeeMyProfile;
+
+	@Field(() => WhoCanSeeProfilePhoto, { description: 'Who can see my profile photo settings' })
+	whoCanSeeProfilePhoto: WhoCanSeeProfilePhoto;
+
+	@Field(() => WhoCanSendMeMessages, { description: 'Who can send me messages settings' })
+	whoCanSendMeMessages: WhoCanSendMeMessages;
+
+	// INFORMATION VISIBILITY SETTINGS
+	@Field(() => Boolean, { description: 'Allow others to see your email on your profile' })
+	showEmailAddress: boolean;
+
+	@Field(() => Boolean, { description: 'Allow others to see your phone number on your profile' })
+	showPhoneNumber: boolean;
+
+	@Field(() => Boolean, { description: 'Allow others to see your location on your profile' })
+	showLocation: boolean;
+
+	// DISCOVERABILITY SETTINGS
+	@Field(() => Boolean, { description: 'Allow others to discover you by your email' })
+	disoverableByEmail: boolean;
+
+	@Field(() => Boolean, { description: 'Allow others to discover you by your phone number' })
+	discoverableByPhoneNumber: boolean;
+
+	@Field(() => Boolean, { description: 'Show your activity status to others' })
+	showActivityStatus: boolean;
+
+	@Field(() => Boolean, { description: 'Show your last seen status to others' })
+	showLastSeenStatus: boolean;
+}
+
 /***********************************************************
  * [DTO] - USER SETTINGS OUTPUT
  **********************************************************/
 @ObjectType()
 export class UserSettingsOutput {
 	@Field(() => UserAccountSettingsOutput, { description: 'User account settings' })
-	account: UserAccountSettingsOutput;
+	account?: UserAccountSettingsOutput;
+
+	@Field(() => UserPrivacySettingsOutput, { description: 'User privacy settings' })
+	privacy?: UserPrivacySettingsOutput;
 }
 
 /***********************************************************
