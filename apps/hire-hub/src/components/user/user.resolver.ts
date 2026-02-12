@@ -9,7 +9,7 @@ import {
 	PublicUser,
 	ResendVerificationInput,
 	UpdateProfileInput,
-	UpdateUserInput,
+	UpdateUserSettingsInput,
 	VerifyEmailInput,
 	SwitchCompanyInput,
 	CompanyListItem,
@@ -135,8 +135,8 @@ export class UserResolver {
 		description: "Update authenticated user's own profile data (name, email, profile)",
 	})
 	public async updateUserByUser(
-		@Args('input', { type: () => UpdateUserInput, description: 'User update data with optional fields' })
-		input: UpdateUserInput,
+		@Args('input', { type: () => UpdateUserSettingsInput, description: 'User update data with optional fields' })
+		input: UpdateUserSettingsInput,
 		@AuthUser('_id') userId: ObjectId,
 	): Promise<UserSettingsOutput> {
 		console.log(`--- @mutation() Update User by User is called: ${userId} ---`);

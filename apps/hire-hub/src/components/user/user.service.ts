@@ -6,7 +6,7 @@ import {
 	LoginUserInput,
 	PublicUser,
 	UpdateProfileInput,
-	UpdateUserInput,
+	UpdateUserSettingsInput,
 	ResendVerificationInput,
 	VerifyEmailInput,
 } from '../../libs/dto/user';
@@ -307,7 +307,7 @@ export class UserService {
 		}
 	}
 
-	public async updateUserByUser(userId: ObjectId, input: UpdateUserInput): Promise<UserSettingsOutput> {
+	public async updateUserByUser(userId: ObjectId, input: UpdateUserSettingsInput): Promise<UserSettingsOutput> {
 		const normalizedEmail: string | undefined = input.account?.email
 			? input.account.email.toLowerCase().trim()
 			: undefined;
@@ -322,6 +322,19 @@ export class UserService {
 			phoneNumber,
 			recoveryEmail,
 		} = input.account || {};
+
+		const {
+			discoverableByEmail,
+			showActivityStatus,
+			showLastSeenStatus,
+			whoCanSendMeMessages,
+			whoCanSeeProfilePhoto,
+			whoCanSeeMyProfile,
+			discoverableByPhoneNumber,
+			showLocation,
+			showEmailAddress,
+			showPhoneNumber,
+		} = input.privacy || {};
 
 		try {
 			// STEP 2: If email is being updated, check if it's already taken by another user
@@ -387,6 +400,18 @@ export class UserService {
 						'profile.headline': professionalHeadline,
 						'profile.location.country': country,
 						email: normalizedEmail,
+
+						// privacy settings
+						'settings.privacy.whoCanSendMeMessages': whoCanSendMeMessages,
+						'settings.privacy.whoCanSeeProfilePhoto': whoCanSeeProfilePhoto,
+						'settings.privacy.whoCanSeeMyProfile': whoCanSeeMyProfile,
+						'settings.privacy.discoverableByEmail': discoverableByEmail,
+						'settings.privacy.discoverableByPhoneNumber': discoverableByPhoneNumber,
+						'settings.privacy.showActivityStatus': showActivityStatus,
+						'settings.privacy.showLastSeenStatus': showLastSeenStatus,
+						'settings.privacy.showLocation': showLocation,
+						'settings.privacy.showEmailAddress': showEmailAddress,
+						'settings.privacy.showPhoneNumber': showPhoneNumber,
 					},
 					{
 						new: true, // Return updated document
@@ -1149,7 +1174,9 @@ export class UserService {
 		const addFieldStage: any = {};
 		if (requestedField === 'account') {
 			addFieldStage.account = {
-				professionalHeadline: '$profile.headline',
+				professionalHeadline: {
+					$ifNull: ['$profile.headline', ''],
+				},
 				avatarUrl: '$profile.avatarUrl',
 				country: '$profile.location.country',
 				website: '$profile.website',
@@ -1184,8 +1211,8 @@ export class UserService {
 				showLocation: {
 					$ifNull: ['$settings.privacy.showLocation', false],
 				},
-				disoverableByEmail: {
-					$ifNull: ['$settings.privacy.disoverableByEmail', false],
+				discoverableByEmail: {
+					$ifNull: ['$settings.privacy.discoverableByEmail', false],
 				},
 				discoverableByPhoneNumber: {
 					$ifNull: ['$settings.privacy.discoverableByPhoneNumber', false],

@@ -24,7 +24,16 @@ import {
 	ValidationArguments,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { UserStatus, UserRole, UserCountry, EmploymentType, WorkPreference } from '../../enums';
+import {
+	UserStatus,
+	UserRole,
+	UserCountry,
+	EmploymentType,
+	WorkPreference,
+	WhoCanSeeMyProfile,
+	WhoCanSeeProfilePhoto,
+	WhoCanSendMeMessages,
+} from '../../enums';
 
 // ============================================================
 // Nested Input Types (Building Blocks)
@@ -500,7 +509,7 @@ export class UpdateProfileInput {
 }
 
 @InputType()
-export class UpdateUserAccountInput {
+export class UserSettingsAccountInput {
 	@IsOptional()
 	@IsString()
 	@MinLength(2)
@@ -564,28 +573,75 @@ export class UpdateUserAccountInput {
 	email?: string;
 }
 
+@InputType()
+export class UserSettingsPrivacyInput {
+	@IsOptional()
+	@IsEnum(WhoCanSeeMyProfile)
+	@Field(() => WhoCanSeeMyProfile, { nullable: true })
+	whoCanSeeMyProfile?: WhoCanSeeMyProfile;
+
+	@IsOptional()
+	@IsEnum(WhoCanSeeProfilePhoto)
+	@Field(() => WhoCanSeeProfilePhoto, { nullable: true })
+	whoCanSeeProfilePhoto?: WhoCanSeeProfilePhoto;
+
+	@IsOptional()
+	@IsEnum(WhoCanSendMeMessages)
+	@Field(() => WhoCanSendMeMessages, { nullable: true })
+	whoCanSendMeMessages?: WhoCanSendMeMessages;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	showEmailAddress?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	showPhoneNumber?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	showLocation?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	discoverableByEmail?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	discoverableByPhoneNumber?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	showActivityStatus?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	showLastSeenStatus?: boolean;
+}
+
 /**
  * Update user basic info input
  */
 @InputType()
-export class UpdateUserInput {
+export class UpdateUserSettingsInput {
 	@IsOptional()
 	@ValidateNested()
-	@Type(() => UpdateUserAccountInput)
-	@Field(() => UpdateUserAccountInput, { nullable: true })
-	account?: UpdateUserAccountInput;
-}
+	@Type(() => UserSettingsAccountInput)
+	@Field(() => UserSettingsAccountInput, { nullable: true })
+	account?: UserSettingsAccountInput;
 
-/**
- * Update user settings input
- */
-@InputType()
-export class UpdateSettingsInput {
 	@IsOptional()
 	@ValidateNested()
-	@Type(() => UserSettingsInput)
-	@Field(() => UserSettingsInput, { nullable: true })
-	settings?: UserSettingsInput;
+	@Type(() => UserSettingsPrivacyInput)
+	@Field(() => UserSettingsPrivacyInput, { nullable: true })
+	privacy?: UserSettingsPrivacyInput;
 }
 
 /**
@@ -695,5 +751,3 @@ export class FileUploadInput {
 	@IsNotEmpty({ message: 'Filename is required' })
 	filename: string;
 }
-
-

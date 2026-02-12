@@ -590,7 +590,7 @@ const UserSchema = new Schema(
 					type: Boolean,
 					default: true,
 				},
-				disoverableByEmail: {
+				discoverableByEmail: {
 					type: Boolean,
 					default: true,
 				},

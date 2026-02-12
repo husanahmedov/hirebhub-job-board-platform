@@ -592,7 +592,7 @@ export class UserPrivacySettingsOutput {
 
 	// DISCOVERABILITY SETTINGS
 	@Field(() => Boolean, { description: 'Allow others to discover you by your email' })
-	disoverableByEmail: boolean;
+	discoverableByEmail: boolean;
 
 	@Field(() => Boolean, { description: 'Allow others to discover you by your phone number' })
 	discoverableByPhoneNumber: boolean;
