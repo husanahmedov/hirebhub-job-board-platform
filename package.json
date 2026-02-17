@@ -10,6 +10,7 @@
 		"format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
 		"start": "NODE_ENV=development nest build --webpack --webpackPath webpack-hmr.config.js --watch",
 		"start:dev": "NODE_ENV=development nest start --watch",
+		"start:dev:batch": "NODE_ENV=development nest start hirehub-batch --watch",
 		"start:debug": "nest start --debug --watch",
 		"start:prod": "node dist/apps/hire-hub/main",
 		"lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
