@@ -302,6 +302,17 @@ export enum WhoCanSendMeMessages {
 	NO_ONE = 'NO_ONE',
 }
 
+export enum TwoFactorAuthMethod {
+	APP = 'app',
+	EMAIL = 'email',
+	NONE = 'NONE',
+}
+
+registerEnumType(TwoFactorAuthMethod, {
+	name: 'TwoFactorAuthMethod',
+	description: 'Methods available for two-factor authentication',
+});
+
 registerEnumType(UserRole, {
 	name: 'UserRole',
 	description: 'Roles assigned to users within the system',

@@ -15,17 +15,16 @@ export class RolesGuard implements CanActivate {
 		if (!roles) return true;
 
 		console.info(`--- @guard() Authentication [RolesGuard]: ${roles} ---`);
-
 		if (context.contextType === 'graphql') {
 			const request = context.getArgByIndex(2).req;
 			const bearerToken = request.headers.authorization;
 			if (!bearerToken)
 				throw new UnauthorizedException(
-					`You are not authorized to perform this action. Please first have proper access rights`,
-				);
-
-			const token = bearerToken.split(' ')[1],
-				authUser = await this.authService.verifyToken(token);
+			`You are not authorized to perform this action. Please first have proper access rights`,
+		);
+		
+		const token = bearerToken.split(' ')[1],
+		authUser = await this.authService.verifyToken(token);
 			const hasRole = () => roles.indexOf(authUser.role) > -1;
 			const hasPermission: boolean = hasRole();
 			if (!authUser || !hasPermission)

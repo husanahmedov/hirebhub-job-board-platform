@@ -148,18 +148,15 @@ export class AuthController {
 				return res.redirect(`http://localhost:8080/auth/error?message=Authentication failed&provider=${provider}`);
 			}
 
-			// Generate JWT access token (short-lived)
-			const accessToken = await this.authService.createToken(user);
+			// User object already has tokens attached from validateOAuthLogin
+			// Extract them from the user object
+			const accessToken = user.accessToken;
+			const refreshToken = user.refreshToken;
 
-			// Generate JWT refresh token (long-lived)
-			const refreshToken = await this.authService.createRefreshToken(user);
-
-			// Hash refresh token before storing
-			const hashedRefreshToken = await this.authService.hashRefreshToken(refreshToken);
-
-			// Store hashed refresh token in database
-			// Note: We need to import and use userModel here, or create a method in UserService
-			// For now, we'll pass it in the URL and let the frontend handle storage
+			if (!accessToken || !refreshToken) {
+				console.error(`OAuth callback: Missing tokens for user ${user.email}`);
+				return res.redirect(`http://localhost:8080/auth/error?message=Token generation failed&provider=${provider}`);
+			}
 
 			// Get token expiration times
 			const accessTokenExpiresAt = this.authService.getAccessTokenExpiration();

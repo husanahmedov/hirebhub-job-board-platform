@@ -51,8 +51,17 @@ export class AuthService {
 		// Convert to plain object with virtuals if it's a Mongoose document
 		const userData = data.toObject ? data.toObject() : data;
 
-		// create payload without sensitive data
-		const { passwordHash, refreshToken, ...payload } = userData;
+		// Keep payload minimal - only include essential authentication/authorization data
+		// Large objects like settings and profile should be fetched separately
+		const payload = {
+			_id: userData._id,
+			email: userData.email,
+			role: userData.role,
+			firstName: userData.firstName,
+			lastName: userData.lastName,
+			emailVerified: userData.emailVerified,
+			activeCompanyId: userData.activeCompanyId, // For company-specific features
+		};
 
 		return await this.jwtService.signAsync(payload, {
 			secret: EnvUtil.getJwtSecret(),

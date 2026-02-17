@@ -7,6 +7,7 @@ import {
 	WhoCanSeeMyProfile,
 	WhoCanSeeProfilePhoto,
 	WhoCanSendMeMessages,
+	TwoFactorAuthMethod,
 } from '../libs/enums';
 
 /**
@@ -607,6 +608,36 @@ const UserSchema = new Schema(
 					default: false,
 				},
 			},
+
+			security: {
+				twoFactorAuthEnabled: {
+					type: Boolean,
+					default: false,
+				},
+				loginAlertsEnabled: {
+					type: Boolean,
+					default: true,
+				},
+				rememberedDevicesEnabled: {
+					type: Boolean,
+					default: true,
+				},
+				twoFactorAuthMethod: {
+					type: String,
+					enum: Object.values(TwoFactorAuthMethod),
+					default: TwoFactorAuthMethod.NONE,
+				},
+				backupCodesGenerated: {
+					type: Boolean,
+					default: false,
+				},
+				backupCodesGeneratedAt: {
+					type: Date,
+				},
+				twoFactorAuthEnabledAt: {
+					type: Date,
+				},
+			},
 		},
 
 		/**
@@ -651,6 +682,33 @@ const UserSchema = new Schema(
 		viewsCount: {
 			type: Number,
 			default: 0,
+		},
+		// two factor authentication secret
+		twoFactorAuthSecret: {
+			type: String,
+			required: false,
+			select: false,
+		},
+		twoFactorBackupCodes: [
+			{
+				type: String,
+				required: false,
+				select: false,
+			},
+		],
+		twoFactorVerificationCode: {
+			type: String,
+			required: false,
+			select: false,
+		},
+		twoFactorVerificationCodeExpires: {
+			type: Date,
+			required: false,
+			select: false,
+		},
+		lastChangedPasswordAt: {
+			type: Date,
+			required: false,
 		},
 	},
 	{

@@ -1,7 +1,144 @@
 import { Field, ObjectType, ID, GraphQLISODateTime, Int } from '@nestjs/graphql';
-import { UserStatus, UserRole, WhoCanSeeMyProfile, WhoCanSeeProfilePhoto, WhoCanSendMeMessages } from '../../enums';
+import {
+	UserStatus,
+	UserRole,
+	WhoCanSeeMyProfile,
+	WhoCanSeeProfilePhoto,
+	WhoCanSendMeMessages,
+	TwoFactorAuthMethod,
+} from '../../enums';
 import { IsOptional } from 'class-validator';
 import { SessionOutput } from '../sessions/output';
+
+// ============================================
+// *USER ACCOUNT SETTINGS OUTPUT
+// ============================================
+@ObjectType()
+export class UserAccountSettingsOutput {
+	@Field(() => String, { description: 'User First Name' })
+	firstName: string;
+
+	@Field(() => String, { description: 'User Last Name' })
+	lastName: string;
+
+	@Field(() => String, { description: 'User Last Name', nullable: true })
+	professionalHeadline?: string;
+
+	@Field(() => String, { description: 'User Avatar Url', nullable: true })
+	avatarUrl?: string;
+
+	@Field(() => String, { description: 'Public Profile Url', nullable: true })
+	publicProfileUrl?: string;
+
+	@Field(() => String, { description: 'User Country', nullable: true })
+	country?: string;
+
+	@Field(() => String, { description: 'User Website', nullable: true })
+	website?: string;
+
+	@Field(() => String, { description: 'User Email' })
+	email: string;
+
+	@Field(() => String, { description: 'User Contact Email', nullable: true })
+	contactEmail?: string;
+
+	@Field(() => String, { description: 'User Recovery Email', nullable: true })
+	recoveryEmail?: string;
+
+	@Field(() => Boolean, { description: 'Email Verified Status' })
+	emailVerified: boolean;
+
+	@Field(() => String, { description: 'User Phone Number', nullable: true })
+	phoneNumber?: string;
+
+	@Field(() => [SessionOutput], { description: 'List of active user sessions' })
+	sessions?: SessionOutput[];
+}
+
+/**
+ * [DTO] - USER PRIVACY SETTINGS OUTPUT
+ * */
+
+@ObjectType()
+export class UserPrivacySettingsOutput {
+	// PROFILE VISIBILITY SETTINGS
+	@Field(() => WhoCanSeeMyProfile, { description: 'Who can see my profile settings' })
+	whoCanSeeMyProfile: WhoCanSeeMyProfile;
+
+	@Field(() => WhoCanSeeProfilePhoto, { description: 'Who can see my profile photo settings' })
+	whoCanSeeProfilePhoto: WhoCanSeeProfilePhoto;
+
+	@Field(() => WhoCanSendMeMessages, { description: 'Who can send me messages settings' })
+	whoCanSendMeMessages: WhoCanSendMeMessages;
+
+	// INFORMATION VISIBILITY SETTINGS
+	@Field(() => Boolean, { description: 'Allow others to see your email on your profile' })
+	showEmailAddress: boolean;
+
+	@Field(() => Boolean, { description: 'Allow others to see your phone number on your profile' })
+	showPhoneNumber: boolean;
+
+	@Field(() => Boolean, { description: 'Allow others to see your location on your profile' })
+	showLocation: boolean;
+
+	// DISCOVERABILITY SETTINGS
+	@Field(() => Boolean, { description: 'Allow others to discover you by your email' })
+	discoverableByEmail: boolean;
+
+	@Field(() => Boolean, { description: 'Allow others to discover you by your phone number' })
+	discoverableByPhoneNumber: boolean;
+
+	@Field(() => Boolean, { description: 'Show your activity status to others' })
+	showActivityStatus: boolean;
+
+	@Field(() => Boolean, { description: 'Show your last seen status to others' })
+	showLastSeenStatus: boolean;
+}
+
+@ObjectType()
+export class UserSecuritySettingsOutput {
+	@Field(() => Boolean, { description: 'Indicates if two-factor authentication is enabled' })
+	twoFactorAuthEnabled: boolean;
+
+	@Field(() => [SessionOutput], { description: 'List of active user sessions' })
+	sessions?: SessionOutput[];
+
+	@Field(() => GraphQLISODateTime, { nullable: true, description: 'Timestamp of the last password change' })
+	lastChangedPasswordAt?: Date;
+
+	@Field(() => Boolean, { description: 'Indicates if the user registered using OAuth (e.g., Google, Facebook)' })
+	isOauthUser?: boolean;
+
+	@Field(() => TwoFactorAuthMethod, { description: 'Two-factor authentication method', nullable: true })
+	twoFactorAuthMethod?: TwoFactorAuthMethod;
+
+	@Field(() => GraphQLISODateTime, { nullable: true, description: 'Timestamp when 2FA was enabled' })
+	twoFactorAuthEnabledAt?: Date;
+
+	@Field(() => Boolean, { description: 'Indicates if backup codes have been generated for 2FA' })
+	backupCodesGenerated?: boolean;
+
+	@Field(() => GraphQLISODateTime, { nullable: true, description: 'Timestamp when backup codes were generated' })
+	backupCodesGeneratedAt?: Date;
+}
+
+/***********************************************************
+ * [DTO] - USER SETTINGS OUTPUT
+ **********************************************************/
+@ObjectType()
+export class UserSettingsOutput {
+	@Field(() => UserAccountSettingsOutput, { description: 'User account settings' })
+	account?: UserAccountSettingsOutput;
+
+	@Field(() => UserPrivacySettingsOutput, { description: 'User privacy settings' })
+	privacy?: UserPrivacySettingsOutput;
+
+	@Field(() => UserSecuritySettingsOutput, { description: 'User security settings' })
+	security?: UserSecuritySettingsOutput;
+
+	@Field(() => String, { nullable: true })
+	status?: string;
+}
 
 // ============================================================
 // Nested Output Types (Building Blocks)
@@ -230,6 +367,12 @@ export class UserSettings {
 
 	@Field(() => NotificationSettings)
 	notifications: NotificationSettings;
+
+	@Field(() => UserSecuritySettingsOutput, { description: 'User security settings', nullable: true })
+	security?: UserSecuritySettingsOutput;
+
+	@Field(() => UserPrivacySettingsOutput, { description: 'User privacy settings', nullable: true })
+	privacy?: UserPrivacySettingsOutput;
 }
 
 // ============================================================
@@ -318,6 +461,14 @@ export class User {
 
 	@IsOptional()
 	@Field(() => String, { nullable: true })
+	twoFactorVerificationCode?: string;
+
+	@IsOptional()
+	@Field(() => GraphQLISODateTime, { nullable: true })
+	twoFactorVerificationCodeExpires?: Date;
+
+	@IsOptional()
+	@Field(() => String, { nullable: true })
 	activeCompanyId?: string;
 
 	@IsOptional()
@@ -333,6 +484,13 @@ export class User {
 	@IsOptional()
 	@Field(() => SessionOutput, { nullable: true })
 	session?: SessionOutput;
+
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	twoFactorAuthSecret?: string;
+
+	@Field(() => [String], { description: 'Two-factor backup codes' })
+	twoFactorBackupCodes?: string[];
 }
 
 /**
@@ -519,103 +677,6 @@ export class ActiveCompanyOutput {
 	location?: CompanyLocation;
 }
 
-// ============================================
-// *USER ACCOUNT SETTINGS OUTPUT
-// ============================================
-@ObjectType()
-export class UserAccountSettingsOutput {
-	@Field(() => String, { description: 'User First Name' })
-	firstName: string;
-
-	@Field(() => String, { description: 'User Last Name' })
-	lastName: string;
-
-	@Field(() => String, { description: 'User Last Name', nullable: true })
-	professionalHeadline?: string;
-
-	@Field(() => String, { description: 'User Avatar Url', nullable: true })
-	avatarUrl?: string;
-
-	@Field(() => String, { description: 'Public Profile Url', nullable: true })
-	publicProfileUrl?: string;
-
-	@Field(() => String, { description: 'User Country', nullable: true })
-	country?: string;
-
-	@Field(() => String, { description: 'User Website', nullable: true })
-	website?: string;
-
-	@Field(() => String, { description: 'User Email' })
-	email: string;
-
-	@Field(() => String, { description: 'User Contact Email', nullable: true })
-	contactEmail?: string;
-
-	@Field(() => String, { description: 'User Recovery Email', nullable: true })
-	recoveryEmail?: string;
-
-	@Field(() => Boolean, { description: 'Email Verified Status' })
-	emailVerified: boolean;
-
-	@Field(() => String, { description: 'User Phone Number', nullable: true })
-	phoneNumber?: string;
-
-	@Field(() => [SessionOutput], { description: 'List of active user sessions' })
-	sessions?: SessionOutput[];
-}
-
-/**
- * [DTO] - USER PRIVACY SETTINGS OUTPUT
- * */
-
-@ObjectType()
-export class UserPrivacySettingsOutput {
-	// PROFILE VISIBILITY SETTINGS
-	@Field(() => WhoCanSeeMyProfile, { description: 'Who can see my profile settings' })
-	whoCanSeeMyProfile: WhoCanSeeMyProfile;
-
-	@Field(() => WhoCanSeeProfilePhoto, { description: 'Who can see my profile photo settings' })
-	whoCanSeeProfilePhoto: WhoCanSeeProfilePhoto;
-
-	@Field(() => WhoCanSendMeMessages, { description: 'Who can send me messages settings' })
-	whoCanSendMeMessages: WhoCanSendMeMessages;
-
-	// INFORMATION VISIBILITY SETTINGS
-	@Field(() => Boolean, { description: 'Allow others to see your email on your profile' })
-	showEmailAddress: boolean;
-
-	@Field(() => Boolean, { description: 'Allow others to see your phone number on your profile' })
-	showPhoneNumber: boolean;
-
-	@Field(() => Boolean, { description: 'Allow others to see your location on your profile' })
-	showLocation: boolean;
-
-	// DISCOVERABILITY SETTINGS
-	@Field(() => Boolean, { description: 'Allow others to discover you by your email' })
-	discoverableByEmail: boolean;
-
-	@Field(() => Boolean, { description: 'Allow others to discover you by your phone number' })
-	discoverableByPhoneNumber: boolean;
-
-	@Field(() => Boolean, { description: 'Show your activity status to others' })
-	showActivityStatus: boolean;
-
-	@Field(() => Boolean, { description: 'Show your last seen status to others' })
-	showLastSeenStatus: boolean;
-}
-
-/***********************************************************
- * [DTO] - USER SETTINGS OUTPUT
- **********************************************************/
-@ObjectType()
-export class UserSettingsOutput {
-	@Field(() => UserAccountSettingsOutput, { description: 'User account settings' })
-	account?: UserAccountSettingsOutput;
-
-	@Field(() => UserPrivacySettingsOutput, { description: 'User privacy settings' })
-	privacy?: UserPrivacySettingsOutput;
-}
-
 /***********************************************************
  * [DTO] - FILE UPLOAD OUTPUT
  **********************************************************/
@@ -632,4 +693,17 @@ export class FileUploadOutput {
 
 	@Field(() => String, { description: 'MIME type of the uploaded file', nullable: true })
 	mimeType?: string;
+}
+
+/***********************************************************
+ * [DTO] - TWO-FACTOR AUTHENTICATION SECRET OUTPUT
+ **********************************************************/
+
+@ObjectType()
+export class TwoFactorAuthSecretOutput {
+	@Field(() => String, { description: 'Base32 encoded 2FA secret key' })
+	secret: string;
+
+	@Field(() => String, { description: 'URL for generating QR code to set up 2FA in authenticator apps' })
+	qrCodeUrl: string;
 }

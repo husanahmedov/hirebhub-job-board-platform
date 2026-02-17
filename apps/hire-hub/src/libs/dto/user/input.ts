@@ -626,6 +626,28 @@ export class UserSettingsPrivacyInput {
 	showLastSeenStatus?: boolean;
 }
 
+@InputType()
+export class UserSettingsSecurityInput {
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	twoFactorAuthEnabled?: boolean;
+
+	@IsOptional()
+	@IsString()
+	@MinLength(8)
+	@MaxLength(100)
+	@Field(() => String, { nullable: true })
+	oldPassword?: string;
+
+	@IsOptional()
+	@IsString()
+	@MinLength(8)
+	@MaxLength(100)
+	@Field(() => String, { nullable: true })
+	newPassword?: string;
+}
+
 /**
  * Update user basic info input
  */
@@ -642,6 +664,12 @@ export class UpdateUserSettingsInput {
 	@Type(() => UserSettingsPrivacyInput)
 	@Field(() => UserSettingsPrivacyInput, { nullable: true })
 	privacy?: UserSettingsPrivacyInput;
+
+	@IsOptional()
+	@ValidateNested()
+	@Type(() => UserSettingsSecurityInput)
+	@Field(() => UserSettingsSecurityInput, { nullable: true })
+	security?: UserSettingsSecurityInput;
 }
 
 /**

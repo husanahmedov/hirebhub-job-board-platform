@@ -15,7 +15,7 @@ import {
 	CompanyListItem,
 	ActiveCompanyOutput,
 } from '../../libs/dto/user';
-import { FileUploadInput, FileUploadOutput, UserRole, UserSettingsOutput } from '../../libs';
+import { FileUploadInput, FileUploadOutput, TwoFactorAuthSecretOutput, UserRole, UserSettingsOutput } from '../../libs';
 import { SessionOutput, MessageResponse } from '../../libs/dto/sessions/output';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -144,6 +144,60 @@ export class UserResolver {
 	}
 
 	/*****************************************************************************
+	 * [RESOLVER] USER ACCOUNT SETTINGS UPDATE
+	 ****************************************************************************/
+	@Roles(UserRole.CANDIDATE)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Mutation(() => UserSettingsOutput, {
+		description: "Update authenticated user's own account settings (email, password)",
+	})
+	public async updateUserAccountSettings(
+		@Args('input', { type: () => UpdateUserSettingsInput, description: 'User account settings update data' })
+		input: UpdateUserSettingsInput,
+		@AuthUser('_id') userId: ObjectId,
+	): Promise<UserSettingsOutput> {
+		console.log(`--- @mutation() Update User Account Settings is called: ${userId} ---`);
+		return await this.userService.updateUserAccountSettings(userId, input);
+	}
+
+	/*****************************************************************************
+	 * [RESOLVER] USER PRIVACY SETTINGS UPDATE (EMAIL/PHONE VISIBILITY TO RECRUITERS)
+	 ****************************************************************************/
+	@Roles(UserRole.CANDIDATE)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Mutation(() => UserSettingsOutput, {
+		description: "Update authenticated user's own privacy settings (email/phone visibility)",
+	})
+	public async updateUserPrivacySettings(
+		@Args('input', { type: () => UpdateUserSettingsInput, description: 'User privacy settings update data' })
+		input: UpdateUserSettingsInput,
+		@AuthUser('_id') userId: ObjectId,
+	): Promise<UserSettingsOutput> {
+		console.log(`--- @mutation() Update User Privacy Settings is called: ${userId} ---`);
+		return await this.userService.updateUserPrivacySettings(userId, input);
+	}
+
+	/*****************************************************************************
+	 * [RESOLVER] USER SECURITY SETTINGS UPDATE (PASSWORD CHANGE, 2FA TOGGLE)
+	 ****************************************************************************/
+	@Roles(UserRole.CANDIDATE)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Mutation(() => UserSettingsOutput, {
+		description: "Update authenticated user's own security settings (2FA, password)",
+	})
+	public async updateUserSecuritySettings(
+		@Args('input', { type: () => UpdateUserSettingsInput, description: 'User security settings update data' })
+		input: UpdateUserSettingsInput,
+		@AuthUser('_id') userId: ObjectId,
+	): Promise<UserSettingsOutput> {
+		console.log(`--- @mutation() Update User Security Settings is called: ${userId} ---`);
+		return await this.userService.updateUserSecuritySettings(userId, input);
+	}
+
+	/*****************************************************************************
 	 * SECURITY AUTHENTICATION STATUS CHECK
 	 ****************************************************************************/
 	@UseGuards(AuthGuard)
@@ -257,7 +311,7 @@ export class UserResolver {
 	}
 
 	/*****************************************************************************
-	 * API CANDIDATE PRIVATE PROFILE QUERY
+	 * [RESOLVER] CANDIDATE PRIVATE PROFILE QUERY
 	 ****************************************************************************/
 
 	@Roles(UserRole.CANDIDATE)
@@ -266,6 +320,8 @@ export class UserResolver {
 	@Query(() => User, { description: 'Fetch authenticated candidate profile with full details' })
 	public async getCandidateProfile(@AuthUser('_id') userId: ObjectId): Promise<User | PublicUser> {
 		console.log(`--- @query() Get Candidate Profile for user: ${userId} ---`);
+		console.log('salom');
+
 		return await this.userService.getCandidateProfile('', userId);
 	}
 
@@ -320,6 +376,9 @@ export class UserResolver {
 		return await this.userService.uploadUserAvatar(shapeIntoMongoObjectId(userId), input);
 	}
 
+	/*****************************************************************************
+	 * [RESOLVER] CANDIDATE BANNER IMAGE UPLOAD
+	 ****************************************************************************/
 	@Roles(UserRole.CANDIDATE)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -333,4 +392,113 @@ export class UserResolver {
 		console.log(`--- @mutation() Upload User Banner is called ---`);
 		return await this.userService.uploadUserBanner(shapeIntoMongoObjectId(userId), input);
 	}
+
+	/*****************************************************************************
+	 * [RESOLVER] TWO FACTOR AUTHENTICATION (2FA) MANAGEMENT
+	 ****************************************************************************/
+	@Roles(UserRole.CANDIDATE, UserRole.RECRUITER)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Mutation(() => TwoFactorAuthSecretOutput, {
+		description: 'Generate a new two-factor authentication (2FA) secret for the user',
+	})
+	public async generate2FASecret(@AuthUser('_id') userId: ObjectId): Promise<TwoFactorAuthSecretOutput> {
+		console.log(`--- @mutation() Generate Two Factor Auth Secret for user: ${userId} ---`);
+		return await this.userService.generateTwoFactorAuthSecret(userId);
+	}
+
+	/*****************************************************************************
+	 * [RESOLVER] FETCH TWO FACTOR AUTHENTICATION (2FA) SECRET
+	 ****************************************************************************/
+	@Roles(UserRole.CANDIDATE, UserRole.RECRUITER)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Query(() => TwoFactorAuthSecretOutput, {
+		description: 'Fetch the existing two-factor authentication (2FA) secret for the user',
+	})
+	public async fetchTwoFactorAuthSecret(@AuthUser('_id') userId: ObjectId): Promise<TwoFactorAuthSecretOutput> {
+		console.log(`--- @query() Fetch Two Factor Auth Secret for user: ${userId} ---`);
+		return await this.userService.fetchTwoFactorAuthSecret(userId);
+	}
+
+	/*****************************************************************************
+	 * [RESOLVER] ENABLE TWO FACTOR AUTHENTICATION (2FA) WITH VERIFICATION
+	 ****************************************************************************/
+	@Roles(UserRole.CANDIDATE, UserRole.RECRUITER)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Mutation(() => MessageResponse, {
+		description: 'Enable two-factor authentication (2FA) for the user by verifying the provided code',
+	})
+	public async enable2FA(
+		@AuthUser('_id') userId: ObjectId,
+		@Args('code') code: string,
+	): Promise<{ success: boolean; message: string }> {
+		return await this.userService.enableTwoFactorAuth(userId, code);
+	}
+
+	/*****************************************************************************
+	 * [RESOLVER] SEND TWO FACTOR AUTHENTICATION (2FA) VERIFICATION CODE VIA EMAIL
+	 ****************************************************************************/
+	@Roles(UserRole.CANDIDATE, UserRole.RECRUITER)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Mutation(() => MessageResponse, {
+		description: 'Send a two-factor authentication (2FA) verification code via email to the user',
+	})
+	public async sendEmailTwoFactorAuthCode(@AuthUser('_id') userId: ObjectId): Promise<MessageResponse> {
+		return await this.userService.sendEmailTwoFactorAuthCode(userId);
+	}
+
+	/*****************************************************************************
+	 * [RESOLVER] ENABLE TWO FACTOR AUTHENTICATION (2FA) WITH EMAIL VERIFICATION
+	 ****************************************************************************/
+	@Roles(UserRole.CANDIDATE, UserRole.RECRUITER)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Mutation(() => MessageResponse, {
+		description: 'Enable email-based two-factor authentication (2FA) for the user',
+	})
+	public async enableEmailTwoFactorAuth(
+		@AuthUser('_id') userId: ObjectId,
+		@Args('code') code: string,
+	): Promise<MessageResponse> {
+		return await this.userService.enableEmailTwoFactorAuth(userId, code);
+	}
+
+	/*****************************************************************************
+	 * [RESOLVER] GENERATE TWO FACTOR AUTHENTICATION (2FA) BACKUP CODES
+	 ****************************************************************************/
+	@Roles(UserRole.CANDIDATE, UserRole.RECRUITER)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Mutation(() => [String], {
+		description: 'Generate two-factor authentication (2FA) backup codes for the user',
+	})
+	public async generateTwoFactorAuthBackupCodes(@AuthUser('_id') userId: ObjectId): Promise<string[]> {
+		return await this.userService.generateTwoFactorAuthBackupCodes(userId);
+	}
+
+	/*****************************************************************************
+	 * [RESOLVER] DISABLE TWO FACTOR AUTHENTICATION (2FA)
+	 ****************************************************************************/
+	@Roles(UserRole.CANDIDATE)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Mutation(() => MessageResponse, {
+		description: 'Disable two-factor authentication (2FA) for the user',
+	})
+	public async disableTwoFactorAuth(
+		@AuthUser('_id') userId: ObjectId,
+		@Args('code') code: string,
+	): Promise<MessageResponse> {
+		return await this.userService.disableTwoFactorAuth(userId, code);
+	}
+
+	// @Roles(UserRole.CANDIDATE, UserRole.RECRUITER)
+	// @UseGuards(RolesGuard)
+	// @UseGuards(AuthGuard)
+	// public async disable2FA(@AuthUser('_id') userId: ObjectId, @Args('token') token: string): Promise<MessageResponse> {
+	// 	return await this.userService.disableTwoFactorAuth(userId, token);
+	// }
 }
