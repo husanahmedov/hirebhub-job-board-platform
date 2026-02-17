@@ -8,12 +8,12 @@ import {
 	LoginUserInput,
 	PublicUser,
 	ResendVerificationInput,
-	UpdateProfileInput,
 	UpdateUserSettingsInput,
 	VerifyEmailInput,
 	SwitchCompanyInput,
 	CompanyListItem,
 	ActiveCompanyOutput,
+	LoginResponse,
 } from '../../libs/dto/user';
 import { FileUploadInput, FileUploadOutput, TwoFactorAuthSecretOutput, UserRole, UserSettingsOutput } from '../../libs';
 import { SessionOutput, MessageResponse } from '../../libs/dto/sessions/output';
@@ -28,6 +28,7 @@ import type { ObjectId } from 'mongoose';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { DeviceParser } from '../../libs/utils/device.parser';
 import { AuthToken } from '../auth/decorators/authToken.decorator';
+import { SessionGuard } from '../auth/guards/session.guard';
 
 @Resolver()
 export class UserResolver {
@@ -35,6 +36,10 @@ export class UserResolver {
 		private readonly userService: UserService,
 		private readonly authService: AuthService,
 	) {}
+
+	// =============================================================================================
+	// --------------------------------- // [USER] // ----------------------------------------------
+	// =============================================================================================
 
 	/*****************************************************************************
 	 * SECURITY USER REGISTRATION & ACCOUNT CREATION
@@ -77,9 +82,9 @@ export class UserResolver {
 	}
 
 	/*****************************************************************************
-	 * SECURITY USER LOGIN & AUTHENTICATION
+	 * [RESOLVER] USER LOGIN & AUTHENTICATION
 	 ****************************************************************************/
-	@Mutation(() => User, {
+	@Mutation(() => LoginResponse, {
 		description: 'Authenticate user with email and password, returns user with access token',
 	})
 	public async login(
@@ -87,7 +92,7 @@ export class UserResolver {
 		input: LoginUserInput,
 		@Context()
 		context,
-	): Promise<User> {
+	): Promise<typeof LoginResponse> {
 		console.log(`--- @mutation() Login is called with input: ${JSON.stringify(input)} ---`);
 		// DEVICE - Parse device info from user-agent
 		const userAgent = context.req.headers['user-agent'] || 'Unknown Device';
@@ -110,9 +115,46 @@ export class UserResolver {
 	}
 
 	/*****************************************************************************
-	 * SECURITY USER LOGOUT & SESSION REVOCATION
+	 * [RESOLVER] USER LOGIN WITH TWO FACTOR AUTHENTICATION (2FA) VERIFICATION
+	 ****************************************************************************/
+	@Mutation(() => User, {
+		description: 'Authenticate user with email and password, returns user with access token',
+	})
+	public async loginWithTwoFactorAuth(
+		@Args('input', { type: () => LoginUserInput, description: 'User login credentials (email and password)' })
+		input: LoginUserInput,
+		@Args('code', { type: () => String, description: 'Two-factor authentication code' })
+		code: string,
+		@Context()
+		context,
+	): Promise<User> {
+		console.log(`--- @mutation() Login With 2FA is called with input: ${JSON.stringify(input)} and code: ${code} ---`);
+		// DEVICE - Parse device info from user-agent
+		const userAgent = context.req.headers['user-agent'] || 'Unknown Device';
+		const deviceInfo = DeviceParser.parseUserAgent(userAgent);
+
+		// IP - Extract IP address (check for proxy headers)
+		const ipAddress =
+			context.req.headers['x-forwarded-for']?.split(',')[0] ||
+			context.req.headers['x-real-ip'] ||
+			context.req.ip ||
+			context.req.connection?.remoteAddress ||
+			'Unknown IP';
+		const cleanIp = ipAddress.replace('::ffff:', '');
+
+		// LOCATION - Use IP as location for now (localhost won't give geolocation)
+		const location = cleanIp.includes('127.0.0.1') || cleanIp.includes('localhost') ? 'Local Development' : cleanIp;
+
+		console.log(`--- Device Info: ${JSON.stringify(deviceInfo)}, IP Address: ${cleanIp}, Location: ${location} ---`);
+		return await this.userService.loginWithTwoFactorAuth(input, deviceInfo, cleanIp, location, code);
+	}
+
+	/*****************************************************************************
+	 * [RESOLVER] USER LOGOUT & SESSION REVOCATION
 	 ****************************************************************************/
 	@UseGuards(AuthGuard)
+	@UseGuards(RolesGuard)
+	@UseGuards(SessionGuard)
 	@Mutation(() => MessageResponse, {
 		description: 'Logout user by revoking current session',
 	})
@@ -126,11 +168,12 @@ export class UserResolver {
 	}
 
 	/*****************************************************************************
-	 * FEATURE USER PROFILE SELF-UPDATE
+	 * [RESOLVER] USER PROFILE SELF-UPDATE
 	 ****************************************************************************/
 	@Roles(UserRole.CANDIDATE)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Mutation(() => UserSettingsOutput, {
 		description: "Update authenticated user's own profile data (name, email, profile)",
 	})
@@ -149,6 +192,7 @@ export class UserResolver {
 	@Roles(UserRole.CANDIDATE)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Mutation(() => UserSettingsOutput, {
 		description: "Update authenticated user's own account settings (email, password)",
 	})
@@ -167,6 +211,7 @@ export class UserResolver {
 	@Roles(UserRole.CANDIDATE)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Mutation(() => UserSettingsOutput, {
 		description: "Update authenticated user's own privacy settings (email/phone visibility)",
 	})
@@ -185,6 +230,7 @@ export class UserResolver {
 	@Roles(UserRole.CANDIDATE)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Mutation(() => UserSettingsOutput, {
 		description: "Update authenticated user's own security settings (2FA, password)",
 	})
@@ -201,6 +247,7 @@ export class UserResolver {
 	 * SECURITY AUTHENTICATION STATUS CHECK
 	 ****************************************************************************/
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Query(() => PublicUser)
 	public async checkAuthenticatedUser(@AuthUser() user: PublicUser): Promise<PublicUser> {
 		console.info('--- @resolver() Authentication [checkAuthenticatedUser] ---');
@@ -217,6 +264,7 @@ export class UserResolver {
 	@Roles(UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Query(() => PublicUser)
 	public async checkAuthRoles(@AuthUser() user: PublicUser): Promise<PublicUser> {
 		console.log(`--- @query() Check auth Roles is queried: ${user} ---`);
@@ -259,6 +307,7 @@ export class UserResolver {
 	 * API RECRUITER COMPANY LIST
 	 ****************************************************************************/
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Query(() => [CompanyListItem], {
 		description: 'Get all companies where user is owner or recruiter',
 	})
@@ -273,6 +322,7 @@ export class UserResolver {
 	@Roles(UserRole.RECRUITER)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Mutation(() => PublicUser, {
 		description: 'Switch active company for recruiter operations',
 	})
@@ -301,6 +351,7 @@ export class UserResolver {
 	@Roles(UserRole.RECRUITER)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Query(() => ActiveCompanyOutput, {
 		nullable: true,
 		description: 'Get current active company details',
@@ -317,6 +368,7 @@ export class UserResolver {
 	@Roles(UserRole.CANDIDATE)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Query(() => User, { description: 'Fetch authenticated candidate profile with full details' })
 	public async getCandidateProfile(@AuthUser('_id') userId: ObjectId): Promise<User | PublicUser> {
 		console.log(`--- @query() Get Candidate Profile for user: ${userId} ---`);
@@ -346,6 +398,7 @@ export class UserResolver {
 	@Roles(UserRole.CANDIDATE, UserRole.RECRUITER)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Query(() => UserSettingsOutput, {
 		description: "Get authenticated candidate user's settings data (aggregated custom settings)",
 	})
@@ -362,9 +415,13 @@ export class UserResolver {
 		return await this.userService.getCandidateSettings(userId, requestedField, currentToken);
 	}
 
+	/*****************************************************************************
+	 * [RESOLVER] CANDIDATE AVATAR IMAGE UPLOAD
+	 ****************************************************************************/
 	@Roles(UserRole.CANDIDATE)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Mutation(() => FileUploadOutput, {
 		description: "Upload or update user's avatar image and return the new avatar URL",
 	})
@@ -382,6 +439,7 @@ export class UserResolver {
 	@Roles(UserRole.CANDIDATE)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Mutation(() => FileUploadOutput, {
 		description: "Upload or update user's banner image and return the new banner URL",
 	})
@@ -399,6 +457,7 @@ export class UserResolver {
 	@Roles(UserRole.CANDIDATE, UserRole.RECRUITER)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Mutation(() => TwoFactorAuthSecretOutput, {
 		description: 'Generate a new two-factor authentication (2FA) secret for the user',
 	})
@@ -413,6 +472,7 @@ export class UserResolver {
 	@Roles(UserRole.CANDIDATE, UserRole.RECRUITER)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Query(() => TwoFactorAuthSecretOutput, {
 		description: 'Fetch the existing two-factor authentication (2FA) secret for the user',
 	})
@@ -427,6 +487,7 @@ export class UserResolver {
 	@Roles(UserRole.CANDIDATE, UserRole.RECRUITER)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Mutation(() => MessageResponse, {
 		description: 'Enable two-factor authentication (2FA) for the user by verifying the provided code',
 	})
@@ -443,6 +504,7 @@ export class UserResolver {
 	@Roles(UserRole.CANDIDATE, UserRole.RECRUITER)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Mutation(() => MessageResponse, {
 		description: 'Send a two-factor authentication (2FA) verification code via email to the user',
 	})
@@ -456,6 +518,7 @@ export class UserResolver {
 	@Roles(UserRole.CANDIDATE, UserRole.RECRUITER)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Mutation(() => MessageResponse, {
 		description: 'Enable email-based two-factor authentication (2FA) for the user',
 	})
@@ -472,6 +535,7 @@ export class UserResolver {
 	@Roles(UserRole.CANDIDATE, UserRole.RECRUITER)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Mutation(() => [String], {
 		description: 'Generate two-factor authentication (2FA) backup codes for the user',
 	})
@@ -485,6 +549,7 @@ export class UserResolver {
 	@Roles(UserRole.CANDIDATE)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
 	@Mutation(() => MessageResponse, {
 		description: 'Disable two-factor authentication (2FA) for the user',
 	})
@@ -495,10 +560,48 @@ export class UserResolver {
 		return await this.userService.disableTwoFactorAuth(userId, code);
 	}
 
-	// @Roles(UserRole.CANDIDATE, UserRole.RECRUITER)
-	// @UseGuards(RolesGuard)
-	// @UseGuards(AuthGuard)
-	// public async disable2FA(@AuthUser('_id') userId: ObjectId, @Args('token') token: string): Promise<MessageResponse> {
-	// 	return await this.userService.disableTwoFactorAuth(userId, token);
-	// }
+	/*****************************************************************************
+	 * [RESOLVER] REVOKE SPECIFIC SESSION
+	 ****************************************************************************/
+	@Roles(UserRole.CANDIDATE)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
+	@Mutation(() => MessageResponse, {
+		description: 'Revoke a specific session by session ID',
+	})
+	public async revokeSession(
+		@AuthUser('_id') userId: ObjectId,
+		@Args('sessionId', { type: () => String }) sessionId: string,
+	): Promise<MessageResponse> {
+		return this.userService.revokeSession(userId, sessionId);
+	}
+
+	/*****************************************************************************
+	 * [RESOLVER] REVOKE ALL SESSIONS EXCEPT CURRENT
+	 ****************************************************************************/
+	@Roles(UserRole.CANDIDATE)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@Mutation(() => MessageResponse, {
+		description: 'Revoke all sessions except the current one',
+	})
+	public async revokeAllSessionsExceptCurrent(
+		@AuthUser('_id') userId: ObjectId,
+		@AuthToken() currentToken: string,
+	): Promise<MessageResponse> {
+		await this.userService.revokeAllSessionsExceptCurrent(userId, currentToken);
+		return {
+			message: 'All other sessions revoked successfully',
+			success: true,
+		};
+	}
+
+	// =============================================================================================
+	// --------------------------------- // [ADMIN] // ---------------------------------------------
+	// =============================================================================================
+
+	// =============================================================================================
+	// --------------------------------- // [RECRUITER] // -----------------------------------------
+	// =============================================================================================
 }

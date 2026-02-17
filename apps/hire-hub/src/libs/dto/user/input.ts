@@ -646,6 +646,16 @@ export class UserSettingsSecurityInput {
 	@MaxLength(100)
 	@Field(() => String, { nullable: true })
 	newPassword?: string;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	rememberedDevicesEnabled?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	loginAlertsEnabled?: boolean;
 }
 
 /**

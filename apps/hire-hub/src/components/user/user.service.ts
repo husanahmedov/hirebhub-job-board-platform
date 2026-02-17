@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as speakeasy from 'speakeasy';
 import * as Qrcode from 'qrcode';
@@ -34,6 +34,7 @@ import {
 	WhoCanSeeMyProfile,
 	TwoFactorAuthSecretOutput,
 	TwoFactorAuthMethod,
+	LoginResponse,
 } from '../../libs';
 import { AuthService } from '../auth/auth.service';
 import { shapeIntoMongoObjectId } from '../../libs/config';
@@ -184,7 +185,12 @@ export class UserService {
 	 *
 	 * TODO - we should consider implementing account lockout after a certain number of failed login attempts to prevent brute force attacks. This would involve tracking failed login attempts and locking the account for a period of time after reaching the threshold. We could also implement exponential backoff for failed login attempts to further deter brute force attacks. Additionally, we should ensure that error messages do not reveal whether it was the email or password that was incorrect to prevent user enumeration attacks. Instead, we can use a generic message like "Invalid credentials" for all authentication failures. Finally, we should log all authentication attempts with relevant details (timestamp, IP address, user agent) for monitoring and potential investigation of suspicious activity.
 	 **********************************************************************************/
-	public async login(input: LoginUserInput, deviceInfo: any, ipAddress: string, location: any): Promise<User> {
+	public async login(
+		input: LoginUserInput,
+		deviceInfo: any,
+		ipAddress: string,
+		location: any,
+	): Promise<typeof LoginResponse> {
 		const normalizedEmail: string = input.email.toLowerCase().trim();
 
 		try {
@@ -233,6 +239,155 @@ export class UserService {
 					input: { email: normalizedEmail },
 					attemptedAt: new Date().toISOString(),
 				});
+			}
+
+			if (user.settings?.security?.twoFactorAuthEnabled) {
+				return {
+					success: true,
+					message: '2FA required',
+				};
+			}
+
+			// * REST of the logics is only executed if credentials are valid and 2FA is not enabled
+
+			const userObject = user.toObject() as User;
+			const accessToken: string = await this.authService.createToken(user);
+			userObject.accessToken = accessToken;
+
+			const refreshToken: string = await this.authService.createRefreshToken(user);
+			const hashedRefreshToken: string = await this.authService.hashRefreshToken(refreshToken);
+
+			// STEP 9: Detect timezone based on user's location (where they're logging in from)
+			// This ensures sessions reflect the user's current timezone, not a stored preference
+			const userTimezone = this.detectTimezoneFromLocation(location);
+
+			// STEP 10: Create new session record
+			await this.sessionService.createSession(user._id, deviceInfo, refreshToken, ipAddress, location);
+
+			// STEP 11: Store hashed refresh token in user document
+			await this.userModel.findByIdAndUpdate(user._id, { refreshToken: hashedRefreshToken });
+
+			// Attach refresh token to user object (will be sent to client)
+
+			userObject.refreshToken = refreshToken;
+
+			// Return only essential fields to reduce payload size
+			// Large objects like settings, qualifications, full profile are excluded
+			// Client can fetch these separately when needed
+			return this.stripToEssentialFields(userObject) as User;
+		} catch (error: any) {
+			// Error handling with specific exceptions for different authentication failures
+
+			// Re-throw specific authentication exceptions (already properly formatted)
+			if (error instanceof UserNotFoundException) {
+				throw error;
+			}
+
+			if (error instanceof InvalidCredentialsException) {
+				throw error;
+			}
+
+			if (error instanceof UserDeactivatedException) {
+				throw error;
+			}
+
+			if (error instanceof UserSuspendedException) {
+				throw error;
+			}
+
+			// Handle database connection errors
+			if (error.name === 'MongoNetworkError' || error.name === 'MongoTimeoutError') {
+				throw new InternalServerErrorException('Unable to connect to authentication service. Please try again later.');
+			}
+
+			// Handle unexpected errors with logging context
+			// Log error details for debugging but return generic message to client
+			console.error('Unexpected error during login:', {
+				error: error.message,
+				errorName: error.name,
+				email: normalizedEmail,
+				timestamp: new Date().toISOString(),
+				stack: error.stack,
+			});
+
+			throw new InternalServerErrorException('An unexpected error occurred during authentication. Please try again.');
+		}
+	}
+
+	/*****************************************************************************
+	 * [SERVICE] USER LOGIN WITH 2FA
+	 * * This method handles user authentication for accounts with Two-Factor Authentication
+	 * * (2FA) enabled. It verifies credentials, checks account status, validates the 2FA code,
+	 * * and generates access and refresh tokens upon successful authentication. Comprehensive
+	 * * error handling is included for various failure scenarios:
+	 *
+	 *******************************************************************************/
+	public async loginWithTwoFactorAuth(
+		input: LoginUserInput,
+		deviceInfo: any,
+		ipAddress: string,
+		location: any,
+		code: string,
+	): Promise<User> {
+		const normalizedEmail: string = input.email.toLowerCase().trim();
+
+		try {
+			const user = await this.userModel
+				.findOne({ email: normalizedEmail })
+				.select('+passwordHash +twoFactorAuthSecret +twoFactorBackupCodes')
+				.exec();
+
+			if (!user) {
+				throw new UserNotFoundException({
+					message: `Authentication failed. Please check your credentials and try again.`,
+					email: normalizedEmail,
+				});
+			}
+
+			if (user.status === UserStatus.DEACTIVATED) {
+				throw new UserDeactivatedException({
+					email: normalizedEmail,
+					userId: user._id,
+					status: user.status,
+					message: `Your account has been deactivated. Please contact support to reactivate.`,
+				});
+			}
+
+			if (user.status === UserStatus.SUSPENDED) {
+				throw new UserSuspendedException({
+					email: normalizedEmail,
+					userId: user._id,
+					status: user.status,
+					message: 'Your account has been suspended due to policy violations. Contact support for details.',
+				});
+			}
+
+			// check if code only contains letters and if yes, it is backup
+			const isBackupCode = /^[a-zA-Z]+$/.test(code);
+			if (isBackupCode) {
+				// check if backup code is valid
+				const backupCodeIndex = user.twoFactorBackupCodes?.findIndex((backupCode) => backupCode === code);
+				if (backupCodeIndex === -1 || backupCodeIndex === undefined) {
+					throw new InvalidCredentialsException({
+						message: 'Invalid two-factor authentication backup code.',
+					});
+				}
+				// remove used backup code from the list
+				user.twoFactorBackupCodes?.splice(backupCodeIndex, 1);
+				await user.save();
+			} else {
+				// Verify Code if not a backup code
+				const verified = speakeasy.totp.verify({
+					secret: user.twoFactorAuthSecret as string,
+					encoding: 'base32',
+					token: code,
+				});
+
+				if (!verified) {
+					throw new InvalidCredentialsException({
+						message: 'Invalid two-factor authentication code.',
+					});
+				}
 			}
 
 			const userObject = user.toObject() as User;
@@ -299,6 +454,13 @@ export class UserService {
 		}
 	}
 
+	/******************************************************************************
+	 * [SERVICE] USER LOGOUT
+	 * * This method handles user logout by revoking the current session associated with the provided refresh token.
+	 * * It includes error handling for scenarios such as user not found and issues with session revocation.
+	 * @param userId - The ID of the user logging out
+	 * @param currentToken - The refresh token associated with the session to revoke
+	 *******************************************************************************/
 	public async logout(userId: ObjectId, currentToken: string): Promise<void> {
 		try {
 			// TODO - check if user exists?
@@ -762,7 +924,8 @@ export class UserService {
 		userId: ObjectId,
 		input: UpdateUserSettingsInput,
 	): Promise<UserSettingsOutput> {
-		const { twoFactorAuthEnabled, oldPassword, newPassword } = input.security || {};
+		const { twoFactorAuthEnabled, oldPassword, newPassword, loginAlertsEnabled, rememberedDevicesEnabled } =
+			input.security || {};
 
 		try {
 			// If password change is requested, validate old password first
@@ -819,6 +982,8 @@ export class UserService {
 
 			// FIX: Use 'settings.security.*' not 'profile.security.*'
 			this.addFieldIfPresent(updatedFields, 'settings.security.twoFactorAuthEnabled', twoFactorAuthEnabled);
+			this.addFieldIfPresent(updatedFields, 'settings.security.loginAlertsEnabled', loginAlertsEnabled);
+			this.addFieldIfPresent(updatedFields, 'settings.security.rememberedDevicesEnabled', rememberedDevicesEnabled);
 
 			let updatedUser;
 			if (Object.keys(updatedFields).length > 0) {
@@ -839,6 +1004,8 @@ export class UserService {
 			return {
 				security: {
 					twoFactorAuthEnabled: updatedUser?.settings?.security?.twoFactorAuthEnabled || false,
+					loginAlertsEnabled: updatedUser?.settings?.security?.loginAlertsEnabled || false,
+					rememberedDevicesEnabled: updatedUser?.settings?.security?.rememberedDevicesEnabled || false,
 					lastChangedPasswordAt: updatedUser?.lastChangedPasswordAt || null,
 				},
 			};
@@ -1448,7 +1615,8 @@ export class UserService {
 
 	/*****************************************************************************
 	 * [SERVICE] GET ACTIVE COMPANY
-	 * * This method retrieves the currently active company context for a user, which may affect the data they see and the actions they can perform. It includes:
+	 * * This method retrieves the currently active company context for a user, which may affect
+	 * * the data they see and the actions they  can perform. It includes:
 	 * * - Aggregating company data based on the user's activeCompanyId
 	 * * - Handling edge cases such as no active company set, user not found, and database errors
 	 * @param userId - The ID of the user whose active company is being retrieved
@@ -1662,6 +1830,12 @@ export class UserService {
 				twoFactorAuthEnabledAt: {
 					$ifNull: ['$settings.security.twoFactorAuthEnabledAt', null],
 				},
+				loginAlertsEnabled: {
+					$ifNull: ['$settings.security.loginAlertsEnabled', false],
+				},
+				rememberedDevicesEnabled: {
+					$ifNull: ['$settings.security.rememberedDevicesEnabled', false],
+				},
 				sessions: sessions,
 			};
 		}
@@ -1689,7 +1863,7 @@ export class UserService {
 	}
 
 	/********************************************************************************
-	 * * [GET] USER SESSIONS
+	 * [SERVICE] USER SESSIONS
 	 * * Retrieves all active sessions for a user with isCurrent flag
 	 * * @param userId - The ID of the user
 	 * * @param currentToken - Optional JWT token to identify the current session
@@ -1699,33 +1873,54 @@ export class UserService {
 	}
 
 	/********************************************************************************
-	 * * REVOKE SESSION
+	 * [SERVICE] REVOKE SESSION
 	 * * Revokes a specific session by ID
 	 * * @param userId - The ID of the user
 	 * * @param sessionId - The ID of the session to revoke
 	 *****************************************************************************************/
-	public async revokeSession(userId: ObjectId, sessionId: string): Promise<void> {
-		return await this.sessionService.revokeSession(userId, sessionId);
+	public async revokeSession(userId: ObjectId, sessionId: string): Promise<MessageResponse> {
+		try {
+			const session = await this.sessionService.getSessionById(sessionId);
+			if (!session || session.userId.toString() !== userId.toString()) {
+				throw new UserNotFoundException({
+					message: 'Session not found for this user',
+					userId,
+					sessionId,
+				});
+			}
+			console.log(`-------- Revoking session with ID "${sessionId}" for user "${userId}" --------`);
+			return await this.sessionService.revokeSession(userId, sessionId);
+		} catch (error) {
+			if (error instanceof UserNotFoundException) {
+				throw error;
+			}
+			throw new InternalServerException(
+				'Failed to revoke session. Please try again later.',
+				{
+					error: "Hey you've got an error in revokeSession method",
+				},
+				500,
+			);
+		}
 	}
 
-	/*****************************************************************************
-	 * SECURITY SESSION & TOKEN MANAGEMENT
-	 ****************************************************************************/
-	public async revokeAllOtherSessions(userId: ObjectId, currentToken?: string): Promise<void> {
-		if (!currentToken) {
-			// If no current token, revoke all sessions
-			return await this.sessionService.revokeAllSessions(userId.toString());
+	public async revokeAllSessionsExceptCurrent(userId: ObjectId, sessionId: string): Promise<MessageResponse> {
+		try {
+			return await this.sessionService.revokeAllSessions(userId, sessionId);
+		} catch (error) {
+			if (error instanceof UserNotFoundException) {
+				throw error;
+			}if(error instanceof NotFoundException) {
+				throw new NotFoundException('No active sessions found to revoke.');
+			}
+			throw new InternalServerException(
+				'Failed to revoke session. Please try again later.',
+				{
+					error: "Hey you've got an error in revokeAllSessionsExceptCurrent method",
+				},
+				500,
+			);
 		}
-
-		// Find the current session by token hash
-		const currentSession = await this.sessionService.validateSession(currentToken);
-		if (!currentSession) {
-			// If current session not found, revoke all
-			return await this.sessionService.revokeAllSessions(userId.toString());
-		}
-
-		// Revoke all sessions except the current one
-		return await this.sessionService.revokeAllSessions(userId.toString(), currentSession.id);
 	}
 
 	/*****************************************************************************
@@ -2513,7 +2708,7 @@ export class UserService {
 	}
 
 	/*****************************************************************************
-	 * HELPER: STRIP USER OBJECT TO ESSENTIAL FIELDS ONLY
+	 * [HELPER]: STRIP USER OBJECT TO ESSENTIAL FIELDS ONLY
 	 * Reduces payload size by removing large nested objects (settings, profile, qualifications)
 	 * Client only needs basic user info and tokens - other data can be fetched when needed
 	 *****************************************************************************/

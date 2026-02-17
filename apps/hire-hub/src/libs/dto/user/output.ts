@@ -1,4 +1,4 @@
-import { Field, ObjectType, ID, GraphQLISODateTime, Int } from '@nestjs/graphql';
+import { Field, ObjectType, ID, createUnionType, GraphQLISODateTime, Int } from '@nestjs/graphql';
 import {
 	UserStatus,
 	UserRole,
@@ -8,7 +8,7 @@ import {
 	TwoFactorAuthMethod,
 } from '../../enums';
 import { IsOptional } from 'class-validator';
-import { SessionOutput } from '../sessions/output';
+import { MessageResponse, SessionOutput } from '../sessions/output';
 
 // ============================================
 // *USER ACCOUNT SETTINGS OUTPUT
@@ -120,6 +120,12 @@ export class UserSecuritySettingsOutput {
 
 	@Field(() => GraphQLISODateTime, { nullable: true, description: 'Timestamp when backup codes were generated' })
 	backupCodesGeneratedAt?: Date;
+
+	@Field(() => Boolean, { description: 'Indicates if login alerts are enabled for new device logins' })
+	loginAlertsEnabled?: boolean;
+
+	@Field(() => Boolean, { description: 'Indicates if the user has enabled the option to remember trusted devices' })
+	rememberedDevicesEnabled?: boolean;
 }
 
 /***********************************************************
@@ -707,3 +713,17 @@ export class TwoFactorAuthSecretOutput {
 	@Field(() => String, { description: 'URL for generating QR code to set up 2FA in authenticator apps' })
 	qrCodeUrl: string;
 }
+
+export const LoginResponse = createUnionType({
+	name: 'LoginResponse',
+	types: () => [User, MessageResponse] as const,
+	resolveType(value) {
+		if (value.success !== undefined) {
+			return MessageResponse;
+		}
+		if (value._id || value.email) {
+			return User;
+		}
+		return null;
+	},
+});

@@ -26,8 +26,7 @@ class SessionLocationOutput {
 @ObjectType()
 export class SessionOutput {
 	@Field(() => ID)
-	@IsOptional()
-	id?: string;
+	id: string;
 
 	@Field()
 	deviceName: string;
@@ -58,6 +57,15 @@ export class SessionOutput {
 
 	@Field(() => Boolean, { nullable: true })
 	isCurrent?: boolean;
+
+	@Field(() => String, { nullable: true })
+	token?: string; // Hashed token, not exposed in API but used internally
+
+	@Field(() => String, { nullable: true })
+	userId: string; // Not exposed in API, used for internal reference
+
+	@Field(() => SessionLocationOutput, { nullable: true })
+	expiresAt?: Date;
 }
 
 @ObjectType()
