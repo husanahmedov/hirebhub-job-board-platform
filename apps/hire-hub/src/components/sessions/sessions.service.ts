@@ -58,6 +58,26 @@ export class SessionsService {
 			} as SessionOutput;
 		}
 
+		const existingSessionsCount = await this.sessionModel.countDocuments({
+			userId: shapedUserId,
+			expiresAt: { $gt: new Date() },
+		});
+
+		// if max sessions are 5, delete the oldest session if user already has 5 active sessions
+		if (existingSessionsCount >= 5) {
+			const oldestSession = await this.sessionModel
+				.findOne({
+					userId: shapedUserId,
+					expiresAt: { $gt: new Date() },
+				})
+				.sort({ lastUsedAt: 1 })
+				.exec();
+
+			if (oldestSession) {
+				await this.sessionModel.deleteOne({ _id: oldestSession._id }).exec();
+			}
+		}
+
 		// Create a new session for this login
 		const session = new this.sessionModel({
 			userId: shapedUserId,
