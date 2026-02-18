@@ -33,7 +33,6 @@ export class SessionGuard implements CanActivate {
 
 		// Validate session in database
 		const session = await this.sessionsService.validateSession(refreshToken);
-        console.log(session);
         
 
 		if (!session) {

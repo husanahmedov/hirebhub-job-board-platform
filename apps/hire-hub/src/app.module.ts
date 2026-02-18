@@ -3,6 +3,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { UserModule } from './components/user/user.module';
 import { CompanyModule } from './components/company/company.module';
 import { JobModule } from './components/job/job.module';
@@ -28,6 +29,18 @@ import { SessionsModule } from './components/sessions/sessions.module';
 @Module({
 	imports: [
 		ConfigModule.forRoot(),
+		// Global throttler configuration (can be overridden per-resolver)
+		ThrottlerModule.forRoot({
+			throttlers: [
+				{
+					name: 'default',
+					ttl: 60000, // 60 seconds in milliseconds
+					limit: 100, // 100 requests per minute (global default)
+				},
+			],
+			// Optional: Use Redis for distributed rate limiting
+			// storage: new ThrottlerStorageRedisService(redisClient),
+		}),
 		GraphQLModule.forRoot({
 			autoSchemaFile: true,
 			driver: ApolloDriver,

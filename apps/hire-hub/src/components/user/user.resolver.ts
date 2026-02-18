@@ -29,6 +29,8 @@ import { WithoutGuard } from '../auth/guards/without.guard';
 import { DeviceParser } from '../../libs/utils/device.parser';
 import { AuthToken } from '../auth/decorators/authToken.decorator';
 import { SessionGuard } from '../auth/guards/session.guard';
+import { ThrottleGuard } from '../auth/guards/throttle.guard';
+import { Throttle } from '../auth/decorators/throttle.decorator';
 
 @Resolver()
 export class UserResolver {
@@ -42,8 +44,11 @@ export class UserResolver {
 	// =============================================================================================
 
 	/*****************************************************************************
-	 * SECURITY USER REGISTRATION & ACCOUNT CREATION
+	 * [RESOLVER] USER REGISTRATION & ACCOUNT CREATION
+	 * * Rate limited to 5 registrations per 60 seconds per IP
 	 ****************************************************************************/
+	@UseGuards(ThrottleGuard)
+	@Throttle({ ttl: 60, limit: 5, message: 'Too many registration attempts. Please try again in a minute.' })
 	@Mutation(() => User, {
 		description: 'Register a new user with email, password, and optional profile details',
 	})
@@ -55,7 +60,7 @@ export class UserResolver {
 	}
 
 	/*****************************************************************************
-	 * SECURITY EMAIL VERIFICATION
+	 * [RESOLVER] EMAIL VERIFICATION
 	 ****************************************************************************/
 	@Mutation(() => User, {
 		description: 'Verify email address with verification code',
@@ -68,7 +73,7 @@ export class UserResolver {
 	}
 
 	/*****************************************************************************
-	 * SECURITY VERIFICATION CODE RESEND
+	 * [RESOLVER] VERIFICATION CODE RESEND
 	 ****************************************************************************/
 	@Mutation(() => String, {
 		description: 'Resend verification code to email',
@@ -83,7 +88,10 @@ export class UserResolver {
 
 	/*****************************************************************************
 	 * [RESOLVER] USER LOGIN & AUTHENTICATION
+	 * Rate limited to 5 login attempts per 60 seconds per IP to prevent brute force
 	 ****************************************************************************/
+	@UseGuards(ThrottleGuard)
+	@Throttle({ ttl: 60, limit: 5, message: 'Too many login attempts. Please wait a minute and try again.' })
 	@Mutation(() => LoginResponse, {
 		description: 'Authenticate user with email and password, returns user with access token',
 	})
@@ -117,6 +125,8 @@ export class UserResolver {
 	/*****************************************************************************
 	 * [RESOLVER] USER LOGIN WITH TWO FACTOR AUTHENTICATION (2FA) VERIFICATION
 	 ****************************************************************************/
+	@UseGuards(ThrottleGuard)
+	@Throttle({ ttl: 60, limit: 5, message: 'Too many 2FA login attempts. Please wait a minute and try again.' })
 	@Mutation(() => User, {
 		description: 'Authenticate user with email and password, returns user with access token',
 	})
@@ -245,11 +255,11 @@ export class UserResolver {
 
 	/*****************************************************************************
 	 * [RESOLVER] USER NOTIFICATIONS SETTINGS UPDATE (EMAIL/PUSH/SMS PREFERENCES)
+	 * * Rate limited to 2 updates per 60 seconds to prevent abuse of notification settings changes
 	 ****************************************************************************/
 	@Roles(UserRole.CANDIDATE)
-	@UseGuards(RolesGuard)
-	@UseGuards(AuthGuard)
-	@UseGuards(SessionGuard)
+	@UseGuards(ThrottleGuard, RolesGuard, AuthGuard, SessionGuard)
+	@Throttle({ ttl: 60, limit: 20, message: 'Too many settings update attempts. Please wait a minute and try again.' })
 	@Mutation(() => UserSettingsOutput, {
 		description: "Update authenticated user's own notification settings (email/push/SMS preferences)",
 	})

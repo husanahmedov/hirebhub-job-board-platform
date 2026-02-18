@@ -37,6 +37,7 @@
 		"@nestjs/platform-ws": "^10.2.10",
 		"@nestjs/schedule": "^4.0.0",
 		"@nestjs/terminus": "^10.2.3",
+		"@nestjs/throttler": "^6.5.0",
 		"@nestjs/websockets": "^10.2.10",
 		"@types/geoip-lite": "^1.4.4",
 		"@types/multer": "^2.0.0",
