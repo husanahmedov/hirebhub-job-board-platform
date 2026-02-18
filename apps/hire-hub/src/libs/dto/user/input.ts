@@ -260,45 +260,6 @@ export class OAuthProviderInput {
 }
 
 /**
- * Notification settings input
- */
-@InputType()
-export class NotificationSettingsInput {
-	@IsOptional()
-	@IsBoolean()
-	@Field(() => Boolean, { nullable: true, defaultValue: true })
-	email?: boolean;
-
-	@IsOptional()
-	@IsBoolean()
-	@Field(() => Boolean, { nullable: true, defaultValue: false })
-	push?: boolean;
-}
-
-/**
- * User settings input
- */
-@InputType()
-export class UserSettingsInput {
-	@IsOptional()
-	@IsString()
-	@Length(2, 5)
-	@Field(() => String, { nullable: true, defaultValue: 'en' })
-	language?: string;
-
-	@IsOptional()
-	@IsString()
-	@Field(() => String, { nullable: true, defaultValue: 'UTC' })
-	timezone?: string;
-
-	@IsOptional()
-	@ValidateNested()
-	@Type(() => NotificationSettingsInput)
-	@Field(() => NotificationSettingsInput, { nullable: true })
-	notifications?: NotificationSettingsInput;
-}
-
-/**
  * Contact info input
  */
 @InputType()
@@ -472,12 +433,6 @@ export class RegisterUserInput {
 	@Validate(UniqueQualificationsConstraint)
 	@Field(() => [QualificationsInput], { nullable: true })
 	qualifications?: QualificationsInput[];
-
-	@IsOptional()
-	@ValidateNested()
-	@Type(() => UserSettingsInput)
-	@Field(() => UserSettingsInput, { nullable: true })
-	settings?: UserSettingsInput;
 }
 
 /**
@@ -658,9 +613,105 @@ export class UserSettingsSecurityInput {
 	loginAlertsEnabled?: boolean;
 }
 
-/**
- * Update user basic info input
- */
+/*******************************************************
+ * [DTO] - NOTIFICATION SETTINGS INPUT
+ ******************************************************/
+@InputType()
+export class UserNotificationSettingsInput {
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	email?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	push?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	sms?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	jobAlerts?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	applicationUpdates?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	recommendations?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	messages?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	connectionRequests?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	profileViews?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	mentions?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	weeklyDigest?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	marketingEmails?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	paymentNotifications?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	milestoneNotifications?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	contractUpdates?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	proposalUpdates?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	reviewsAndRatings?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	collaborationInvites?: boolean;
+}
+
+/*******************************************************
+ * [DTO] UPDATE USER SETTINGS INPUT
+ *****************************************************/
 @InputType()
 export class UpdateUserSettingsInput {
 	@IsOptional()
@@ -680,6 +731,12 @@ export class UpdateUserSettingsInput {
 	@Type(() => UserSettingsSecurityInput)
 	@Field(() => UserSettingsSecurityInput, { nullable: true })
 	security?: UserSettingsSecurityInput;
+
+	@IsOptional()
+	@ValidateNested()
+	@Type(() => UserNotificationSettingsInput)
+	@Field(() => UserNotificationSettingsInput, { nullable: true })
+	notifications?: UserNotificationSettingsInput;
 }
 
 /**

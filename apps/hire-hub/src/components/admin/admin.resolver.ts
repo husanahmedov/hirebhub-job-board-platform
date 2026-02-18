@@ -83,7 +83,7 @@ export class AdminResolver {
 	@Roles(UserRole.ADMIN)
 	@UseGuards(RolesGuard, AuthGuard)
 	@Mutation(() => EmailNotificationsSettings)
-	async updateNotificationsSettings(
+	async updateAdminNotificationsSettings(
 		@Args('input') input: EmailNotificationsSettingsInput,
 		@AuthUser() user: any,
 	): Promise<EmailNotificationsSettings> {
@@ -103,7 +103,7 @@ export class AdminResolver {
 	@Roles(UserRole.ADMIN)
 	@UseGuards(RolesGuard, AuthGuard)
 	@Mutation(() => PaymentBillingSettings)
-	async updatePaymentBillingSettings(
+	async updateAdminPaymentBillingSettings(
 		@Args('input') input: PaymentBillingSettingsInput,
 		@AuthUser() user: any,
 	): Promise<PaymentBillingSettings> {
@@ -123,7 +123,7 @@ export class AdminResolver {
 	@Roles(UserRole.ADMIN)
 	@UseGuards(RolesGuard, AuthGuard)
 	@Mutation(() => PlatformSettings)
-	async updatePlatformSettings(
+	async updateAdminPlatformSettings(
 		@Args('input') input: PlatformSettingsInput,
 		@AuthUser() user: any,
 	): Promise<PlatformSettings> {
@@ -143,7 +143,7 @@ export class AdminResolver {
 	@Roles(UserRole.ADMIN)
 	@UseGuards(RolesGuard, AuthGuard)
 	@Mutation(() => RateLimitsSettings)
-	async updateRateLimitsSettings(
+	async updateAdminRateLimitsSettings(
 		@Args('input') input: RateLimitsSettingsInput,
 		@AuthUser() user: any,
 	): Promise<RateLimitsSettings> {

@@ -244,7 +244,26 @@ export class UserResolver {
 	}
 
 	/*****************************************************************************
-	 * SECURITY AUTHENTICATION STATUS CHECK
+	 * [RESOLVER] USER NOTIFICATIONS SETTINGS UPDATE (EMAIL/PUSH/SMS PREFERENCES)
+	 ****************************************************************************/
+	@Roles(UserRole.CANDIDATE)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
+	@UseGuards(SessionGuard)
+	@Mutation(() => UserSettingsOutput, {
+		description: "Update authenticated user's own notification settings (email/push/SMS preferences)",
+	})
+	public async updateUserNotificationsSettings(
+		@Args('input', { type: () => UpdateUserSettingsInput, description: 'User notification settings update data' })
+		input: UpdateUserSettingsInput,
+		@AuthUser('_id') userId: ObjectId,
+	): Promise<UserSettingsOutput> {
+		console.log(`--- @mutation() Update User Notifications Settings is called: ${userId} ---`);
+		return await this.userService.updateUserNotificationsSettings(userId, input);
+	}
+
+	/*****************************************************************************
+	 * [RESOLVER] SECURITY AUTHENTICATION STATUS CHECK
 	 ****************************************************************************/
 	@UseGuards(AuthGuard)
 	@UseGuards(SessionGuard)
@@ -258,7 +277,7 @@ export class UserResolver {
 	}
 
 	/*****************************************************************************
-	 * SECURITY AUTHORIZATION ROLE VERIFICATION
+	 * [RESOLVER] AUTHORIZATION ROLE VERIFICATION
 	 ****************************************************************************/
 
 	@Roles(UserRole.ADMIN)
@@ -275,7 +294,7 @@ export class UserResolver {
 	}
 
 	/*****************************************************************************
-	 * SECURITY TOKEN REFRESH & ROTATION
+	 * [RESOLVER] TOKEN REFRESH & ROTATION
 	 ****************************************************************************/
 	@UseGuards(WithoutGuard)
 	@Mutation(() => AuthResponse, {
@@ -304,7 +323,7 @@ export class UserResolver {
 	}
 
 	/*****************************************************************************
-	 * API RECRUITER COMPANY LIST
+	 * [RESOLVER] RECRUITER COMPANY LIST
 	 ****************************************************************************/
 	@UseGuards(AuthGuard)
 	@UseGuards(SessionGuard)
@@ -317,7 +336,7 @@ export class UserResolver {
 	}
 
 	/*****************************************************************************
-	 * FEATURE RECRUITER COMPANY SWITCHING
+	 * [RESOLVER] RECRUITER COMPANY SWITCHING
 	 ****************************************************************************/
 	@Roles(UserRole.RECRUITER)
 	@UseGuards(RolesGuard)
@@ -346,7 +365,7 @@ export class UserResolver {
 	}
 
 	/*****************************************************************************
-	 * API RECRUITER ACTIVE COMPANY DETAILS
+	 * [RESOLVER] RECRUITER ACTIVE COMPANY DETAILS
 	 ****************************************************************************/
 	@Roles(UserRole.RECRUITER)
 	@UseGuards(RolesGuard)
@@ -378,7 +397,7 @@ export class UserResolver {
 	}
 
 	/*****************************************************************************
-	 * API CANDIDATE PUBLIC PROFILE QUERY
+	 * [RESOLVER] CANDIDATE PUBLIC PROFILE QUERY
 	 ****************************************************************************/
 
 	@UseGuards(WithoutGuard)
@@ -392,7 +411,7 @@ export class UserResolver {
 	}
 
 	/*****************************************************************************
-	 * INFO CANDIDATE SETTINGS & PREFERENCES
+	 * [RESOLVER] CANDIDATE SETTINGS & PREFERENCES
 	 ****************************************************************************/
 
 	@Roles(UserRole.CANDIDATE, UserRole.RECRUITER)

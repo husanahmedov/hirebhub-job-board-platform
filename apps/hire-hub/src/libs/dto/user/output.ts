@@ -128,6 +128,66 @@ export class UserSecuritySettingsOutput {
 	rememberedDevicesEnabled?: boolean;
 }
 
+/**
+ * Notification settings output
+ */
+@ObjectType()
+export class UserNotificationSettingsOutput {
+	@Field(() => Boolean, { description: 'Indicates if email notifications are enabled', nullable: true })
+	email: boolean;
+
+	@Field(() => Boolean, { description: 'Indicates if email notifications are enabled', nullable: true })
+	push: boolean;
+
+	@Field(() => Boolean, { description: 'Indicates if email notifications are enabled', nullable: true })
+	sms?: boolean;
+
+	@Field(() => Boolean, { description: 'Indicates if email notifications are enabled', nullable: true })
+	jobAlerts?: Boolean;
+
+	@Field(() => Boolean, { description: 'Indicates if email notifications are enabled', nullable: true })
+	applicationUpdates?: boolean;
+
+	@Field(() => Boolean, { description: 'Indicates if email notifications are enabled', nullable: true })
+	recommendations?: boolean;
+
+	@Field(() => Boolean, { description: 'Indicates if email notifications are enabled', nullable: true })
+	messages?: Boolean;
+
+	@Field(() => Boolean, { description: 'Indicates if email notifications are enabled', nullable: true })
+	connectionRequests?: boolean;
+
+	@Field(() => Boolean, { description: 'Indicates if email notifications are enabled', nullable: true })
+	profileViews?: boolean;
+
+	@Field(() => Boolean, { description: 'Indicates if email notifications are enabled', nullable: true })
+	mentions?: boolean;
+
+	@Field(() => Boolean, { description: 'Indicates if email notifications are enabled', nullable: true })
+	weeklyDigest?: boolean;
+
+	@Field(() => Boolean, { description: 'Indicates if email notifications are enabled', nullable: true })
+	marketingEmails?: boolean;
+
+	@Field(() => Boolean, { description: 'Indicates if email notifications are enabled', nullable: true })
+	paymentNotifications?: boolean;
+
+	@Field(() => Boolean, { description: 'Indicates if email notifications are enabled', nullable: true })
+	milestoneNotifications?: boolean;
+
+	@Field(() => Boolean, { description: 'Indicates if email notifications are enabled', nullable: true })
+	contractUpdates?: boolean;
+
+	@Field(() => Boolean, { description: 'Indicates if email notifications are enabled', nullable: true })
+	proposalUpdates?: boolean;
+
+	@Field(() => Boolean, { description: 'Indicates if email notifications are enabled', nullable: true })
+	reviewsAndRatings?: boolean;
+
+	@Field(() => Boolean, { description: 'Indicates if email notifications are enabled', nullable: true })
+	collaborationInvites?: boolean;
+}
+
 /***********************************************************
  * [DTO] - USER SETTINGS OUTPUT
  **********************************************************/
@@ -144,6 +204,9 @@ export class UserSettingsOutput {
 
 	@Field(() => String, { nullable: true })
 	status?: string;
+
+	@Field(() => UserNotificationSettingsOutput, { description: 'User notification settings' })
+	notifications?: UserNotificationSettingsOutput;
 }
 
 // ============================================================
@@ -348,39 +411,6 @@ export class OAuthProvider {
 	profileUrl?: string;
 }
 
-/**
- * Notification settings output
- */
-@ObjectType()
-export class NotificationSettings {
-	@Field(() => Boolean, { defaultValue: true })
-	email: boolean;
-
-	@Field(() => Boolean, { defaultValue: false })
-	push: boolean;
-}
-
-/****************************
- * *USER SETTINGS OUTPUT
- **************************/
-@ObjectType()
-export class UserSettings {
-	@Field(() => String, { defaultValue: 'en' })
-	language: string;
-
-	@Field(() => String, { defaultValue: 'UTC' })
-	timezone: string;
-
-	@Field(() => NotificationSettings)
-	notifications: NotificationSettings;
-
-	@Field(() => UserSecuritySettingsOutput, { description: 'User security settings', nullable: true })
-	security?: UserSecuritySettingsOutput;
-
-	@Field(() => UserPrivacySettingsOutput, { description: 'User privacy settings', nullable: true })
-	privacy?: UserPrivacySettingsOutput;
-}
-
 // ============================================================
 // Main Output Types
 // ============================================================
@@ -418,8 +448,10 @@ export class User {
 	@Field(() => [OAuthProvider], { nullable: true })
 	oauthProviders?: OAuthProvider[];
 
-	@Field(() => UserSettings)
-	settings: UserSettings;
+	@Field(() => UserSettingsOutput, {
+		description: 'User settings including account, privacy, security, and notifications',
+	})
+	settings: UserSettingsOutput;
 
 	@Field(() => GraphQLISODateTime)
 	createdAt: Date;

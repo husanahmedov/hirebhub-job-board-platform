@@ -89,14 +89,6 @@ export class UserService {
 				verificationCodeExpires,
 				profile: input.profile || undefined,
 				qualifications: input.qualifications || undefined,
-				settings: input.settings || {
-					language: 'en',
-					timezone: 'UTC',
-					notifications: {
-						email: true,
-						push: false,
-					},
-				},
 				hasCompleteRegistration: !!(
 					input.profile?.skills?.length &&
 					input.profile?.location &&
@@ -241,7 +233,17 @@ export class UserService {
 				});
 			}
 
+			console.log(`User ${normalizedEmail} has 2FA enabled. Initiating 2FA process...`);
 			if (user.settings?.security?.twoFactorAuthEnabled) {
+				if (user.settings.security.twoFactorAuthMethod === TwoFactorAuthMethod.EMAIL && user.emailVerified) {
+					try {
+						await this.sendEmailTwoFactorAuthCode(user.id);
+					} catch (error) {
+						console.error('Failed to send 2FA code via email:', error);
+						throw new InternalServerException('Failed to send 2FA code. Please try again later.', 500);
+					}
+					// Generate 2FA code and send via email (non-blocking)
+				}
 				return {
 					success: true,
 					message: '2FA required',
@@ -334,7 +336,9 @@ export class UserService {
 		try {
 			const user = await this.userModel
 				.findOne({ email: normalizedEmail })
-				.select('+passwordHash +twoFactorAuthSecret +twoFactorBackupCodes')
+				.select(
+					'+passwordHash +twoFactorAuthSecret +twoFactorBackupCodes +twoFactorVerificationCode +twoFactorVerificationCodeExpires',
+				)
 				.exec();
 
 			if (!user) {
@@ -384,9 +388,25 @@ export class UserService {
 				});
 
 				if (!verified) {
-					throw new InvalidCredentialsException({
-						message: 'Invalid two-factor authentication code.',
-					});
+					// dont hurry to throw an error
+					// check if code is email verification code (in case user is trying to login before verifying email)
+					console.log(user.twoFactorVerificationCode, code, user.twoFactorVerificationCodeExpires, new Date());
+
+					if (
+						user.twoFactorVerificationCode === code &&
+						user.twoFactorVerificationCodeExpires &&
+						user.twoFactorVerificationCodeExpires > new Date()
+					) {
+						// if code is valid, mark email as verified and allow login without 2FA
+						user.emailVerified = true;
+						user.twoFactorVerificationCode = '';
+						user.twoFactorVerificationCodeExpires = new Date(0); // set to past date to invalidate
+						await user.save();
+					} else {
+						throw new InvalidCredentialsException({
+							message: 'Invalid two-factor authentication code.',
+						});
+					}
 				}
 			}
 
@@ -1040,6 +1060,99 @@ export class UserService {
 
 			throw new InternalServerErrorException('Failed to update security settings. Please try again later.');
 		}
+	}
+
+	/*****************************************************************************
+	 * [SERVICE] UPDATE USER NOTIFICATIONS SETTINGS
+	 * * This method allows users to update their notification preferences such as email,
+	 * * push, and SMS notifications for various events.
+	 * * It includes comprehensive error handling for various scenarios:
+	 * @param userId - The ID of the user to update
+	 * @param input - The notification settings to update
+	 ****************************************************************************/
+	public async updateUserNotificationsSettings(
+		userId: ObjectId,
+		input: UpdateUserSettingsInput,
+	): Promise<UserSettingsOutput> {
+		const {
+			email,
+			push,
+			sms,
+			jobAlerts,
+			applicationUpdates,
+			recommendations,
+			messages,
+			connectionRequests,
+			profileViews,
+			mentions,
+			weeklyDigest,
+			marketingEmails,
+			paymentNotifications,
+			milestoneNotifications,
+			contractUpdates,
+			proposalUpdates,
+			reviewsAndRatings,
+			collaborationInvites,
+		} = input.notifications || {};
+
+		const updatedFields: any = {};
+
+		this.addFieldIfPresent(updatedFields, 'settings.notifications.email', email);
+		this.addFieldIfPresent(updatedFields, 'settings.notifications.push', push);
+		this.addFieldIfPresent(updatedFields, 'settings.notifications.sms', sms);
+		this.addFieldIfPresent(updatedFields, 'settings.notifications.jobAlerts', jobAlerts);
+		this.addFieldIfPresent(updatedFields, 'settings.notifications.applicationUpdates', applicationUpdates);
+		this.addFieldIfPresent(updatedFields, 'settings.notifications.recommendations', recommendations);
+		this.addFieldIfPresent(updatedFields, 'settings.notifications.messages', messages);
+		this.addFieldIfPresent(updatedFields, 'settings.notifications.connectionRequests', connectionRequests);
+		this.addFieldIfPresent(updatedFields, 'settings.notifications.profileViews', profileViews);
+		this.addFieldIfPresent(updatedFields, 'settings.notifications.mentions', mentions);
+		this.addFieldIfPresent(updatedFields, 'settings.notifications.weeklyDigest', weeklyDigest);
+		this.addFieldIfPresent(updatedFields, 'settings.notifications.marketingEmails', marketingEmails);
+		this.addFieldIfPresent(updatedFields, 'settings.notifications.paymentNotifications', paymentNotifications);
+		this.addFieldIfPresent(updatedFields, 'settings.notifications.milestoneNotifications', milestoneNotifications);
+		this.addFieldIfPresent(updatedFields, 'settings.notifications.contractUpdates', contractUpdates);
+		this.addFieldIfPresent(updatedFields, 'settings.notifications.proposalUpdates', proposalUpdates);
+		this.addFieldIfPresent(updatedFields, 'settings.notifications.reviewsAndRatings', reviewsAndRatings);
+		this.addFieldIfPresent(updatedFields, 'settings.notifications.collaborationInvites', collaborationInvites);
+		let updatedUser;
+		if (Object.keys(updatedFields).length > 0) {
+			updatedUser = await this.userModel
+				.findOneAndUpdate({ _id: userId }, { $set: updatedFields }, { new: true, runValidators: true })
+				.exec();
+		} else {
+			updatedUser = await this.userModel.findById(userId).exec();
+		}
+
+		if (!updatedUser) {
+			throw new UserNotFoundException({
+				message: 'User not found for update',
+				userId,
+			});
+		}
+		
+		return {
+			notifications: {
+				email: updatedUser?.settings?.notifications?.email || false,
+				push: updatedUser?.settings?.notifications?.push || false,
+				sms: updatedUser?.settings?.notifications?.sms || false,
+				jobAlerts: updatedUser?.settings?.notifications?.jobAlerts || false,
+				applicationUpdates: updatedUser?.settings?.notifications?.applicationUpdates || false,
+				recommendations: updatedUser?.settings?.notifications?.recommendations || false,
+				messages: updatedUser?.settings?.notifications?.messages || false,
+				connectionRequests: updatedUser?.settings?.notifications?.connectionRequests || false,
+				profileViews: updatedUser?.settings?.notifications?.profileViews || false,
+				mentions: updatedUser?.settings?.notifications?.mentions || false,
+				weeklyDigest: updatedUser?.settings?.notifications?.weeklyDigest || false,
+				marketingEmails: updatedUser?.settings?.notifications?.marketingEmails || false,
+				paymentNotifications: updatedUser?.settings?.notifications?.paymentNotifications || false,
+				milestoneNotifications: updatedUser?.settings?.notifications?.milestoneNotifications || false,
+				contractUpdates: updatedUser?.settings?.notifications?.contractUpdates || false,
+				proposalUpdates: updatedUser?.settings?.notifications?.proposalUpdates || false,
+				reviewsAndRatings: updatedUser?.settings?.notifications?.reviewsAndRatings || false,
+				collaborationInvites: updatedUser?.settings?.notifications?.collaborationInvites || false,
+			},
+		};
 	}
 
 	/*****************************************************************************
@@ -1839,6 +1952,61 @@ export class UserService {
 				sessions: sessions,
 			};
 		}
+		if (requestedField === 'notifications') {
+			addFieldStage.notifications = {
+				email: {
+					$ifNull: ['$settings.notifications.email', true],
+				},
+				push: {
+					$ifNull: ['$settings.notifications.push', false],
+				},
+				jobAlerts: {
+					$ifNull: ['$settings.notifications.jobAlerts', false],
+				},
+				applicationUpdates: {
+					$ifNull: ['$settings.notifications.applicationUpdates', false],
+				},
+				messages: {
+					$ifNull: ['$settings.notifications.messages', false],
+				},
+				mentions: {
+					$ifNull: ['$settings.notifications.mentions', false],
+				},
+				recommendations: {
+					$ifNull: ['$settings.notifications.recommendations', false],
+				},
+				connectionRequests: {
+					$ifNull: ['$settings.notifications.connectionRequests', false],
+				},
+				profileViews: {
+					$ifNull: ['$settings.notifications.profileViews', false],
+				},
+				weeklyDigest: {
+					$ifNull: ['$settings.notifications.weeklyDigest', false],
+				},
+				marketingEmails: {
+					$ifNull: ['$settings.notifications.marketingEmails', false],
+				},
+				paymentNotifications: {
+					$ifNull: ['$settings.notifications.paymentNotifications', false],
+				},
+				milestoneNotifications: {
+					$ifNull: ['$settings.notifications.milestoneNotifications', false],
+				},
+				contractUpdates: {
+					$ifNull: ['$settings.notifications.contractUpdates', false],
+				},
+				proposalUpdates: {
+					$ifNull: ['$settings.notifications.proposalUpdates', false],
+				},
+				reviewsAndRatings: {
+					$ifNull: ['$settings.notifications.reviewsAndRatings', false],
+				},
+				collaborationInvites: {
+					$ifNull: ['$settings.notifications.collaborationInvites', false],
+				},
+			};
+		}
 		const pipeline: PipelineStage[] = [
 			{ $match: { _id: userId } },
 			{ $addFields: addFieldStage },
@@ -1867,7 +2035,7 @@ export class UserService {
 	 * * Retrieves all active sessions for a user with isCurrent flag
 	 * * @param userId - The ID of the user
 	 * * @param currentToken - Optional JWT token to identify the current session
-	 *****************************************************************************************/
+	 **********************************************************************************/
 	public async getUserSessions(userId: ObjectId, currentToken?: string): Promise<SessionOutput[]> {
 		return await this.sessionService.getUserSessions(userId, currentToken);
 	}
@@ -1877,7 +2045,7 @@ export class UserService {
 	 * * Revokes a specific session by ID
 	 * * @param userId - The ID of the user
 	 * * @param sessionId - The ID of the session to revoke
-	 *****************************************************************************************/
+	 *********************************************************************************/
 	public async revokeSession(userId: ObjectId, sessionId: string): Promise<MessageResponse> {
 		try {
 			const session = await this.sessionService.getSessionById(sessionId);
@@ -1904,13 +2072,20 @@ export class UserService {
 		}
 	}
 
+	/********************************************************************************
+	 * [SERVICE] REVOKE ALL SESSIONS EXCEPT CURRENT
+	 * * Revokes all sessions for a user except the current session
+	 * * @param userId - The ID of the user
+	 * * @param sessionId - The ID of the current session to exclude from revocation
+	 *********************************************************************************/
 	public async revokeAllSessionsExceptCurrent(userId: ObjectId, sessionId: string): Promise<MessageResponse> {
 		try {
 			return await this.sessionService.revokeAllSessions(userId, sessionId);
 		} catch (error) {
 			if (error instanceof UserNotFoundException) {
 				throw error;
-			}if(error instanceof NotFoundException) {
+			}
+			if (error instanceof NotFoundException) {
 				throw new NotFoundException('No active sessions found to revoke.');
 			}
 			throw new InternalServerException(

@@ -539,25 +539,76 @@ const UserSchema = new Schema(
 				maxlength: 50,
 			},
 
-			/**
-			 * Notification preferences
-			 * @example { email: true, push: false }
-			 */
 			notifications: {
-				/**
-				 * Email notification enabled
-				 * @default true
-				 */
 				email: {
 					type: Boolean,
 					default: true,
 				},
-
-				/**
-				 * Push notification enabled
-				 * @default false
-				 */
 				push: {
+					type: Boolean,
+					default: false,
+				},
+				sms: {
+					type: Boolean,
+					default: false,
+				},
+				jobAlerts: {
+					type: Boolean,
+					default: true,
+				},
+				applicationUpdates: {
+					type: Boolean,
+					default: true,
+				},
+				recommendations: {
+					type: Boolean,
+					default: true,
+				},
+				messages: {
+					type: Boolean,
+					default: true,
+				},
+				connectionRequests: {
+					type: Boolean,
+					default: true,
+				},
+				profileViews: {
+					type: Boolean,
+					default: true,
+				},
+				mentions: {
+					type: Boolean,
+					default: true,
+				},
+				weeklyDigest: {
+					type: Boolean,
+					default: true,
+				},
+				marketingEmails: {
+					type: Boolean,
+					default: false,
+				},
+				paymentNotifications: {
+					type: Boolean,
+					default: false,
+				},
+				milestoneNotifications: {
+					type: Boolean,
+					default: false,
+				},
+				contractUpdates: {
+					type: Boolean,
+					default: false,
+				},
+				proposalUpdates: {
+					type: Boolean,
+					default: false,
+				},
+				reviewsAndRatings: {
+					type: Boolean,
+					default: false,
+				},
+				collaborationInvites: {
 					type: Boolean,
 					default: false,
 				},
