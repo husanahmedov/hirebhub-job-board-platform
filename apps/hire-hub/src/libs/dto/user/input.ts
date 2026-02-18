@@ -709,6 +709,24 @@ export class UserNotificationSettingsInput {
 	collaborationInvites?: boolean;
 }
 
+@InputType()
+export class UserDataAndPrivacySettingsInput {
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	shareDataWithPartners?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	personalizeAds?: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	@Field(() => Boolean, { nullable: true })
+	researchParticipation?: boolean;
+}
+
 /*******************************************************
  * [DTO] UPDATE USER SETTINGS INPUT
  *****************************************************/
@@ -737,6 +755,12 @@ export class UpdateUserSettingsInput {
 	@Type(() => UserNotificationSettingsInput)
 	@Field(() => UserNotificationSettingsInput, { nullable: true })
 	notifications?: UserNotificationSettingsInput;
+
+	@IsOptional()
+	@ValidateNested()
+	@Type(() => UserDataAndPrivacySettingsInput)
+	@Field(() => UserDataAndPrivacySettingsInput, { nullable: true })
+	dataAndPrivacy?: UserDataAndPrivacySettingsInput;
 }
 
 /**

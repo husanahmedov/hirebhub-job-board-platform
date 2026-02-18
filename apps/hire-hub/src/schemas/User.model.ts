@@ -689,6 +689,21 @@ const UserSchema = new Schema(
 					type: Date,
 				},
 			},
+			
+			dataAndPrivacy: {
+				shareDataWithPartners: {
+					type: Boolean,
+					default: false,
+				},
+				personalizeAds: {
+					type: Boolean,
+					default: false,
+				},
+				researchParticipation: {
+					type: Boolean,
+					default: false,
+				}
+			}
 		},
 
 		/**

@@ -91,7 +91,7 @@ export class UserResolver {
 	 * Rate limited to 5 login attempts per 60 seconds per IP to prevent brute force
 	 ****************************************************************************/
 	@UseGuards(ThrottleGuard)
-	@Throttle({ ttl: 60, limit: 5, message: 'Too many login attempts. Please wait a minute and try again.' })
+	@Throttle({ ttl: 60, limit: 30, message: 'Too many login attempts. Please wait a minute and try again.' })
 	@Mutation(() => LoginResponse, {
 		description: 'Authenticate user with email and password, returns user with access token',
 	})
@@ -270,6 +270,45 @@ export class UserResolver {
 	): Promise<UserSettingsOutput> {
 		console.log(`--- @mutation() Update User Notifications Settings is called: ${userId} ---`);
 		return await this.userService.updateUserNotificationsSettings(userId, input);
+	}
+
+	/*****************************************************************************
+	 * [RESOLVER] USER DATA AND PRIVACY SETTINGS UPDATE (DATA SHARING PREFERENCES)
+	 * * Rate limited to 10 updates per 60 seconds to prevent abuse of data sharing settings changes
+	 * ****************************************************************************/
+	@Roles(UserRole.CANDIDATE)
+	@UseGuards(ThrottleGuard, RolesGuard, AuthGuard, SessionGuard)
+	@Throttle({ ttl: 60, limit: 10, message: 'Too many settings update attempts. Please wait a minute and try again.' })
+	@Mutation(() => UserSettingsOutput, {
+		description: "Update authenticated user's own data and privacy settings (data sharing preferences)",
+	})
+	public async updateUserDataAndPrivacySettings(
+		@Args('input', { type: () => UpdateUserSettingsInput, description: 'User data and privacy settings update data' })
+		input: UpdateUserSettingsInput,
+		@AuthUser('_id') userId: ObjectId,
+	): Promise<UserSettingsOutput> {
+		console.log(`--- @mutation() Update User Data and Privacy Settings is called: ${userId} ---`);
+		return await this.userService.updateUserDataAndPrivacySettings(userId, input);
+	}
+
+	/*****************************************************************************
+	 * [RESOLVER] USER ACCOUNT DEACTIVATION
+	 * * Rate limited to 2 deactivation attempts per 30 days to prevent abuse of account deactivation/reactivation
+	 * ****************************************************************************/
+	@Roles(UserRole.CANDIDATE)
+	@UseGuards(ThrottleGuard, RolesGuard, AuthGuard, SessionGuard)
+	@Throttle({
+		ttl: 2592000,
+		limit: 2,
+		message: 'Too many settings update attempts. Please wait a minute and try again.',
+	})
+	@Mutation(() => MessageResponse, {
+		description: 'Deactivate user account (placeholder resolver, implement logic in UserService)',
+	})
+	public async deactivateAccount(@AuthUser('_id') userId: ObjectId): Promise<MessageResponse> {
+		// 2 request per month
+		console.log(`--- @mutation() Deactivate Account is called for user: ${userId} ---`);
+		return await this.userService.deactivateAccount(userId);
 	}
 
 	/*****************************************************************************

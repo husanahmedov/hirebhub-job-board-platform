@@ -187,7 +187,7 @@ export class UserService {
 
 		try {
 			const user = await this.userModel.findOne({ email: normalizedEmail }).select('+passwordHash').exec();
-
+			
 			if (!user) {
 				throw new UserNotFoundException({
 					message: `Authentication failed. Please check your credentials and try again.`,
@@ -195,14 +195,14 @@ export class UserService {
 				});
 			}
 
-			if (user.status === UserStatus.DEACTIVATED) {
-				throw new UserDeactivatedException({
-					email: normalizedEmail,
-					userId: user._id,
-					status: user.status,
-					message: `Your account has been deactivated. Please contact support to reactivate.`,
-				});
-			}
+			// if (user.status === UserStatus.DEACTIVATED) {
+			// 	throw new UserDeactivatedException({
+			// 		email: normalizedEmail,
+			// 		userId: user._id,
+			// 		status: user.status,
+			// 		message: `Your account has been deactivated. Please contact support to reactivate.`,
+			// 	});
+			// }
 
 			if (user.status === UserStatus.SUSPENDED) {
 				throw new UserSuspendedException({
@@ -267,12 +267,12 @@ export class UserService {
 			await this.sessionService.createSession(user._id, deviceInfo, refreshToken, ipAddress, location);
 
 			// STEP 11: Store hashed refresh token in user document
-			await this.userModel.findByIdAndUpdate(user._id, { refreshToken: hashedRefreshToken });
+			await this.userModel.findByIdAndUpdate(user._id, { refreshToken: hashedRefreshToken, status: UserStatus.ACTIVE });
 
 			// Attach refresh token to user object (will be sent to client)
 
 			userObject.refreshToken = refreshToken;
-
+			
 			// Return only essential fields to reduce payload size
 			// Large objects like settings, qualifications, full profile are excluded
 			// Client can fetch these separately when needed
@@ -1130,7 +1130,7 @@ export class UserService {
 				userId,
 			});
 		}
-		
+
 		return {
 			notifications: {
 				email: updatedUser?.settings?.notifications?.email || false,
@@ -1151,6 +1151,50 @@ export class UserService {
 				proposalUpdates: updatedUser?.settings?.notifications?.proposalUpdates || false,
 				reviewsAndRatings: updatedUser?.settings?.notifications?.reviewsAndRatings || false,
 				collaborationInvites: updatedUser?.settings?.notifications?.collaborationInvites || false,
+			},
+		};
+	}
+
+	/*****************************************************************************
+	 * [SERVICE] UPDATE USER DATA AND PRIVACY SETTINGS
+	 * * This method allows users to update their data sharing and privacy preferences
+	 * * such as sharing data with partners
+	 * @param userId - The ID of the user to update
+	 * @param input - The data and privacy settings to update
+	 ****************************************************************************/
+	public async updateUserDataAndPrivacySettings(
+		userId: ObjectId,
+		input: UpdateUserSettingsInput,
+	): Promise<UserSettingsOutput> {
+		const { shareDataWithPartners, personalizeAds, researchParticipation } = input.dataAndPrivacy || {};
+
+		const updatedFields: any = {};
+
+		this.addFieldIfPresent(updatedFields, 'settings.dataAndPrivacy.shareDataWithPartners', shareDataWithPartners);
+		this.addFieldIfPresent(updatedFields, 'settings.dataAndPrivacy.personalizeAds', personalizeAds);
+		this.addFieldIfPresent(updatedFields, 'settings.dataAndPrivacy.researchParticipation', researchParticipation);
+
+		let updatedUser;
+		if (Object.keys(updatedFields).length > 0) {
+			updatedUser = await this.userModel
+				.findOneAndUpdate({ _id: userId }, { $set: updatedFields }, { new: true, runValidators: true })
+				.exec();
+		} else {
+			updatedUser = await this.userModel.findById(userId).exec();
+		}
+
+		if (!updatedUser) {
+			throw new UserNotFoundException({
+				message: 'User not found for update',
+				userId,
+			});
+		}
+
+		return {
+			dataAndPrivacy: {
+				shareDataWithPartners: updatedUser?.settings?.dataAndPrivacy?.shareDataWithPartners || false,
+				personalizeAds: updatedUser?.settings?.dataAndPrivacy?.personalizeAds || false,
+				researchParticipation: updatedUser?.settings?.dataAndPrivacy?.researchParticipation || false,
 			},
 		};
 	}
@@ -1398,14 +1442,14 @@ export class UserService {
 			}
 
 			// STEP 3: Check account status
-			if (user.status === UserStatus.DEACTIVATED) {
-				throw new UserDeactivatedException({
-					email: user.email,
-					userId: user._id,
-					status: user.status,
-					message: 'Your account has been deactivated',
-				});
-			}
+			// if (user.status === UserStatus.DEACTIVATED) {
+			// 	throw new UserDeactivatedException({
+			// 		email: user.email,
+			// 		userId: user._id,
+			// 		status: user.status,
+			// 		message: 'Your account has been deactivated',
+			// 	});
+			// }
 
 			if (user.status === UserStatus.SUSPENDED) {
 				throw new UserSuspendedException({
@@ -2007,6 +2051,19 @@ export class UserService {
 				},
 			};
 		}
+		if (requestedField === 'dataAndPrivacy') {
+			addFieldStage.dataAndPrivacy = {
+				shareDataWithPartners: {
+					$ifNull: ['$settings.dataAndPrivacy.shareDataWithPartners', false],
+				},
+				personalizeAds: {
+					$ifNull: ['$settings.dataAndPrivacy.personalizeAds', false],
+				},
+				researchParticipation: {
+					$ifNull: ['$settings.dataAndPrivacy.researchParticipation', false],
+				},
+			};
+		}
 		const pipeline: PipelineStage[] = [
 			{ $match: { _id: userId } },
 			{ $addFields: addFieldStage },
@@ -2092,6 +2149,40 @@ export class UserService {
 				'Failed to revoke session. Please try again later.',
 				{
 					error: "Hey you've got an error in revokeAllSessionsExceptCurrent method",
+				},
+				500,
+			);
+		}
+	}
+
+	public async deactivateAccount(userId: ObjectId): Promise<MessageResponse> {
+		try {
+			const currentUser = await this.userModel.findById(userId).exec();
+			if (currentUser?.settings.security?.twoFactorAuthEnabled) {
+				return {
+					message: 'Please disable 2FA before deactivating your account.',
+					success: false,
+				};
+			}
+			// Deactivate user account
+			const user = await this.userModel.findByIdAndUpdate(userId, { status: UserStatus.DEACTIVATED }, { new: true });
+			if (!user) {
+				throw new UserNotFoundException({
+					message: 'User not found',
+					userId,
+				});
+			}
+			// Revoke all sessions for the user
+			await this.sessionService.revokeAllSessions(userId);
+			return { message: 'Account deactivated and all sessions revoked successfully', success: true };
+		} catch (error) {
+			if (error instanceof UserNotFoundException) {
+				throw error;
+			}
+			throw new InternalServerException(
+				'Failed to deactivate account. Please try again later.',
+				{
+					error: "Hey you've got an error in deactivateAccount method",
 				},
 				500,
 			);

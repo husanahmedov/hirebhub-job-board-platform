@@ -216,7 +216,7 @@ export class SessionsService {
 	 * @param exceptSessionToken - (Optional) A session token to exclude from revocation (e.g., current session)
 	 ************************************************************/
 	async revokeAllSessions(userId: ObjectId, exceptSessionToken?: string): Promise<MessageResponse> {
-		const query: any = { userId, isActive: true };
+		const query: any = { userId };
 
 		try {
 			if (exceptSessionToken) {

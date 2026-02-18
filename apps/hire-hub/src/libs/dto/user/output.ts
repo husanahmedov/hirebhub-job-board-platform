@@ -188,6 +188,24 @@ export class UserNotificationSettingsOutput {
 	collaborationInvites?: boolean;
 }
 
+@ObjectType()
+export class UserDataAndPrivacySettingsOutput {
+	@Field(() => Boolean, {
+		description: 'Allow sharing my data with third-party partners for personalized job recommendations and insights',
+		nullable: true,
+	})
+	shareDataWithPartners?: boolean;
+
+	@Field(() => Boolean, { description: 'Allow personalized ads based on my profile and activity', nullable: true })
+	personalizeAds?: boolean;
+
+	@Field(() => Boolean, {
+		description: 'Allow sharing my profile information with recruiters and companies',
+		nullable: true,
+	})
+	researchParticipation?: boolean;
+}
+
 /***********************************************************
  * [DTO] - USER SETTINGS OUTPUT
  **********************************************************/
@@ -207,6 +225,9 @@ export class UserSettingsOutput {
 
 	@Field(() => UserNotificationSettingsOutput, { description: 'User notification settings' })
 	notifications?: UserNotificationSettingsOutput;
+
+	@Field(() => UserDataAndPrivacySettingsOutput, { description: 'User data and privacy settings' })
+	dataAndPrivacy?: UserDataAndPrivacySettingsOutput;
 }
 
 // ============================================================
