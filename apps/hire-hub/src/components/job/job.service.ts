@@ -15,6 +15,7 @@ import {
 	UserRole,
 	UnauthorizedException,
 	CompanyNotFoundException,
+	Visibility,
 } from '../../libs';
 import { ErrorCode, ErrorMessage, BadRequestException } from '../../libs';
 import { ViewService } from '../view/view.service';
@@ -22,9 +23,6 @@ import { JOBS_AGGREGATION_PIPELINES, shapeIntoMongoObjectId } from '../../libs/c
 import { StatsModifier } from '../../libs/interfaces/common';
 import { CompanyService } from '../company/company.service';
 
-/***
- * FEATURE: JOB SERVICE
- ***/
 @Injectable()
 export class JobService {
 	constructor(
@@ -34,10 +32,20 @@ export class JobService {
 		private readonly companyService: CompanyService,
 	) {}
 
-	/**
-	 * Create a new job posting
-	 */
-	async createJob(input: CreateJobInput, userId: string): Promise<JobOutput> {
+	// =============================================================================================
+	// --------------------------------- // [USER] // ----------------------------------------------
+	// =============================================================================================
+
+	/*****************************************************************************
+	 * [SERVICE] CREATE JOB
+	 *
+	 * * This method creates a new job posting. It first checks if the user is authorized to post a job
+	 * * for the specified company (either as an owner or recruiter). If authorized, it creates the job
+	 * * with initial metrics set to zero. The method includes comprehensive error handling for various
+	 * * failure scenarios, such as unauthorized access or database errors.
+	 *
+	 *******************************************************************************/
+	public async createJob(input: CreateJobInput, userId: string): Promise<JobOutput> {
 		const objUserId = shapeIntoMongoObjectId(userId);
 		try {
 			let job;
@@ -89,10 +97,41 @@ export class JobService {
 		}
 	}
 
-	/**
-	 * Get jobs with filtering, sorting, and pagination using aggregation pipeline
-	 */
-	async getJobs(input: GetJobsInput = {}): Promise<PaginatedJobsOutput> {
+	/*****************************************************************************
+	 * [SERVICE] GET MAIN HOMEPAGE JOBS
+	 * * This method retrieves a list of job postings for the main homepage. It applies default filters to show only published and public jobs,
+	 * * sorts them by creation date in descending order, and limits the results to the first page with a specified number of jobs. The method leverages
+	 * * the existing `getJobs` method to perform the retrieval, ensuring consistency in filtering, sorting, and pagination logic. Comprehensive error handling
+	 * * is included to manage potential issues during data retrieval.
+	 * *****************************************************************************/
+	public async getMainHomePageJobs(): Promise<PaginatedJobsOutput> {
+		console.log('--- @Service getMainHomePageJobs called ---');
+		return this.getJobs({
+			filter: {
+				isPublished: true,
+				visibility: Visibility.PUBLIC,
+			},
+			sort: {
+				field: 'createdAt',
+				order: 'desc',
+			},
+			pagination: {
+				page: 1,
+				limit: 10,
+			},
+		});
+	}
+
+	/*****************************************************************************
+	 * [SERVICE] GET JOBS WITH FILTERING, SORTING, PAGINATION
+	 *
+	 * * This method retrieves a list of job postings based on various filters, sorting options, and pagination parameters.
+	 * * It constructs a MongoDB aggregation pipeline to efficiently query the database, including text search, field-based filtering, sorting, and pagination.
+	 * * The method also performs lookups to join related data from the Company and User collections, and calculates metrics for each job. Comprehensive error
+	 * *  handling is included to manage potential issues during data retrieval.
+	 *
+	 *******************************************************************************/
+	public async getJobs(input: GetJobsInput = {}): Promise<PaginatedJobsOutput> {
 		const { filter = {}, sort = {}, pagination = {} } = input;
 		const { page = 1, limit = 20 } = pagination;
 		const skip = (page - 1) * limit;
@@ -249,10 +288,16 @@ export class JobService {
 		};
 	}
 
-	/**
-	 * Get a single job by ID
-	 */
-	async getJobById(jobId: string, userId: string | null): Promise<JobOutput> {
+	/*****************************************************************************
+	 * [SERVICE] GET JOB BY ID
+	 *
+	 * * This method retrieves a single job posting by its ID. It constructs an aggregation pipeline
+	 * * to fetch the job along with related company and user data, as well as application metrics.
+	 * * If the user is authenticated, it also increments the view count for the job. Comprehensive error
+	 * *  handling is included to manage scenarios where the job is not found or other issues arise during data retrieval.
+	 *
+	 *******************************************************************************/
+	public async getJobById(jobId: string, userId: string | null): Promise<JobOutput> {
 		const objUserId = userId ? shapeIntoMongoObjectId(userId) : null;
 		const objJobId = shapeIntoMongoObjectId(jobId);
 		const pipeline: PipelineStage[] = [];
@@ -330,10 +375,16 @@ export class JobService {
 		return this.mapToJobOutput(job);
 	}
 
-	/**
-	 * Update a job
-	 */
-	async updateJob(input: UpdateJobInput, userId: string): Promise<JobOutput> {
+	/*****************************************************************************
+	 * [SERVICE] UPDATE JOB
+	 *
+	 * * This method updates an existing job posting. It first checks if the job exists and is not deleted.
+	 * * If the job is found, it updates the job with the provided data and returns the updated job information.
+	 * *  Comprehensive error handling is included to manage scenarios where the job is not found or other
+	 * *  issues arise during the update process.
+	 *
+	 *******************************************************************************/
+	public async updateJob(input: UpdateJobInput, userId: string): Promise<JobOutput> {
 		const { jobId, ...updateData } = input;
 
 		// Check if job exists
@@ -358,10 +409,16 @@ export class JobService {
 		return this.mapToJobOutput(updatedJob);
 	}
 
-	/**
-	 * Delete a job (soft delete)
-	 */
-	async deleteJob(jobId: string): Promise<boolean> {
+	/*****************************************************************************
+	 * [SERVICE] DELETE JOB (SOFT DELETE)
+	 *
+	 * * This method performs a soft delete of a job posting by setting the `deletedAt` field to the current date.
+	 * * It first checks if the job exists and is not already deleted. If the job is found, it updates the `deletedAt`
+	 * * field and returns a boolean indicating the success of the operation. Comprehensive error handling is included
+	 * * to manage scenarios where the job is not found or other issues arise during the deletion process.
+	 *
+	 *******************************************************************************/
+	public async deleteJob(jobId: string): Promise<boolean> {
 		const job = await this.jobModel.findOne({
 			_id: jobId,
 			deletedAt: null,
@@ -378,10 +435,16 @@ export class JobService {
 		return true;
 	}
 
-	/**
-	 * Close a job (mark as filled)
-	 */
-	async closeJob(jobId: string): Promise<JobOutput> {
+	/*****************************************************************************
+	 * [SERVICE] CLOSE JOB (MARK AS FILLED)
+	 *
+	 * * This method marks a job as closed by setting the `closedAt` field to the current date and `isPublished` to false.
+	 * * It first checks if the job exists and is not already deleted. If the job is found, it updates the relevant fields
+	 * * and returns the updated job information. Comprehensive error handling is included to manage scenarios where the job
+	 * * is not found or other issues arise during the closure process.
+	 *
+	 *******************************************************************************/
+	public async closeJob(jobId: string): Promise<JobOutput> {
 		const job = await this.jobModel
 			.findByIdAndUpdate(
 				jobId,
@@ -402,19 +465,30 @@ export class JobService {
 		return this.mapToJobOutput(job);
 	}
 
-	/**
-	 * Decrement application count for a job
-	 */
-	async decrementApplicationCount(jobId: string): Promise<void> {
+	/*****************************************************************************
+	 * [SERVICE] DECREMENT APPLICATION COUNT
+	 *
+	 * * This method decrements the application count for a job. It is typically called when an application is withdrawn or deleted.
+	 * * The method updates the `applicationsCount` field by decrementing it by one. Comprehensive error handling is included to manage
+	 * * potential issues during the update process.
+	 *
+	 *******************************************************************************/
+	public async decrementApplicationCount(jobId: string): Promise<void> {
 		await this.jobModel.findByIdAndUpdate(jobId, {
 			$inc: { applicationsCount: -1 },
 		});
 	}
 
-	/**
-	 * Get job statistics
-	 */
-	async getJobStats(companyId?: string, user?: User): Promise<JobStatsOutput> {
+	/*****************************************************************************
+	 * [SERVICE] GET JOB STATISTICS
+	 *
+	 * * This method retrieves various statistics related to job postings, such as total jobs, published jobs, draft jobs, closed jobs,
+	 * * total applications, total views, and recent activity metrics. It constructs an aggregation pipeline to efficiently calculate these
+	 * * statistics based on the provided company ID and user context. Comprehensive error handling is included to manage potential issues during
+	 * * data retrieval.
+	 *
+	 *******************************************************************************/
+	public async getJobStats(companyId?: string, user?: User): Promise<JobStatsOutput> {
 		const query: any = { deletedAt: null };
 		if (companyId) {
 			query.companyId = companyId;
@@ -484,9 +558,48 @@ export class JobService {
 		);
 	}
 
-	/**
-	 * Map database document to JobOutput
-	 */
+	/*****************************************************************************
+	 * [SERVICE] JOB STATS MODIFIER
+	 *
+	 * * This method modifies job statistics by incrementing or decrementing a specified metric (e.g., viewsCount, applicationsCount).
+	 * * It takes a `StatsModifier` input which includes the job ID, the target key to modify, and the modifier value (positive or negative).
+	 * * The method updates the specified metric for the job and includes error handling to manage potential issues during the update process.
+	 *
+	 *******************************************************************************/
+	public async jobStatsModifier(input: StatsModifier): Promise<void> {
+		try {
+			await this.jobModel.findByIdAndUpdate(input.id, {
+				$inc: { [input.targetKey]: input.modifier },
+			});
+		} catch (error) {
+			console.log(`---------Error: ${error} ---------`);
+			throw new BadRequestException('Failed to modify job stats', {
+				message: 'Failed to modify job stats',
+				details: error.message,
+			});
+		}
+	}
+
+	// =============================================================================================
+	// --------------------------------- // [ADMIN] // ---------------------------------------------
+	// =============================================================================================
+
+	// =============================================================================================
+	// --------------------------------- // [RECRUITERS] // ----------------------------------------
+	// =============================================================================================
+
+	// =============================================================================================
+	// --------------------------------- // [PRIVATE(HELPERS)] // ----------------------------------
+	// =============================================================================================
+
+	/*****************************************************************************
+	 * [PRIVATE] MAP RAW JOB DATA TO JOB OUTPUT
+	 *
+	 * * This private method takes raw job data from the database (which may include additional fields and nested data)
+	 * * and maps it to the defined `JobOutput` format. It ensures that all necessary fields are included and properly formatted
+	 * * for the API response. This method is used internally by the service to maintain a consistent output structure.
+	 *
+	 *******************************************************************************/
 	private mapToJobOutput(job: any): JobOutput {
 		return {
 			_id: job._id.toString(),
@@ -536,21 +649,5 @@ export class JobService {
 			closedAt: job.closedAt,
 			deletedAt: job.deletedAt,
 		};
-	}
-	/**
-	 * Increment application count for a job
-	 */
-	public async jobStatsModifier(input: StatsModifier): Promise<void> {
-		try {
-			await this.jobModel.findByIdAndUpdate(input.id, {
-				$inc: { [input.targetKey]: input.modifier },
-			});
-		} catch (error) {
-			console.log(`---------Error: ${error} ---------`);
-			throw new BadRequestException('Failed to modify job stats', {
-				message: 'Failed to modify job stats',
-				details: error.message,
-			});
-		}
 	}
 }

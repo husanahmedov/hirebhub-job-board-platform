@@ -17,33 +17,39 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthUser } from '../auth/decorators/authUser.decorator';
 import { WithoutGuard } from '../auth/guards/without.guard';
 
-/***
- * FEATURE: JOB OPERATIONS
- ***/
 @Resolver()
 export class JobResolver {
 	constructor(private readonly jobService: JobService) {}
 
-	/***
-	 * API: GET JOBS
-	 ***/
+	/*****************************************************************************
+	 * [RESOLVER] GET JOBS WITH ADVANCED FILTERING, SORTING, AND PAGINATION
+	 ****************************************************************************/
 	@Query(() => PaginatedJobsOutput, {
 		name: 'getJobs',
 		description: 'Get jobs with advanced filtering, sorting, and pagination',
 	})
-	async getJobs(@Args('input', { nullable: true }) input: GetJobsInput = {}): Promise<PaginatedJobsOutput> {
+	public async getJobs(@Args('input', { nullable: true }) input: GetJobsInput = {}): Promise<PaginatedJobsOutput> {
 		return this.jobService.getJobs(input);
 	}
 
-	/***
-	 * API: GET JOB BY ID
-	 ***/
+	@Query(() => PaginatedJobsOutput, {
+		name: 'getMyJobs',
+		description: 'Get jobs created by the authenticated user with advanced filtering, sorting, and pagination',
+	})
+	public async getMainHomePageJobs(): Promise<PaginatedJobsOutput> {
+		console.log('--- @Query getMainHomePageJobs called ---');
+		return this.jobService.getMainHomePageJobs();
+	}
+
+	/*****************************************************************************
+	 * [RESOLVER] GET JOB BY ID
+	 ****************************************************************************/
 	@UseGuards(WithoutGuard)
 	@Query(() => JobOutput, {
 		name: 'getJobById',
 		description: 'Get a single job by ID',
 	})
-	async getJobById(
+	public async getJobById(
 		@Args('jobId', { type: () => ID }) jobId: string,
 		@AuthUser('_id')
 		userId: string,
@@ -51,9 +57,9 @@ export class JobResolver {
 		return this.jobService.getJobById(jobId, userId);
 	}
 
-	/***
-	 * API: GET JOB STATS
-	 ***/
+	/*****************************************************************************
+	 * [RESOLVER] GET JOB STATISTICS
+	 ****************************************************************************/
 	@Roles(UserRole.RECRUITER, UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -68,9 +74,9 @@ export class JobResolver {
 		return this.jobService.getJobStats(companyId, user);
 	}
 
-	/***
-	 * FEATURE: CREATE JOB
-	 ***/
+	/*****************************************************************************
+	 * [RESOLVER] CREATE JOB
+	 ****************************************************************************/
 	@Roles(UserRole.RECRUITER, UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -82,9 +88,9 @@ export class JobResolver {
 		return this.jobService.createJob(input, userId);
 	}
 
-	/***
-	 * FEATURE: UPDATE JOB
-	 ***/
+	/*****************************************************************************
+	 * [RESOLVER] UPDATE JOB
+	 ****************************************************************************/
 	@Roles(UserRole.RECRUITER, UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -96,9 +102,9 @@ export class JobResolver {
 		return this.jobService.updateJob(input, userId);
 	}
 
-	/***
-	 * CRITICAL: DELETE JOB
-	 ***/
+	/*****************************************************************************
+	 * [RESOLVER] DELETE JOB (SOFT DELETE)
+	 ****************************************************************************/
 	@Roles(UserRole.RECRUITER, UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -110,9 +116,9 @@ export class JobResolver {
 		return this.jobService.deleteJob(jobId);
 	}
 
-	/***
-	 * FEATURE: JOB CLOSURE
-	 ***/
+	/*****************************************************************************
+	 * [RESOLVER] CLOSE JOB (MARK AS FILLED)
+	 ****************************************************************************/
 	@Roles(UserRole.RECRUITER, UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
