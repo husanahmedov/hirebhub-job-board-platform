@@ -3,9 +3,9 @@ import { CompanyIndustry, CompanySize, CompanyPlan } from '../../enums/company';
 import { PublicUser } from '../..';
 import { IsOptional } from 'class-validator';
 
-/**
- * LocationOutput - GraphQL output type for company location
- */
+/********************************************************************************
+ * [DTO] LocationOutput - Output type for company location information
+ *******************************************************************************/
 @ObjectType({ description: 'Company location information with geospatial data' })
 export class LocationOutput {
 	@Field({ nullable: true, description: 'Street address of the company' })
@@ -30,10 +30,9 @@ export class LocationOutput {
 	coordinates?: number[];
 }
 
-/**
- * CompanyOutput - Main GraphQL output type for company data
- * Used when returning company information to clients
- */
+/********************************************************************************
+ * [DTO] CompanyOutput - GraphQL output type for company information
+ *******************************************************************************/
 @ObjectType({ description: 'Company information' })
 export class CompanyOutput {
 	@Field(() => ID, { description: 'Unique company identifier' })
@@ -41,7 +40,7 @@ export class CompanyOutput {
 
 	@Field({ description: 'Company name' })
 	name: string;
-	
+
 	@Field(() => CompanyIndustry, {
 		nullable: true,
 		description: 'Industry classification',
@@ -121,9 +120,9 @@ export class CompanyOutput {
 	averageRating?: number;
 }
 
-/**
- * PaginatedCompaniesOutput - Output type for paginated company lists
- */
+/********************************************************************************
+ * [DTO] PaginatedCompaniesOutput - Output type for paginated company lists
+ *******************************************************************************/
 @ObjectType({ description: 'Paginated list of companies' })
 export class PaginatedCompaniesOutput {
 	@Field(() => [CompanyOutput], { description: 'List of companies' })
@@ -148,9 +147,9 @@ export class PaginatedCompaniesOutput {
 	hasPreviousPage: boolean;
 }
 
-/**
- * CompanyStatsOutput - Statistics about companies
- */
+/********************************************************************************
+ * [DTO] CompanyStatsOutput - Output type for company statistics
+ *******************************************************************************/
 @ObjectType({ description: 'Company statistics' })
 export class CompanyStatsOutput {
 	@Field(() => Int, { description: 'Total number of companies' })
@@ -167,4 +166,64 @@ export class CompanyStatsOutput {
 
 	@Field(() => Int, { description: 'Number of companies by plan' })
 	byPlan: { [key: string]: number };
+}
+
+/********************************************************************************
+ * [DTO] LandingPageCompanyOutput - Output type for companies displayed on the landing page
+ *******************************************************************************/
+@ObjectType()
+export class LandingPageCompanyJobProfessionOutput {
+	@Field({ nullable: true, description: 'Job profession name' })
+	name?: string;
+
+	@Field(() => Int, { nullable: true, description: 'Number of open roles in this profession' })
+	count?: number;
+}
+
+/********************************************************************************
+ * [DTO] LandingPageCompanyOutput - Output type for companies displayed on the landing page
+ *******************************************************************************/
+@ObjectType()
+export class LandingPageCompanyOutput {
+	@Field(() => ID, { description: 'Unique company identifier' })
+	_id: string;
+
+	@Field(() => String, { description: 'Company name', nullable: true })
+	name?: string;
+
+	@Field(() => String, { description: 'Industry the company belongs to', nullable: true })
+	industry?: string;
+
+	@Field(() => String, { description: 'Job location city', nullable: true })
+	city?: string;
+
+	@Field(() => Boolean, { description: 'Whether the company is actively hiring', nullable: true })
+	activelyHiring?: boolean;
+
+	@Field(() => Int, { description: 'Number of open job roles', nullable: true })
+	openRoles?: number;
+
+	@Field(() => String, { nullable: true, description: 'Bio or tagline for the company (max 100 characters)' })
+	bio?: string;
+
+	@Field(() => [LandingPageCompanyJobProfessionOutput], {
+		description: 'Job professions with open role counts, e.g. [{ name: "ENGINEERING", count: 5 }]',
+		nullable: true,
+	})
+	jobProfessions?: LandingPageCompanyJobProfessionOutput[];
+
+	@Field(() => [String], { nullable: true, description: 'List of key benefits offered by the company' })
+	keyBenefits?: string[];
+
+	@Field(() => Boolean, { nullable: true, description: 'Whether the company is remote-friendly' })
+	isRemote?: boolean;
+
+	@Field(() => Float, { nullable: true, description: 'Average company rating from reviews' })
+	rating?: number;
+
+	@Field(() => Int, { nullable: true, description: 'Number of employees in the company' })
+	employeeCount?: number;
+
+	@Field(() => Int, { nullable: true, description: 'Year the company was founded' })
+	foundedYear?: number;
 }

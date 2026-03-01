@@ -100,7 +100,7 @@ export const JOBS_AGGREGATION_PIPELINES = {
 						logoUrl: 1,
 						verified: 1,
 					},
-				}
+				},
 			],
 		},
 	},
@@ -131,6 +131,31 @@ export const JOBS_AGGREGATION_PIPELINES = {
 			localField: '_id',
 			foreignField: 'jobId',
 			as: 'applicationsData',
+		},
+	},
+
+	// example data = [{name: 'ENGINEERING', count: 5}, {name: 'MARKETING', count: 3}]
+	JOB_PROFESSIONS_LOOKUP: {
+		$lookup: {
+			from: 'jobs',
+			localField: '_id',
+			foreignField: 'companyId',
+			as: 'jobProfessions',
+			pipeline: [
+				{
+					$group: {
+						_id: '$jobProfession',
+						count: { $sum: 1 },
+					},
+				},
+				{
+					$project: {
+						_id: 0,
+						name: '$_id',
+						count: 1,
+					},
+				},
+			],
 		},
 	},
 };

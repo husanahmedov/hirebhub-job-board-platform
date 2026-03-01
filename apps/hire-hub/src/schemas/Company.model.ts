@@ -79,6 +79,7 @@ const LocationSchema = new Schema(
 					validator: function (coords: number[]) {
 						return coords.length === 2 && coords[0] >= -180 && coords[0] <= 180 && coords[1] >= -90 && coords[1] <= 90;
 					},
+					required: false,
 					message: 'Coordinates must be [longitude, latitude] with valid ranges',
 				},
 			},
@@ -89,9 +90,6 @@ const LocationSchema = new Schema(
 
 /**
  * Company Schema - MongoDB schema definition for company documents
- *
- * This schema defines the complete company data structure including profile information,
- * verification status, subscription plans, and geospatial location data.
  *
  * @collection companies
  * @indexes
@@ -117,12 +115,6 @@ const LocationSchema = new Schema(
  */
 const CompanySchema = new Schema(
 	{
-		/**
-		 * Company name - Primary identifier for the company
-		 * @required
-		 * @indexed Text index for full-text search
-		 * @example "Google Inc."
-		 */
 		name: {
 			type: String,
 			required: [true, 'Company name is required'],
@@ -130,44 +122,29 @@ const CompanySchema = new Schema(
 			minlength: [2, 'Company name must be at least 2 characters'],
 			maxlength: [200, 'Company name cannot exceed 200 characters'],
 		},
-
-		/**
-		 * Industry classification
-		 * @enum CompanyIndustry
-		 * @indexed Part of compound index (industry + size)
-		 */
 		industry: {
 			type: String,
 			enum: Object.values(CompanyIndustry),
 			required: false,
 		},
 
-		/**
-		 * Company size based on employee count
-		 * @enum CompanySize
-		 * @indexed Part of compound index (industry + size)
-		 */
 		size: {
 			type: String,
 			enum: Object.values(CompanySize),
 			required: false,
 		},
 
-		/**
-		 * Detailed company description
-		 * @indexed Text index for full-text search
-		 * @maxlength 5000 characters
-		 */
+		bio: {
+			type: String,
+			trim: true,
+			maxlength: [100, 'Bio cannot exceed 100 characters'],
+		},
+
 		description: {
 			type: String,
 			trim: true,
 			maxlength: [5000, 'Description cannot exceed 5000 characters'],
 		},
-
-		/**
-		 * Company website URL
-		 * @example "https://www.google.com"
-		 */
 		website: {
 			type: String,
 			trim: true,
@@ -175,32 +152,17 @@ const CompanySchema = new Schema(
 			match: [/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/, 'Please provide a valid website URL'],
 		},
 
-		/**
-		 * Company location with geospatial support
-		 * @type LocationSchema
-		 * @indexed 2dsphere index on coordinates for geospatial queries
-		 */
 		location: {
 			type: LocationSchema,
 			required: false,
 		},
 
-		/**
-		 * URL to company logo image
-		 * @example "https://cdn.hirehub.com/logos/company-123.png"
-		 */
 		logoUrl: {
 			type: String,
 			trim: true,
 			maxlength: 1000,
 		},
 
-		/**
-		 * Company owner ID - The user who created and owns the company
-		 * @type ObjectId - References to User document
-		 * @required Owner is mandatory for every company
-		 * @indexed For finding companies by owner
-		 */
 		ownerId: {
 			type: Schema.Types.ObjectId,
 			ref: 'User',
@@ -208,12 +170,6 @@ const CompanySchema = new Schema(
 			index: true,
 		},
 
-		/**
-		 * Array of recruiter user IDs associated with this company
-		 * @type ObjectId[] - References to User documents
-		 * @indexed For finding companies by recruiter
-		 * @note The owner is typically included in this array
-		 */
 		recruiterIds: {
 			type: [Schema.Types.ObjectId],
 			ref: 'User',
@@ -225,55 +181,57 @@ const CompanySchema = new Schema(
 				message: 'A company cannot have more than 100 recruiters',
 			},
 		},
-		/**
-		 * Company verification status
-		 * Verified companies get special badges and priority in search results
-		 * @default false
-		 * @indexed Part of compound index (verified + plan)
-		 */
 		verified: {
 			type: Boolean,
 			default: false,
 			index: true,
 		},
-
-		/**
-		 * Subscription plan level
-		 * @enum CompanyPlan
-		 * @default FREE
-		 * @indexed Part of compound index (verified + plan)
-		 */
 		plan: {
 			type: String,
 			enum: Object.values(CompanyPlan),
 			default: CompanyPlan.FREE,
 		},
 
-		/**
-		 * Date when the company was created in the system
-		 * @auto Automatically set by timestamps option
-		 * @indexed For sorting by creation date
-		 */
+		activelyHiring: {
+			type: Boolean,
+			default: false,
+			index: true,
+			description: 'Indicates if the company is actively hiring (has active job postings)',
+			// This field can be updated via a scheduled job that checks for active job postings
+			// or can be set manually by admins/recruiters when they post jobs
+		},
+
+		openRoles: {
+			type: Number,
+			default: 0,
+			description: 'Number of open job roles currently posted by the company',
+		},
+
+		founded: {
+			type: Date,
+			description: 'Date when the company was founded',
+		},
+
+		employeeCount: {
+			type: Number,
+			min: 0,
+			description: 'Number of employees working at the company',
+		},
+
+		keyBenefits: {
+			type: [String],
+			default: [],
+			description: 'List of key benefits offered by the company (e.g., health insurance, remote work, etc.)',
+		},
+
 		createdAt: {
 			type: Date,
 			default: Date.now,
 		},
-
-		/**
-		 * Date when the company was last updated
-		 * @auto Automatically updated by timestamps option
-		 */
 		updatedAt: {
 			type: Date,
 			default: Date.now,
 		},
-
-		/**
-		 * Soft delete timestamp
-		 * If set, the company is considered deleted but data is retained
-		 * @sparse Only indexes documents where this field exists
-		 * @indexed Sparse index for soft-deleted companies
-		 */
 		deletedAt: {
 			type: Date,
 			default: null,

@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { JobType, JobLevel, SalaryCurrency, Visibility } from '../libs/enums/job';
+import { JobType, JobLevel, SalaryCurrency, Visibility, JobProfession } from '../libs/enums/job';
 
 /**
  * Location Sub-Schema - Job location information
@@ -93,6 +93,13 @@ const JobSchema = new Schema(
 			trim: true,
 			minlength: [3, 'Job title must be at least 3 characters'],
 			maxlength: [200, 'Job title cannot exceed 200 characters'],
+		},
+
+		jobProfession: {
+			type: String,
+			enum: Object.values(JobProfession),
+			required: [true, 'Job profession is required'],
+			index: true,
 		},
 
 		/**
@@ -209,6 +216,12 @@ const JobSchema = new Schema(
 		 * Whether the job is published and visible
 		 */
 		isPublished: {
+			type: Boolean,
+			default: false,
+			index: true,
+		},
+
+		isRemote: {
 			type: Boolean,
 			default: false,
 			index: true,

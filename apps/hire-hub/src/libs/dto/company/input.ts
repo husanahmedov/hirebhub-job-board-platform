@@ -1,4 +1,4 @@
-import { InputType, Field, Int, Float } from '@nestjs/graphql';
+import { InputType, Field, Int, Float, GraphQLISODateTime } from '@nestjs/graphql';
 import {
 	IsString,
 	IsEnum,
@@ -122,6 +122,51 @@ export class CreateCompanyInput {
 	@IsOptional()
 	@IsArray()
 	recruiterIds?: string[];
+
+	@Field({ description: 'Whether the company is actively hiring' })
+	@IsOptional()
+	@IsBoolean()
+	activelyHiring?: boolean;
+
+	@Field(() => Int, {
+		nullable: true,
+		description: 'Number of open roles currently available',
+	})
+	@IsOptional()
+	@IsNumber()
+	@Min(0)
+	openRoles?: number;
+
+	@Field(() => GraphQLISODateTime, {
+		nullable: true,
+		description: 'Date when the company was founded',
+	})
+	@IsOptional()
+	founded?: Date;
+
+	@Field(() => Int, {
+		nullable: true,
+		description: 'Number of employees working at the company',
+	})
+	@IsOptional()
+	@IsNumber()
+	@Min(1)
+	employeeCount?: number;
+
+	@Field(() => [String], {
+		nullable: true,
+		description: 'Key benefits offered by the company (e.g., "Health insurance", "Remote work")',
+	})
+	@IsOptional()
+	@IsArray()
+	@IsString({ each: true })
+	keyBenefits?: string[];
+
+	@Field({ nullable: true, description: 'Company bio or elevator pitch' })
+	@IsOptional()
+	@IsString()
+	@MaxLength(500, { message: 'Bio cannot exceed 500 characters' })
+	bio?: string;
 }
 
 /**

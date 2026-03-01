@@ -13,7 +13,7 @@ import {
 	ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { JobType, JobLevel, SalaryCurrency, Visibility } from '../../enums/job';
+import { JobType, JobLevel, SalaryCurrency, Visibility, JobProfession } from '../../enums/job';
 import { SortOrder, PaginationInput } from '../..';
 
 /**
@@ -197,6 +197,29 @@ export class CreateJobInput {
 	@IsArray()
 	@IsString({ each: true })
 	images?: string[];
+
+	@Field({ nullable: true, description: 'Whether the job is marked as urgent' })
+	@IsOptional()
+	@IsBoolean()
+	urgent?: boolean;
+
+	@Field({ nullable: true, description: 'Whether the job is marked as featured' })
+	@IsOptional()
+	@IsBoolean()
+	featured?: boolean;
+
+	@Field({ nullable: true, description: 'Whether the job allows remote work' })
+	@IsOptional()
+	@IsBoolean()
+	isRemote?: boolean;
+
+	@Field(() => JobProfession, {
+		nullable: true,
+		description: 'Job profession or category (e.g., Software Engineer, Product Manager)',
+	})
+	@IsOptional()
+	@IsEnum(JobProfession)
+	jobProfession?: JobProfession;
 }
 
 /**

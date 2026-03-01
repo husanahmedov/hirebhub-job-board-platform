@@ -12,6 +12,19 @@ export enum JobType {
 	OTHER = 'OTHER',
 }
 
+export enum JobProfession {
+	ENGINEERING = 'ENGINEERING',
+	DESIGN = 'DESIGN',
+	MARKETING = 'MARKETING',
+	SALES = 'SALES',
+	HR = 'HR',
+	FINANCE = 'FINANCE',
+	OPERATIONS = 'OPERATIONS',
+	PRODUCT = 'PRODUCT',
+	WRITING = 'WRITING',
+	OTHER = 'OTHER',
+}
+
 export enum JobLevel {
 	ENTRY = 'ENTRY',
 	MIDDLE = 'MIDDLE',
@@ -62,4 +75,9 @@ registerEnumType(SalaryCurrency, {
 registerEnumType(Visibility, {
 	name: 'Visibility',
 	description: 'Visibility levels for job postings',
+});
+
+registerEnumType(JobProfession, {
+	name: 'JobProfession',
+	description: 'Professional categories for job positions',
 });

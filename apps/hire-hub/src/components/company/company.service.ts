@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId, PipelineStage } from 'mongoose';
 import {
@@ -13,14 +13,13 @@ import {
 	UserNotFoundException,
 	DuplicatedOnwerCompanyException,
 	CompanyNotFoundException,
+	LandingPageCompanyOutput,
+	JobOutput,
 } from '../../libs';
 import { PaginatedCompaniesOutput, CompanyOutput } from '../../libs';
-import { shapeIntoMongoObjectId } from '../../libs/config';
+import { JOBS_AGGREGATION_PIPELINES, shapeIntoMongoObjectId } from '../../libs/config';
 import { UserService } from '../user/user.service';
 
-/***
- * FEATURE: COMPANY SERVICE
- ***/
 @Injectable()
 export class CompanyService {
 	constructor(
@@ -28,22 +27,28 @@ export class CompanyService {
 		private readonly companyModel: Model<CompanyOutput>,
 		@InjectModel('User')
 		private readonly userModel: Model<User>,
+		@InjectModel('Job')
+		private readonly jobModel: Model<any>,
 		private readonly userService: UserService,
 	) {}
 
-	/**
-	 * Get companies with advanced filtering, sorting, and pagination
-	 *
-	 * This method uses MongoDB aggregation pipeline to:
-	 * 1. Filter companies based on various criteria
-	 * 2. Perform full-text search on name and description
-	 * 3. Join with Job and CompanyReview collections for counts
-	 * 4. Sort results by multiple fields
-	 * 5. Paginate results efficiently
+	// =============================================================================================
+	// --------------------------------- // [USER] // ----------------------------------------------
+	// =============================================================================================
+
+	/*****************************************************************************
+	 * [SERVICE] GET COMPANIES
+	 * * Get companies with advanced filtering, sorting, and pagination
+	 * * This method uses MongoDB aggregation pipeline to:
+	 * * 1. Filter companies based on various criteria
+	 * * 2. Perform full-text search on name and description
+	 * * 3. Join with Job and CompanyReview collections for counts
+	 * * 4. Sort results by multiple fields
+	 * * 5. Paginate results efficiently
 	 *
 	 * @param input - Filter, sort, and pagination options
 	 * @returns Paginated list of companies with metadata
-	 */
+	 *******************************************************************************/
 	public async getCompanies(input: GetCompaniesInput): Promise<PaginatedCompaniesOutput> {
 		const { filter = {}, sort = {}, pagination = {} } = input;
 		const page = pagination.page || 1;
@@ -287,15 +292,89 @@ export class CompanyService {
 		};
 	}
 
-	/**
-	 * Find companies near a specific location using geospatial queries
+	public async getTopCompaniesForLandingPage(whichData?: string): Promise<LandingPageCompanyOutput[]> {
+		if (!whichData) {
+			throw new BadRequestException(
+				'whichData argument is required to specify which companies to return (e.g., "top", "featured", "newest")',
+				400,
+			);
+		}
+		try {
+			const match: any = {
+				deletedAt: null, // Only active companies
+			};
+			const pipeline: PipelineStage[] = [
+				{ $match: match },
+				JOBS_AGGREGATION_PIPELINES.JOB_PROFESSIONS_LOOKUP,
+			];
+			// ===================== STAGE 2: SHAPE OUTPUT ====================
+			if (whichData && whichData.toLowerCase() === 'bigcard') {
+				pipeline.push({
+					$addFields: {
+						_id: '$_id',
+						name: {
+							$ifNull: ['$name', 'Unknown'],
+						},
+						industry: {
+							$ifNull: ['$industry', 'Unknown'],
+						},
+						city: {
+							$ifNull: ['$location.city', 'Unknown'],
+						},
+						activelyHiring: {
+							$ifNull: ['$activelyHiring', false],
+						},
+						openRoles: {
+							$ifNull: ['$openRoles', 0],
+						},
+						bio: {
+							$ifNull: ['$bio', ''],
+						},
+						keyBenefits: {
+							$ifNull: ['$keyBenefits', []],
+						},
+						isRemote: {
+							$ifNull: ['$isRemote', false],
+						},
+						rating: {
+							$ifNull: ['$averageRating', 0],
+						},
+						employeeCount: {
+							$ifNull: ['$employeeCount', 0],
+						},
+						jobProfessions: {
+							$ifNull: ['$jobProfessions', []],
+						},
+						foundedYear: {
+							$cond: {
+								if: { $ifNull: ['$founded', false] },
+								then: { $year: '$founded' },
+								else: null,
+							},
+						},
+					},
+				});
+			}
+
+			const result = await this.companyModel.aggregate(pipeline).exec();
+			
+			return result;
+		} catch (error) {
+			console.error('Error fetching top companies for landing page:', error);
+			throw new NotFoundException('Unable to fetch top companies for landing page');
+		}
+	}
+
+	/*****************************************************************************
+	 * [SERVICE] GET NEARBY COMPANIES
+	 * * Find companies near a specific location using geospatial queries
 	 *
-	 * Uses MongoDB's $geoNear aggregation stage to find companies within
-	 * a specified distance from a point, sorted by distance.
+	 * * Uses MongoDB's $geoNear aggregation stage to find companies within
+	 * * a specified distance from a point, sorted by distance.
 	 *
 	 * @param input - Location coordinates and search parameters
 	 * @returns Paginated list of nearby companies with distance
-	 */
+	 *******************************************************************************/
 	async getNearbyCompanies(input: NearbyCompaniesInput): Promise<PaginatedCompaniesOutput> {
 		const { longitude, latitude, maxDistance = 50, pagination = {} } = input;
 		const page = pagination.page || 1;
@@ -432,14 +511,16 @@ export class CompanyService {
 		};
 	}
 
-	/**
-	 * Get a single company by ID with all related data
+	/*****************************************************************************
+	 * [SERVICE] GET COMPANY BY ID
+	 * * Get a single company by ID, including job count, review stats, and owner info
+	 * * Uses an aggregation pipeline to fetch the company and compute related data in one query
+	 * * Throws NotFoundException if the company does not exist or is soft-deleted
 	 *
 	 * @param id - Company ID
-	 * @returns Company with job count, review count, and average rating
-	 * @throws NotFoundException if company not found
-	 */
-	async getCompanyById(id: string): Promise<CompanyOutput> {
+	 * @returns Company details with job count, review stats, and owner info
+	 *******************************************************************************/
+	public async getCompanyById(id: string): Promise<CompanyOutput> {
 		id = shapeIntoMongoObjectId(id);
 		const pipeline: PipelineStage[] = [
 			{
@@ -519,13 +600,21 @@ export class CompanyService {
 		return result[0];
 	}
 
-	/**
-	 * Create a new company
+	/*****************************************************************************
+	 * [SERVICE] CREATE COMPANY
+	 * * Create a new company with the provided input data
+	 * * Validates that the owner ID is not in the recruiter IDs array
+	 * * Validates that the owner ID corresponds to an existing user
+	 * * Validates that the owner does not already own another company
+	 * * Saves the new company to the database and returns the created company details
 	 *
-	 * @param input - Company data
-	 * @returns Created company
-	 */
-	async createCompany(input: CreateCompanyInput): Promise<CompanyOutput> {
+	 * @param input - Data for creating a new company
+	 * @returns The created company details
+	 * @throws BadRequestException if validation fails
+	 * @throws UserNotFoundException if owner user does not exist
+	 * @throws DuplicatedOnwerCompanyException if owner already owns a company
+	 *******************************************************************************/
+	public async createCompany(input: CreateCompanyInput): Promise<CompanyOutput> {
 		// Ensure owner is in recruiterIds array
 		const recruiterIds = input.recruiterIds || [];
 		const ownerIdObj = shapeIntoMongoObjectId(input.ownerId);
@@ -557,15 +646,21 @@ export class CompanyService {
 		return await this.getCompanyById(company._id.toString());
 	}
 
-	/**
-	 * Update an existing company
+	/*****************************************************************************
+	 * [SERVICE] UPDATE COMPANY
+	 * * Update an existing company with the provided input data
+	 * * Validates that the owner ID is not in the recruiter IDs array
+	 * * Validates that the company exists and is owned by the user
+	 * * Updates the company in the database and returns the updated company details
 	 *
-	 * @param id - Company ID
-	 * @param input - Updated company data
-	 * @returns Updated company
-	 * @throws NotFoundException if company not found
-	 */
-	async updateCompany(id: string, userId: ObjectId, input: UpdateCompanyInput): Promise<CompanyOutput> {
+	 * @param id - Company ID to update
+	 * @param userId - User ID of the requester (must be the owner)
+	 * @param input - Data for updating the company
+	 * @returns The updated company details
+	 * @throws BadRequestException if validation fails
+	 * @throws NotFoundException if company not found or user is not the owner
+	 *******************************************************************************/
+	public async updateCompany(id: string, userId: ObjectId, input: UpdateCompanyInput): Promise<CompanyOutput> {
 		const objId = shapeIntoMongoObjectId(id);
 		const objUserId = shapeIntoMongoObjectId(userId);
 		const recruiterIds = input.recruiterIds?.map((rid) => shapeIntoMongoObjectId(rid));
@@ -599,14 +694,17 @@ export class CompanyService {
 		return this.getCompanyById(id);
 	}
 
-	/**
-	 * Soft delete a company
+	/*****************************************************************************
+	 * [SERVICE] DELETE COMPANY
+	 * * Soft delete a company by setting the deletedAt field
+	 * * Validates that the company exists and is owned by the user
+	 * * Returns true if deletion is successful, otherwise throws NotFoundException
 	 *
-	 * @param id - Company ID
-	 * @returns Success status
-	 * @throws NotFoundException if company not found
-	 */
-	async deleteCompany(id: string): Promise<boolean> {
+	 * @param id - Company ID to delete
+	 * @returns True if deletion is successful
+	 * @throws NotFoundException if company not found or user is not the owner
+	 *******************************************************************************/
+	public async deleteCompany(id: string): Promise<boolean> {
 		const company = await this.companyModel.findByIdAndUpdate(id, { deletedAt: new Date() }, { new: true }).exec();
 
 		if (!company) {
@@ -616,15 +714,14 @@ export class CompanyService {
 		return true;
 	}
 
-	/**
-	 * Get company statistics aggregated by various dimensions
+	/*****************************************************************************
+	 * [SERVICE] GET COMPANY STATS
+	 * * Get aggregated statistics about companies, including total count, verified count, and breakdowns by industry, size, and plan
+	 * * Uses a single aggregation pipeline with $facet to compute all stats in one query for performance
 	 *
-	 * This uses a complex aggregation to compute statistics across
-	 * multiple groupings in a single query for performance.
-	 *
-	 * @returns Company statistics
-	 */
-	async getCompanyStats() {
+	 * @returns An object containing company statistics
+	 *******************************************************************************/
+	public async getCompanyStats() {
 		const pipeline: PipelineStage[] = [
 			{
 				$match: {
@@ -722,6 +819,16 @@ export class CompanyService {
 		};
 	}
 
+	/*****************************************************************************
+	 * [SERVICE] GET RECRUITER COMPANY ID
+	 * * Get the company ID associated with a recruiter user ID
+	 * * Validates that the recruiter is associated with an active company
+	 * * Returns the company ID if found, otherwise returns null
+	 *
+	 * @param userId - Recruiter user ID
+	 * @returns The company ID associated with the recruiter, or null if not found
+	 * @throws NotFoundException if no company is found for the recruiter ID
+	 *******************************************************************************/
 	public async getRecruiterCompanyId(userId: string): Promise<string | null> {
 		const shapedUserId = shapeIntoMongoObjectId(userId);
 		try {
@@ -732,12 +839,32 @@ export class CompanyService {
 		}
 	}
 
+	/*****************************************************************************
+	 * [SERVICE] CHECK OWNER OF COMPANY
+	 * * Check if a user is the owner of a specific company
+	 * * Validates that the company exists and is active
+	 * * Returns true if the user is the owner, false if not, or null if company not found
+	 *
+	 * @param companyId - Company ID to check
+	 * @param userId - User ID to check against the owner
+	 * @returns True if user is owner, false if not, or null if company not found
+	 *******************************************************************************/
 	public async checkOwnerOfCompany(companyId: string, userId: string): Promise<boolean | null> {
 		const shapedUserId = shapeIntoMongoObjectId(userId);
 		const company = await this.companyModel.findOne({ _id: companyId, ownerId: shapedUserId, deletedAt: null }).exec();
 		return company ? true : false;
 	}
 
+	/*****************************************************************************
+	 * [SERVICE] CHECK RECRUITER OF COMPANY
+	 * * Check if a user is a recruiter of a specific company
+	 * * Validates that the company exists and is active
+	 * * Returns true if the user is a recruiter, false if not, or null if company not found
+	 *
+	 * @param companyId - Company ID to check
+	 * @param userId - User ID to check against the recruiter IDs
+	 * @returns True if user is a recruiter, false if not, or null if company not found
+	 *******************************************************************************/
 	public async checkRecruiterOfCompany(companyId: string, userId: string): Promise<boolean | null> {
 		const shapedUserId = shapeIntoMongoObjectId(userId);
 		const company = await this.companyModel

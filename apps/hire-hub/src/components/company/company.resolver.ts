@@ -8,6 +8,7 @@ import {
 	UpdateCompanyInput,
 	GetCompaniesInput,
 	NearbyCompaniesInput,
+	LandingPageCompanyOutput,
 } from '../../libs';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../../libs';
@@ -23,9 +24,9 @@ import type { ObjectId } from 'mongoose';
 export class CompanyResolver {
 	constructor(private readonly companyService: CompanyService) {}
 
-	/***
-	 * API: GET COMPANIES
-	 ***/
+	/*****************************************************************************
+	 * [RESOLVER] GET COMPANIES
+	 ****************************************************************************/
 	@Roles(UserRole.ADMIN)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
@@ -39,9 +40,25 @@ export class CompanyResolver {
 		return this.companyService.getCompanies(input);
 	}
 
-	/***
-	 * API: GET NEARBY COMPANIES
-	 ***/
+	@Query(() => [LandingPageCompanyOutput], {
+		name: 'getTopCompaniesForLandingPage',
+		description: 'Get top companies to display on the landing page',
+	})
+	public async getTopCompaniesForLandingPage(
+		@Args('whichData', {
+			type: () => String,
+			nullable: false,
+			description: 'Which data to return (e.g., "top", "featured", "newest")',
+		})
+		whichData: string,
+	): Promise<LandingPageCompanyOutput[]> {
+		return this.companyService.getTopCompaniesForLandingPage(whichData);
+	}
+
+	/*****************************************************************************
+	 * [RESOLVER] GET NEARBY COMPANIES
+	 ****************************************************************************/
+	@UseGuards(AuthGuard)
 	@Query(() => PaginatedCompaniesOutput, {
 		name: 'getNearbyCompanies',
 		description: 'Find companies near a specific location',
@@ -50,9 +67,9 @@ export class CompanyResolver {
 		return this.companyService.getNearbyCompanies(input);
 	}
 
-	/***
-	 * API: GET COMPANY BY ID
-	 ***/
+	/*****************************************************************************
+	 * [RESOLVER] GET COMPANY BY ID
+	 ****************************************************************************/
 	@Query(() => CompanyOutput, {
 		name: 'getCompanyById',
 		description: 'Get a single company by ID',
@@ -61,9 +78,9 @@ export class CompanyResolver {
 		return this.companyService.getCompanyById(id);
 	}
 
-	/***
-	 * API: GET COMPANY STATS
-	 ***/
+	/*****************************************************************************
+	 * [RESOLVER] GET COMPANY STATS
+	 ****************************************************************************/
 	@Query(() => String, {
 		name: 'getCompanyStats',
 		description: 'Get company statistics',
@@ -72,9 +89,9 @@ export class CompanyResolver {
 		return this.companyService.getCompanyStats();
 	}
 
-	/***
-	 * CRITICAL: CREATE COMPANY
-	 ***/
+	/*****************************************************************************
+	 * [RESOLVER] CREATE COMPANY
+	 ****************************************************************************/
 	@Roles(UserRole.ADMIN)
 	@UseGuards(AuthGuard, RolesGuard)
 	@Mutation(() => CompanyOutput, {
@@ -85,9 +102,9 @@ export class CompanyResolver {
 		return this.companyService.createCompany(input);
 	}
 
-	/***
-	 * FEATURE: UPDATE COMPANY
-	 ***/
+	/*****************************************************************************
+	 * [RESOLVER] UPDATE COMPANY
+	 ****************************************************************************/
 	@Mutation(() => CompanyOutput, {
 		name: 'updateCompany',
 		description: 'Update an existing company',
@@ -102,9 +119,9 @@ export class CompanyResolver {
 		return this.companyService.updateCompany(id, userId, input);
 	}
 
-	/***
-	 * CRITICAL: DELETE COMPANY
-	 ***/
+	/*****************************************************************************
+	 * [RESOLVER] DELETE COMPANY
+	 ****************************************************************************/
 	@Mutation(() => Boolean, {
 		name: 'deleteCompany',
 		description: 'Delete a company (soft delete)',

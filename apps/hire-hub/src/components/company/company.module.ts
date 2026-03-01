@@ -6,6 +6,7 @@ import { CompanyService } from './company.service';
 import { AuthModule } from '../auth/auth.module';
 import { UserModule } from '../user/user.module';
 import UserSchema from '../../schemas/User.model';
+import { JobSchema } from '../../schemas/Job.model';
 
 /**
  * CompanyModule - Module for company-related functionality
@@ -23,6 +24,7 @@ import UserSchema from '../../schemas/User.model';
 		MongooseModule.forFeature([
 			{ name: 'Company', schema: CompanySchema },
 			{ name: 'User', schema: UserSchema },
+			{ name: 'Job', schema: JobSchema },
 		]),
 		AuthModule, // Import AuthModule for authentication and authorization
 		UserModule, // Import UserModule to access user-related functionality
