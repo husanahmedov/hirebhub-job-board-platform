@@ -10,6 +10,7 @@ import { HttpExceptionFilter } from './libs/filters/http-exception.filter';
 import { join } from 'path';
 import * as express from 'express';
 import * as path from 'path';
+import { WsAdapter } from '@nestjs/platform-ws';
 
 declare const module: any;
 
@@ -40,8 +41,10 @@ async function bootstrap(): Promise<void> {
 
 		// Create NestJS application instance with custom logger disabled
 		const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-			logger: ['log', 'error', 'warn'], // Enable log, error and warning levels
+			logger: ['log', 'error', 'warn', 'verbose'], // Enable log, error and warning levels
 		});
+
+		app.useWebSocketAdapter(new WsAdapter(app)); // Enable WebSocket support with the default adapter
 
 		// Configure Handlebars as the view engine
 		const viewsPath = join(process.cwd(), 'apps', 'hire-hub', 'views');

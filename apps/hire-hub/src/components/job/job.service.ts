@@ -22,6 +22,7 @@ import { ViewService } from '../view/view.service';
 import { JOBS_AGGREGATION_PIPELINES, shapeIntoMongoObjectId } from '../../libs/config';
 import { StatsModifier } from '../../libs/interfaces/common';
 import { CompanyService } from '../company/company.service';
+import { SocketGateway } from '../../socket/socket.gateway';
 
 @Injectable()
 export class JobService {
@@ -30,6 +31,7 @@ export class JobService {
 		private readonly jobModel: Model<JobOutput>,
 		private readonly viewService: ViewService,
 		private readonly companyService: CompanyService,
+		private readonly socketGateway: SocketGateway,
 	) {}
 
 	// =============================================================================================
@@ -78,6 +80,7 @@ export class JobService {
 						viewsCount: 0,
 						applicationsCount: 0,
 					});
+					await this.socketGateway.broardcastUpdate('LandingLiveJobUpdates', await this.countLiveLandingPageJobs());
 					return this.mapToJobOutput(job);
 				default:
 					throw new CompanyNotFoundException({
@@ -590,7 +593,7 @@ export class JobService {
 	// =============================================================================================
 
 	// =============================================================================================
-	// --------------------------------- // [PRIVATE(HELPERS)] // ----------------------------------
+	// --------------------------------- // [PRIVATE(HELPERS), PUBLIC] // ----------------------------------
 	// =============================================================================================
 
 	/*****************************************************************************
@@ -621,6 +624,7 @@ export class JobService {
 			requirements: job.requirements || [],
 			benefits: job.benefits || [],
 			applicationDeadline: job.applicationDeadline,
+			jobProfession: job.jobProfession || undefined,
 			// metrics
 			metrics: {
 				viewsCount: job.viewsCount,
@@ -650,5 +654,155 @@ export class JobService {
 			closedAt: job.closedAt,
 			deletedAt: job.deletedAt,
 		};
+	}
+
+	public async countLiveLandingPageJobs(): Promise<any> {
+		const pipeline: PipelineStage[] = [];
+		// Calculate the timestamp for 24 hours ago
+		const twentyFourHoursAgo = new Date();
+		twentyFourHoursAgo.setHours(0, 0, 0, 0); // Set to the start of the day (00:00:00)
+
+		// Step 1: Filter published and public jobs
+		pipeline.push({
+			$match: {
+				isPublished: true,
+				visibility: Visibility.PUBLIC,
+			},
+		});
+
+		// Step 2: Add field to check if created today
+		pipeline.push({
+			$addFields: {
+				isCreatedToday: {
+					$cond: [
+						{
+							$gte: ['$createdAt', twentyFourHoursAgo],
+						},
+						1,
+						0,
+					],
+				},
+			},
+		});
+
+		// Step 3: Lookup company information to get company name
+		pipeline.push({
+			$lookup: {
+				from: 'companies',
+				localField: 'companyId',
+				foreignField: '_id',
+				as: 'companyData',
+			},
+		});
+
+		// Step 4: Unwind company data (flatten the array)
+		pipeline.push({
+			$unwind: {
+				path: '$companyData',
+				preserveNullAndEmptyArrays: true,
+			},
+		});
+
+		// Step 5: Group by company to count jobs per company (only today's jobs)
+		pipeline.push({
+			$group: {
+				_id: '$companyData.name',
+				count: {
+					$sum: '$isCreatedToday',
+				},
+				latestCreatedAt: { $max: '$createdAt' },
+			},
+		});
+
+		// Step 5.5: Filter out null company names
+		pipeline.push({
+			$match: {
+				_id: { $ne: null },
+				count: { $gt: 0 }, // Only include companies with jobs created today
+			},
+		});
+
+		// Step 6: Convert grouped data to array of objects format with relative time
+		pipeline.push({
+			$group: {
+				_id: null,
+				companies: {
+					$push: {
+						name: '$_id',
+						count: '$count',
+						time: {
+							$cond: [
+								{
+									$gte: ['$latestCreatedAt', new Date(Date.now() - 60 * 60 * 1000)],
+								},
+								{
+									$concat: [
+										{
+											$toString: {
+												$floor: {
+													$divide: [{ $subtract: [new Date(), '$latestCreatedAt'] }, 60 * 1000],
+												},
+											},
+										},
+										'm ago',
+									],
+								},
+								{
+									$cond: [
+										{
+											$gte: ['$latestCreatedAt', new Date(Date.now() - 24 * 60 * 60 * 1000)],
+										},
+										{
+											$concat: [
+												{
+													$toString: {
+														$floor: {
+															$divide: [{ $subtract: [new Date(), '$latestCreatedAt'] }, 60 * 60 * 1000],
+														},
+													},
+												},
+												'h ago',
+											],
+										},
+										{
+											$concat: [
+												{
+													$toString: {
+														$floor: {
+															$divide: [{ $subtract: [new Date(), '$latestCreatedAt'] }, 24 * 60 * 60 * 1000],
+														},
+													},
+												},
+												'd ago',
+											],
+										},
+									],
+								},
+							],
+						},
+					},
+				},
+				totalToday: { $sum: '$count' },
+			},
+		});
+
+		// Step 7: Limit companies to top 3
+		pipeline.push({
+			$addFields: {
+				companies: { $slice: ['$companies', 3] },
+			},
+		});
+
+		// Step 8: Project final result
+		pipeline.push({
+			$project: {
+				_id: 0,
+				totalToday: 1,
+				companies: 1,
+			},
+		});
+
+		const result = await this.jobModel.aggregate(pipeline).exec();
+		return result[0] || { totalToday: 0, companies: [] };
 	}
 }

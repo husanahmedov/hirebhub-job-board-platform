@@ -50,7 +50,7 @@ export class CompanyLocationInput {
 	@MaxLength(20)
 	zipCode?: string;
 
-	@Field(() => [Float], {
+	@Field(() => [Int], {
 		nullable: true,
 		description: 'GeoJSON coordinates [longitude, latitude]',
 	})
@@ -167,6 +167,16 @@ export class CreateCompanyInput {
 	@IsString()
 	@MaxLength(500, { message: 'Bio cannot exceed 500 characters' })
 	bio?: string;
+
+	@Field(() => Boolean, { nullable: true, description: 'Whether the company is remote-friendly' })
+	@IsOptional()
+	@IsBoolean()
+	isRemote?: boolean;
+
+	@Field(() => CompanyPlan, { nullable: true, description: 'Subscription plan of the company' })
+	@IsOptional()
+	@IsEnum(CompanyPlan)
+	plan?: CompanyPlan;
 }
 
 /**

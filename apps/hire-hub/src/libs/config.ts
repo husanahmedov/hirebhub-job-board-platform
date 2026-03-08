@@ -135,6 +135,7 @@ export const JOBS_AGGREGATION_PIPELINES = {
 	},
 
 	// example data = [{name: 'ENGINEERING', count: 5}, {name: 'MARKETING', count: 3}]
+	// should be ordered by highest count first
 	JOB_PROFESSIONS_LOOKUP: {
 		$lookup: {
 			from: 'jobs',
@@ -155,7 +156,54 @@ export const JOBS_AGGREGATION_PIPELINES = {
 						count: 1,
 					},
 				},
+				{
+					$sort: { count: -1 as const, _id: 1 as const },
+				},
+				{
+					$limit: 5,
+				},
 			],
+		},
+	},
+
+	JOB_COMMON_SKILLS_LOOKUP: {
+		$lookup: {
+			from: 'jobs',
+			localField: '_id',
+			foreignField: 'companyId',
+			as: 'mostSkills',
+			pipeline: [
+				// take all job skills array and filter 4 skills that are most common across all job postings for the company, no need count
+				// array inside skills [ 'JavaScript', 'Node.js', 'React' ]
+				{
+					$unwind: '$skills',
+				},
+				{
+					$group: {
+						_id: '$skills',
+						count: { $sum: 1 },
+					},
+				},
+				{
+					$sort: { count: -1 as const, _id: 1 as const },
+				},
+				{
+					$limit: 4,
+				},
+			],
+		},
+	},
+
+	// maps the mostSkills lookup result into a flat string[]: ['JavaScript', 'Node.js', ...]
+	JOB_COMMON_SKILLS_MAP: {
+		$addFields: {
+			mostSkills: {
+				$map: {
+					input: '$mostSkills',
+					as: 'item',
+					in: '$$item._id',
+				},
+			},
 		},
 	},
 };

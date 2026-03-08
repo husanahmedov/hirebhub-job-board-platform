@@ -25,6 +25,8 @@ import { UploaderModule } from './components/uploader/uploader.module';
 import { HealthModule } from './components/health/health.module';
 import { ViewModule } from './components/view/view.module';
 import { SessionsModule } from './components/sessions/sessions.module';
+import { SocketGateway } from './socket/socket.gateway';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
 	imports: [
@@ -92,6 +94,7 @@ import { SessionsModule } from './components/sessions/sessions.module';
 		HealthModule,
 		ViewModule,
 		SessionsModule,
+		SocketModule,
 	],
 	controllers: [AppController],
 	providers: [
@@ -101,6 +104,7 @@ import { SessionsModule } from './components/sessions/sessions.module';
 			provide: APP_FILTER,
 			useClass: GraphQLExceptionFilter,
 		},
+		SocketGateway,
 	],
 })
 export class AppModule {}

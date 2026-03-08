@@ -28,7 +28,7 @@ async function bootstrap(): Promise<void> {
 
 		// Create NestJS application instance
 		const app = await NestFactory.create(HirehubBatchModule, {
-			logger: ['error', 'warn'],
+			logger: ['error', 'warn', 'debug'], // Configure logging levels
 		});
 
 		// Start the application

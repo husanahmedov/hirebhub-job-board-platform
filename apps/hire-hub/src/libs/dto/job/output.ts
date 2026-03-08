@@ -1,5 +1,5 @@
 import { ObjectType, Field, ID, Int } from '@nestjs/graphql';
-import { JobType, JobLevel, SalaryCurrency, Visibility } from '../../enums/job';
+import { JobType, JobLevel, SalaryCurrency, Visibility, JobProfession } from '../../enums/job';
 import { CompanyOutput } from '../company/output';
 import { ApplicationOutput, PublicUser } from '../../';
 
@@ -190,6 +190,9 @@ export class JobOutput {
 
 	@Field({ nullable: true, description: 'Soft delete timestamp' })
 	deletedAt?: Date;
+
+	@Field(() => JobProfession, { description: 'Job profession' })
+	jobProfession: JobProfession;
 }
 
 /**

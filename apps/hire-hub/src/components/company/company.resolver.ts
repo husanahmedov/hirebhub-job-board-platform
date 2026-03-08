@@ -92,8 +92,8 @@ export class CompanyResolver {
 	/*****************************************************************************
 	 * [RESOLVER] CREATE COMPANY
 	 ****************************************************************************/
-	@Roles(UserRole.ADMIN)
-	@UseGuards(AuthGuard, RolesGuard)
+	// @Roles(UserRole.ADMIN)
+	// @UseGuards(AuthGuard, RolesGuard)
 	@Mutation(() => CompanyOutput, {
 		name: 'createCompany',
 		description: 'Create a new company (Admin only)',

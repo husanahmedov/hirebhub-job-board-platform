@@ -306,6 +306,9 @@ export class CompanyService {
 			const pipeline: PipelineStage[] = [
 				{ $match: match },
 				JOBS_AGGREGATION_PIPELINES.JOB_PROFESSIONS_LOOKUP,
+				JOBS_AGGREGATION_PIPELINES.JOB_COMMON_SKILLS_LOOKUP,
+				JOBS_AGGREGATION_PIPELINES.JOB_COMMON_SKILLS_MAP,
+				{ $sort: { createdAt: 1 } }, // Sort by oldest first
 			];
 			// ===================== STAGE 2: SHAPE OUTPUT ====================
 			if (whichData && whichData.toLowerCase() === 'bigcard') {
@@ -345,6 +348,9 @@ export class CompanyService {
 						jobProfessions: {
 							$ifNull: ['$jobProfessions', []],
 						},
+						size: {
+							$ifNull: ['$size', 'Unknown'],
+						},
 						foundedYear: {
 							$cond: {
 								if: { $ifNull: ['$founded', false] },
@@ -355,9 +361,90 @@ export class CompanyService {
 					},
 				});
 			}
+			if (whichData && whichData.toLowerCase() === 'secondcard') {
+				pipeline.push({
+					$addFields: {
+						_id: '$_id',
+						name: {
+							$ifNull: ['$name', 'Unknown'],
+						},
+						industry: {
+							$ifNull: ['$industry', 'Unknown'],
+						},
+						city: {
+							$ifNull: ['$location.city', 'Unknown'],
+						},
+						activelyHiring: {
+							$ifNull: ['$activelyHiring', false],
+						},
+						openRoles: {
+							$ifNull: ['$openRoles', 0],
+						},
+						bio: {
+							$ifNull: ['$bio', ''],
+						},
+						keyBenefits: {
+							$ifNull: ['$keyBenefits', []],
+						},
+						isRemote: {
+							$ifNull: ['$isRemote', false],
+						},
+						rating: {
+							$ifNull: ['$averageRating', 0],
+						},
+						employeeCount: {
+							$ifNull: ['$employeeCount', 0],
+						},
+						jobProfessions: {
+							$ifNull: ['$jobProfessions', []],
+						},
+						size: {
+							$ifNull: ['$size', 'Unknown'],
+						},
+						avgSalaryMin: {
+							$ifNull: ['$avgSalaryMin', 0],
+						},
+						avgSalaryMax: {
+							$ifNull: ['$avgSalaryMax', 0],
+						},
+						mostSkills: {
+							$ifNull: ['$mostSkills', []],
+						},
+						foundedYear: {
+							$cond: {
+								if: { $ifNull: ['$founded', false] },
+								then: { $year: '$founded' },
+								else: null,
+							},
+						},
+					},
+				});
+			}
+			if (whichData && whichData.toLowerCase() === 'fourthcard') {
+				pipeline.push({
+					$addFields: {
+						_id: '$_id',
+						openRoles: {
+							$ifNull: ['$openRoles', 0],
+						},
+						name: {
+							$ifNull: ['$name', 'Unknown'],
+						},
+						industry: {
+							$ifNull: ['$industry', 'Unknown'],
+						},
+						city: {
+							$ifNull: ['$location.city', 'Unknown'],
+						},
+						mostSkills: {
+							$ifNull: ['$mostSkills', []],
+						},
+					},
+				});
+			}
 
 			const result = await this.companyModel.aggregate(pipeline).exec();
-			
+
 			return result;
 		} catch (error) {
 			console.error('Error fetching top companies for landing page:', error);

@@ -118,6 +118,18 @@ export class CompanyOutput {
 		description: 'Average rating from all company reviews',
 	})
 	averageRating?: number;
+
+	@Field(() => Int, {
+		nullable: true,
+		description: 'Average minimum salary across all job postings for this company',
+	})
+	avgSalaryMin?: number;
+
+	@Field(() => Int, {
+		nullable: true,
+		description: 'Average maximum salary across all job postings for this company',
+	})
+	avgSalaryMax?: number;
 }
 
 /********************************************************************************
@@ -226,4 +238,19 @@ export class LandingPageCompanyOutput {
 
 	@Field(() => Int, { nullable: true, description: 'Year the company was founded' })
 	foundedYear?: number;
+
+	@Field(() => String, { nullable: true, description: 'Size of the company' })
+	size?: string;
+
+	@Field(() => Int, { nullable: true, description: 'Average minimum salary across all job postings for this company' })
+	avgSalaryMin?: number;
+
+	@Field(() => Int, { nullable: true, description: 'Average maximum salary across all job postings for this company' })
+	avgSalaryMax?: number;
+
+	@Field(() => [String], {
+		nullable: true,
+		description: 'Most common skills required across the company’s job postings',
+	})
+	mostSkills?: string[]; // Add a field for most common skills required across the company's job postings
 }

@@ -68,21 +68,8 @@ const LocationSchema = new Schema(
 		 * @example { type: 'Point', coordinates: [-122.4194, 37.7749] }
 		 */
 		coordinates: {
-			type: {
-				type: String,
-				enum: ['Point'],
-				default: 'Point',
-			},
-			coordinates: {
-				type: [Number], // [longitude, latitude]
-				validate: {
-					validator: function (coords: number[]) {
-						return coords.length === 2 && coords[0] >= -180 && coords[0] <= 180 && coords[1] >= -90 && coords[1] <= 90;
-					},
-					required: false,
-					message: 'Coordinates must be [longitude, latitude] with valid ranges',
-				},
-			},
+			type: [Number], // [longitude, latitude]
+			index: '2dsphere', // Enable geospatial indexing
 		},
 	},
 	{ _id: false }, // Don't create _id for subdocuments
@@ -222,6 +209,18 @@ const CompanySchema = new Schema(
 			type: [String],
 			default: [],
 			description: 'List of key benefits offered by the company (e.g., health insurance, remote work, etc.)',
+		},
+
+		avgSalaryMin: {
+			type: Number,
+			min: 0,
+			description: 'Average salary for jobs posted by the company (computed from active job postings)',
+		},
+
+		avgSalaryMax: {
+			type: Number,
+			min: 0,
+			description: 'Average salary for jobs posted by the company (computed from active job postings)',
 		},
 
 		createdAt: {
