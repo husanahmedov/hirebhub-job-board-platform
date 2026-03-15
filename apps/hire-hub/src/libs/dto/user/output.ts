@@ -457,7 +457,7 @@ export class User {
 	@Field(() => String)
 	lastName: string;
 
-	@Field(() => String)
+	@Field(() => UserRole, { description: 'Role of the user (e.g., ADMIN, RECRUITER, CANDIDATE)' })
 	role: UserRole;
 
 	@Field(() => String)

@@ -120,6 +120,16 @@ export class JobNotFoundException extends BaseGraphQLException {
 }
 
 /**
+ * JobCreationFailedException - Thrown when job creation fails
+ */
+export class JobCreationFailedException extends BaseGraphQLException {
+	constructor(details?: any, statusCode?: number) {
+		super(ErrorCode.JOB_CREATION_FAILED, undefined, details, statusCode);
+	}
+}
+
+
+/**
  * ApplicationNotFoundException - Thrown when an application is not found
  */
 export class ApplicationNotFoundException extends BaseGraphQLException {

@@ -35,6 +35,7 @@ import {
 	TwoFactorAuthSecretOutput,
 	TwoFactorAuthMethod,
 	LoginResponse,
+	UserRole,
 } from '../../libs';
 import { AuthService } from '../auth/auth.service';
 import { shapeIntoMongoObjectId } from '../../libs/config';

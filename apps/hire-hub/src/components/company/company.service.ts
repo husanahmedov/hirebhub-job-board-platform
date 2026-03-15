@@ -942,6 +942,13 @@ export class CompanyService {
 		return company ? true : false;
 	}
 
+	// =============================================================================================
+	// --------------------------------- // [ADMIN] // ---------------------------------------------
+	// =============================================================================================
+
+	// =============================================================================================
+	// --------------------------------- // [RECRUITERS] // ----------------------------------------
+	// =============================================================================================
 	/*****************************************************************************
 	 * [SERVICE] CHECK RECRUITER OF COMPANY
 	 * * Check if a user is a recruiter of a specific company
@@ -960,4 +967,29 @@ export class CompanyService {
 
 		return company ? true : false;
 	}
+
+	/*****************************************************************************
+	 * [SERVICE] CHECK SOLO RECRUITER OF COMPANY
+	 * * Check if a user is the only recruiter of any company
+	 * * Validates that the company exists and is active
+	 * * Returns true if the user is the solo recruiter, false if not, or null if company not found
+	 *
+	 * @param userId - User ID to check against the recruiter IDs
+	 * @returns True if user is the solo recruiter, false if not, or null if company not found
+	 *******************************************************************************/
+	public async checkIsSoloRecruiter(userId: string): Promise<boolean> {
+		const shapedUserId = shapeIntoMongoObjectId(userId);
+		const company = await this.companyModel.findOne({ recruiterIds: { $in: [shapedUserId] }, deletedAt: null }).exec();
+
+		if (!company) {
+			return false; // User is not a recruiter for any company
+		}
+
+		// --- Check if the user is the only recruiter for the company
+		return true; // --- Since we only allow one recruiter per company, if they are a recruiter, they are the solo recruiter
+	}
+
+	// =============================================================================================
+	// --------------------------------- // [PRIVATE(HELPERS)] // ----------------------------------
+	// =============================================================================================
 }

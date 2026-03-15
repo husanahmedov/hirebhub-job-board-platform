@@ -77,9 +77,9 @@ export class JobResolver {
 	/*****************************************************************************
 	 * [RESOLVER] CREATE JOB
 	 ****************************************************************************/
-	// @Roles(UserRole.RECRUITER, UserRole.ADMIN)
-	// @UseGuards(RolesGuard)
-	// @UseGuards(AuthGuard)
+	@Roles(UserRole.RECRUITER, UserRole.COMPANY_OWNER)
+	@UseGuards(RolesGuard)
+	@UseGuards(AuthGuard)
 	@Mutation(() => JobOutput, {
 		name: 'createJob',
 		description: 'Create a new job posting',
@@ -91,7 +91,7 @@ export class JobResolver {
 	/*****************************************************************************
 	 * [RESOLVER] UPDATE JOB
 	 ****************************************************************************/
-	@Roles(UserRole.RECRUITER, UserRole.ADMIN)
+	@Roles(UserRole.RECRUITER, UserRole.COMPANY_OWNER)
 	@UseGuards(RolesGuard)
 	@UseGuards(AuthGuard)
 	@Mutation(() => JobOutput, {

@@ -84,9 +84,8 @@ export class SalaryRangeInput {
  */
 @InputType({ description: 'Input for creating a new job' })
 export class CreateJobInput {
-	@Field({ description: 'Company ID' })
-	@IsString()
-	companyId: string;
+	@Field({ description: 'Company ID', nullable: true })
+	companyId?: string;
 
 	@Field({ description: 'Job title' })
 	@IsString()

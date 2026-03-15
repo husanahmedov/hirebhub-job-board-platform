@@ -16,6 +16,8 @@ import {
 	UnauthorizedException,
 	CompanyNotFoundException,
 	Visibility,
+	JobType,
+	JobCreationFailedException,
 } from '../../libs';
 import { ErrorCode, ErrorMessage, BadRequestException } from '../../libs';
 import { ViewService } from '../view/view.service';
@@ -49,14 +51,48 @@ export class JobService {
 	 *******************************************************************************/
 	public async createJob(input: CreateJobInput, userId: string): Promise<JobOutput> {
 		const objUserId = shapeIntoMongoObjectId(userId);
+		console.log('--- @Service Job Input ---', input);
 		try {
 			let job;
-			// const isOwnerOfCompany = await this.companyService.checkOwnerOfCompany(input.companyId, userId.toString());
-			const isOwnerOfCompany: boolean = 4 === 4; // --- MOCKED FOR TESTING, REPLACE WITH ACTUAL CHECK ---
+			if (!input.companyId || input.companyId === '' || input.companyId === undefined) {
+				// --- if not owner or recruiter of company but solo recruiter (no company) allow to post job ---
+				const isSoloRecruiter = await this.companyService.checkIsSoloRecruiter(userId.toString());
+				if (!isSoloRecruiter) {
+					const { employmentType } = input;
+					if (
+						employmentType === JobType.FREELANCE ||
+						employmentType === JobType.MILESTONE ||
+						employmentType === JobType.VOLUNTEER
+					) {
+						job = await this.jobModel.create({
+							...input,
+							postedBy: objUserId,
+							viewsCount: 0,
+							applicationsCount: 0,
+						});
+						await this.socketGateway.broardcastUpdate('LandingLiveJobUpdates', await this.countLiveLandingPageJobs());
+						return this.mapToJobOutput(job);
+					}
+					throw new JobCreationFailedException(
+						'You can only post Freelance, Milestone or Volunteer jobs as a solo recruiter',
+						400,
+					);
+				}
+				console.log(isSoloRecruiter)
+				throw new UnauthorizedException(
+					'You must be associated with a company as an owner or recruiter to post a job',
+				);
+			}
+			console.log(input.companyId)
+			const isOwnerOfCompany = await this.companyService.checkOwnerOfCompany(
+				input.companyId!,
+				userId.toString(),
+			);
+			// const isOwnerOfCompany: boolean = 4 === 4; // --- MOCKED FOR TESTING, REPLACE WITH ACTUAL CHECK ---
 			switch (isOwnerOfCompany) {
 				case false:
 					const isRecruiterOfCompany = await this.companyService.checkRecruiterOfCompany(
-						input.companyId,
+						input.companyId!,
 						userId.toString(),
 					);
 					switch (isRecruiterOfCompany) {
@@ -67,6 +103,7 @@ export class JobService {
 								viewsCount: 0,
 								applicationsCount: 0,
 							});
+							await this.socketGateway.broardcastUpdate('LandingLiveJobUpdates', await this.countLiveLandingPageJobs());
 							return this.mapToJobOutput(job);
 						case false:
 							throw new CompanyNotFoundException({
@@ -76,7 +113,8 @@ export class JobService {
 				case true:
 					job = await this.jobModel.create({
 						...input,
-						postedBy: '6956695b099e1e17b86baa09', // --- MOCKED USER ID FOR TESTING, REPLACE WITH objUserId ---
+						// postedBy: '6956695b099e1e17b86baa09', // --- MOCKED USER ID FOR TESTING, REPLACE WITH objUserId ---
+						postedBy: objUserId,
 						viewsCount: 0,
 						applicationsCount: 0,
 					});
