@@ -357,15 +357,10 @@ export class JobFilterInput {
 	@IsEnum(JobLevel, { each: true })
 	seniorityLevels?: JobLevel[];
 
-	@Field({ nullable: true, description: 'Filter by city' })
+	@Field({ nullable: true, description: 'Filter by location' })
 	@IsOptional()
 	@IsString()
-	city?: string;
-
-	@Field({ nullable: true, description: 'Filter by country' })
-	@IsOptional()
-	@IsString()
-	country?: string;
+	location?: string;
 
 	@Field({ nullable: true, description: 'Filter remote jobs only' })
 	@IsOptional()
@@ -398,6 +393,44 @@ export class JobFilterInput {
 	@IsOptional()
 	@IsBoolean()
 	hasSalary?: boolean;
+
+	@Field(() => Int, { nullable: true, description: 'Filter by minimum salary' })
+	@IsOptional()
+	@IsNumber()
+	@Min(0)
+	minSalary?: number;
+
+	@Field(() => Int, { nullable: true, description: 'Filter by maximum salary' })
+	@IsOptional()
+	@IsNumber()
+	@Min(0)
+	maxSalary?: number;
+
+	// --- SORTING
+	@Field({ nullable: true, description: 'Filter jobs posted in the last 7 days' })
+	@IsOptional()
+	@IsBoolean()
+	recent?: boolean;
+
+	@Field({ nullable: true, description: 'Filter jobs with higher compensation' })
+	@IsOptional()
+	@IsBoolean()
+	higherCompensation?: boolean;
+
+	@Field({ nullable: true, description: 'Filter jobs with lower competition' })
+	@IsOptional()
+	@IsBoolean()
+	lowerCompetition?: boolean;
+
+	@Field({ nullable: true, description: 'Filter jobs with application deadline soon' })
+	@IsOptional()
+	@IsBoolean()
+	deadlineSoon?: boolean;
+
+	@Field({ nullable: true, description: 'Filter jobs that are a best match for the user' })
+	@IsOptional()
+	@IsBoolean()
+	bestMatch?: boolean;
 }
 
 /**

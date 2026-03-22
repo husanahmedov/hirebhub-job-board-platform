@@ -86,8 +86,8 @@ export class JobOutput {
 	@Field(() => ID, { description: 'Unique job identifier' })
 	_id: string;
 
-	@Field(() => ID, { description: 'Company ID' })
-	companyId: string;
+	@Field(() => ID, { description: 'Company ID', nullable: true })
+	companyId?: string;
 
 	@Field(() => CompanyOutput, {
 		nullable: true,

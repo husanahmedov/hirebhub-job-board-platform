@@ -78,16 +78,11 @@ export class JobService {
 						400,
 					);
 				}
-				console.log(isSoloRecruiter)
-				throw new UnauthorizedException(
-					'You must be associated with a company as an owner or recruiter to post a job',
-				);
+				console.log(isSoloRecruiter);
+				throw new UnauthorizedException('You must be associated with a company as an owner or recruiter to post a job');
 			}
-			console.log(input.companyId)
-			const isOwnerOfCompany = await this.companyService.checkOwnerOfCompany(
-				input.companyId!,
-				userId.toString(),
-			);
+			console.log(input.companyId);
+			const isOwnerOfCompany = await this.companyService.checkOwnerOfCompany(input.companyId!, userId.toString());
 			// const isOwnerOfCompany: boolean = 4 === 4; // --- MOCKED FOR TESTING, REPLACE WITH ACTUAL CHECK ---
 			switch (isOwnerOfCompany) {
 				case false:
@@ -146,7 +141,7 @@ export class JobService {
 	 * * the existing `getJobs` method to perform the retrieval, ensuring consistency in filtering, sorting, and pagination logic. Comprehensive error handling
 	 * * is included to manage potential issues during data retrieval.
 	 * *****************************************************************************/
-	public async getMainHomePageJobs(): Promise<PaginatedJobsOutput> {
+	public async getMainHomePageJobs(input?: GetJobsInput): Promise<PaginatedJobsOutput> {
 		console.log('--- @Service getMainHomePageJobs called ---');
 		return this.getJobs({
 			filter: {
@@ -158,8 +153,8 @@ export class JobService {
 				order: 'desc',
 			},
 			pagination: {
-				page: 1,
-				limit: 10,
+				page: input?.pagination?.page || 1,
+				limit: input?.pagination?.limit || 10,
 			},
 		});
 	}
@@ -175,7 +170,7 @@ export class JobService {
 	 *******************************************************************************/
 	public async getJobs(input: GetJobsInput = {}): Promise<PaginatedJobsOutput> {
 		const { filter = {}, sort = {}, pagination = {} } = input;
-		const { page = 1, limit = 20 } = pagination;
+		const { page = 1, limit = 10 } = pagination;
 		const skip = (page - 1) * limit;
 
 		const pipeline: PipelineStage[] = [];
@@ -219,11 +214,12 @@ export class JobService {
 		}
 
 		// Location filters
-		if (filter.city) {
-			matchStage['location.city'] = new RegExp(filter.city, 'i');
-		}
-		if (filter.country) {
-			matchStage['location.country'] = new RegExp(filter.country, 'i');
+		if (filter.location) {
+			// coulbe be city or country, we will check both
+			matchStage.$or = [
+				{ 'location.city': { $regex: filter.location, $options: 'i' } },
+				{ 'location.country': { $regex: filter.location, $options: 'i' } },
+			];
 		}
 		if (filter.remote !== undefined) {
 			matchStage['location.remote'] = filter.remote;
@@ -255,6 +251,17 @@ export class JobService {
 				matchStage.salaryRange = { $exists: true, $ne: null };
 			} else {
 				matchStage.$or = [{ salaryRange: { $exists: false } }, { salaryRange: null }];
+			}
+		}
+
+		// salary range filter
+		if (filter.minSalary !== undefined || filter.maxSalary !== undefined) {
+			matchStage.salaryRange = matchStage.salaryRange || {};
+			if (filter.minSalary !== undefined) {
+				matchStage.salaryRange['$gte'] = filter.minSalary;
+			}
+			if (filter.maxSalary !== undefined) {
+				matchStage.salaryRange['$lte'] = filter.maxSalary;
 			}
 		}
 
@@ -297,6 +304,46 @@ export class JobService {
 			sortStage[sort.field] = sort.order === 'asc' ? 1 : -1;
 		} else {
 			sortStage.createdAt = -1; // Default sort by newest
+		}
+
+		if (filter.recent) {
+			sortStage.createdAt = -1; // Ensure recent jobs are sorted by newest
+		}
+		if (filter.higherCompensation) {
+			sortStage['salaryRange.max'] = -1; // Sort by highest max salary
+		}
+		if (filter.lowerCompetition) {
+			sortStage.applicationsCount = 1; // Sort by lowest number of applications
+		}
+		if (filter.deadlineSoon) {
+			sortStage['applicationDeadline'] = 1; // Sort by soonest application deadline
+		}
+		if (filter.bestMatch) {
+			// For best match, we can create a composite score based on various factors (this is a simplified example)
+			pipeline.push({
+				$addFields: {
+					compositeScore: {
+						$add: [
+							{ $multiply: ['$viewsCount', 0.1] }, // Weight for views
+							{ $multiply: ['$applicationsCount', 0.3] }, // Weight for applications
+							{ $multiply: [{ $cond: [{ $gt: ['$salaryRange.max', 0] }, 1, 0] }, 0.2] }, // Weight for having salary info
+							{
+								$multiply: [
+									{ $cond: [{ $lte: ['$applicationDeadline', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)] }, 1, 0] },
+									0.2,
+								],
+							}, // Weight for upcoming deadline
+							{
+								$multiply: [
+									{ $cond: [{ $gt: ['$createdAt', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)] }, 1, 0] },
+									0.2,
+								],
+							}, // Weight for recent posting
+						],
+					},
+				},
+			});
+			sortStage.compositeScore = -1; // Sort by best match score
 		}
 
 		pipeline.push({ $sort: sortStage });
