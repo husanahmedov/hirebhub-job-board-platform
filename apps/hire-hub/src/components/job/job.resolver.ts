@@ -58,6 +58,33 @@ export class JobResolver {
 	}
 
 	/*****************************************************************************
+	 * [RESOLVER] GET MORE JOBS FROM THE SAME RECRUITER
+	 ****************************************************************************/
+	@UseGuards(WithoutGuard)
+	@Query(() => [JobOutput], {
+		name: 'MoreJobsFromThisRecruiter',
+		description: 'Get more jobs from the same recruiter',
+	})
+	public async getMoreJobsFromThisRecruiter(
+		@Args('jobId', { type: () => String }) jobId: string,
+	): Promise<JobOutput[]> {
+		return this.jobService.moreJobsFromThisRecruiter(jobId);
+	}
+
+	/*****************************************************************************
+	 * [RESOLVER] GET SIMILAR JOBS BASED ON SKILLS AND TITLE
+	 ****************************************************************************/
+	@UseGuards(WithoutGuard)
+	@Query(() => [JobOutput], {
+		name: 'getSimilarJobs',
+		description: 'Get similar jobs based on skills and title',
+	})
+	public async getSimilarJobs(@Args('jobId', { type: () => String }) jobId: string): Promise<JobOutput[]> {
+		console.log('--- @Query getSimilarJobs called ---');
+		return this.jobService.getSimilarJobs(jobId);
+	}
+
+	/*****************************************************************************
 	 * [RESOLVER] GET JOB STATISTICS
 	 ****************************************************************************/
 	@Roles(UserRole.RECRUITER, UserRole.ADMIN)

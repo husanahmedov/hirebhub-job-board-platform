@@ -1,0 +1,8 @@
+services:
+  hirehub-api:
+    stdin_open: true
+    tty: true
+
+  hirehub-batch:
+    stdin_open: true
+    tty: true

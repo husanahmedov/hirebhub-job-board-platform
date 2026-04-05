@@ -25,6 +25,7 @@ import { JOBS_AGGREGATION_PIPELINES, shapeIntoMongoObjectId } from '../../libs/c
 import { StatsModifier } from '../../libs/interfaces/common';
 import { CompanyService } from '../company/company.service';
 import { SocketGateway } from '../../socket/socket.gateway';
+import { application } from 'express';
 
 @Injectable()
 export class JobService {
@@ -196,6 +197,7 @@ export class JobService {
 		 ***/
 		const matchStage: any = {
 			deletedAt: null,
+			applicationDeadline: { $gte: new Date() }, // Only show jobs that have not passed the application deadline
 		};
 
 		// Company filter
@@ -462,6 +464,56 @@ export class JobService {
 		}
 
 		return this.mapToJobOutput(job);
+	}
+
+	/*****************************************************************************
+	 * [SERVICE] GET MORE JOBS FROM THE SAME RECRUITER
+	 * * This method retrieves additional job postings from the same recruiter who
+	 * * posted a specified job. It first fetches the original job to identify the recruiter,
+	 * * then queries the database for other jobs posted by the same recruiter, excluding
+	 * * the original job. The results are limited to a specified number of jobs. Comprehensive error handling
+	 * * is included to manage scenarios where the original job is not found or other issues arise during data retrieval.
+	 * *****************************************************************************/
+	public async moreJobsFromThisRecruiter(jobId: string): Promise<JobOutput[]> {
+		try {
+			const jobs = await this.jobModel
+				.find({
+					_id: { $ne: jobId },
+					postedBy: (await this.jobModel.findById(jobId))?.postedBy,
+					isPublished: true,
+					deletedAt: null,
+				})
+				.limit(5)
+				.lean();
+			return jobs.map((job) => this.mapToJobOutput(job));
+		} catch (error) {
+			return error;
+		}
+	}
+
+	/*****************************************************************************
+	 * [SERVICE] SIMILAR JOBS
+	 * * This method retrieves job postings that are similar to a specified job based on shared skills and similar titles.
+	 * * It first fetches the original job to identify its skills and title, then queries the database for other jobs that share at least one skill and have a similar title,
+	 * * excluding the original job. The results are limited to a specified number of jobs. Comprehensive error handling is included to manage scenarios where the original job is not found or other issues arise during data retrieval.
+	 * *****************************************************************************/
+	public async getSimilarJobs(jobId: string): Promise<JobOutput[]> {
+		try {
+			// todo - implement similarity logic based on job title, skills
+			const jobs = await this.jobModel
+				.find({
+					_id: { $ne: jobId },
+					skills: { $in: (await this.jobModel.findById(jobId))?.skills || [] },
+					isPublished: true,
+					deletedAt: null,
+					visibility: Visibility.PUBLIC,
+				})
+				.limit(5)
+				.lean();
+			return jobs.map((job) => this.mapToJobOutput(job));
+		} catch (error) {
+			return error;
+		}
 	}
 
 	/*****************************************************************************

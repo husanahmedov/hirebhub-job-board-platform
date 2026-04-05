@@ -1,0 +1,134 @@
+services:
+  hirehub-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: hirehub-api
+    init: true
+    user: '0:0'
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      HIREHUB_PORT: ${HIREHUB_PORT:-3000}
+      MONGO_DEV: mongodb+srv://mrdatabasecom_db_user:CCp5LjTc7P312vLJ@nest.nqraoau.mongodb.net/hirehub?retryWrites=true&w=majority&appName=hirehub
+      CHOKIDAR_USEPOLLING: 'true'
+      CHOKIDAR_INTERVAL: '250'
+      WATCHPACK_POLLING: 'true'
+      WATCHPACK_POLLING_INTERVAL: '250'
+      NPM_CONFIG_CACHE: /root/.npm
+    ports:
+      - '${HIREHUB_PORT:-3000}:${HIREHUB_PORT:-3000}'
+      - '9229:9229'
+    volumes:
+      - ./:/usr/src/hirehub
+      - hirehub_node_modules:/usr/src/hirehub/node_modules
+      - hirehub_npm_cache:/root/.npm
+    working_dir: /usr/src/hirehub
+    command: sh -c "if [ ! -d node_modules ] || [ ! -f node_modules/.package-lock-hash ] || ! cmp -s package-lock.json node_modules/.package-lock-hash; then npm ci && cp package-lock.json node_modules/.package-lock-hash; fi && npm run start:dev"
+    depends_on:
+      hirehub-mongo:
+        condition: service_healthy
+      hirehub-redis:
+        condition: service_started
+    networks:
+      - hirehub_network
+
+  hirehub-batch:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: hirehub-batch
+    init: true
+    user: '0:0'
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      HIREHUB_BATCH_PORT: ${HIREHUB_BATCH_PORT:-3001}
+      MONGO_DEV: mongodb://hirehub-mongo:27017/hirehub-dev
+      CHOKIDAR_USEPOLLING: 'true'
+      CHOKIDAR_INTERVAL: '250'
+      WATCHPACK_POLLING: 'true'
+      WATCHPACK_POLLING_INTERVAL: '250'
+      NPM_CONFIG_CACHE: /root/.npm
+    ports:
+      - '${HIREHUB_BATCH_PORT:-3001}:${HIREHUB_BATCH_PORT:-3001}'
+    volumes:
+      - ./:/usr/src/hirehub
+      - hirehub_node_modules:/usr/src/hirehub/node_modules
+      - hirehub_npm_cache:/root/.npm
+    working_dir: /usr/src/hirehub
+    command: sh -c "if [ ! -d node_modules ] || [ ! -f node_modules/.package-lock-hash ] || ! cmp -s package-lock.json node_modules/.package-lock-hash; then npm ci && cp package-lock.json node_modules/.package-lock-hash; fi && npm run start:dev:batch"
+    depends_on:
+      hirehub-mongo:
+        condition: service_healthy
+      hirehub-redis:
+        condition: service_started
+    networks:
+      - hirehub_network
+
+  hirehub-mongo:
+    image: mongo:7.0
+    container_name: hirehub-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: hirehub-dev
+    ports:
+      - '27017:27017'
+    volumes:
+      - hirehub_mongo_data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - hirehub_network
+
+  hirehub-redis:
+    image: redis:7-alpine
+    container_name: hirehub-redis
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    ports:
+      - '6379:6379'
+    volumes:
+      - hirehub_redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - hirehub_network
+
+  hirehub-mongo-express:
+    image: mongo-express:1.0.2
+    container_name: hirehub-mongo-express
+    restart: unless-stopped
+    environment:
+      ME_CONFIG_MONGODB_SERVER: hirehub-mongo
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_BASICAUTH: 'false'
+    ports:
+      - '8082:8081'
+    depends_on:
+      hirehub-mongo:
+        condition: service_healthy
+    networks:
+      - hirehub_network
+
+volumes:
+  hirehub_node_modules:
+  hirehub_npm_cache:
+  hirehub_mongo_data:
+  hirehub_redis_data:
+
+networks:
+  hirehub_network:
+    driver: bridge
